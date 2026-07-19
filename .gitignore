@@ -25,3 +25,8 @@ dist-ssr
 # IDE local state
 .codebuddy/
 .trae/
+
+# Local env (Supabase keys etc.)
+.env
+.env.local
+.env.*.local
