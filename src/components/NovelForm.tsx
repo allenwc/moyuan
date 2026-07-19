@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Novel, NovelInput, ThemeColor } from "@/types";
 import { THEME_PALETTES, cn } from "@/lib/utils";
 
@@ -28,6 +28,14 @@ export function NovelForm({
     initial?.themeColor ?? "vermillion",
   );
   const [touched, setTouched] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // 在弹窗滑入动画稳定后聚焦书名输入框，确保焦点落在顶部 title
+    // 而不是被滚动/动画时序影响落到底部字段。
+    const id = requestAnimationFrame(() => titleRef.current?.focus());
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   useEffect(() => {
     if (initial) {
@@ -61,7 +69,7 @@ export function NovelForm({
             书名 · TITLE
           </label>
           <input
-            autoFocus
+            ref={titleRef}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder={`例：${example.title}`}

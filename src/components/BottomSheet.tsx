@@ -24,6 +24,7 @@ export function BottomSheet({
   className,
 }: BottomSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -33,6 +34,16 @@ export function BottomSheet({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) return;
+    // 弹窗从底部滑入时，把内容滚动位置重置到顶部，
+    // 避免初始滚动停在底部导致顶部的 title 被顶出视口。
+    const id = requestAnimationFrame(() => {
+      if (contentRef.current) contentRef.current.scrollTop = 0;
+    });
+    return () => cancelAnimationFrame(id);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -87,7 +98,10 @@ export function BottomSheet({
             </button>
           </div>
         )}
-        <div className="px-5 pb-2 overflow-y-auto flex-1 no-scrollbar">
+        <div
+          ref={contentRef}
+          className="px-5 pb-2 overflow-y-auto flex-1 no-scrollbar"
+        >
           {children}
         </div>
         {footer && (
