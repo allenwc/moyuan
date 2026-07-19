@@ -1,0 +1,23 @@
+{
+  "name": "moyuan-skill",
+  "version": "0.1.0",
+  "description": "墨缘 (Moyuan) agent skill: maintain novel character-relationship graphs via the 墨剑 CLI / REST API",
+  "type": "module",
+  "bin": {
+    "moyuan-skill": "./install.mjs"
+  },
+  "files": [
+    "SKILL.md",
+    "references",
+    "scripts",
+    "install.mjs"
+  ],
+  "keywords": [
+    "codebuddy",
+    "agent-skill",
+    "moyuan",
+    "novel",
+    "character-graph"
+  ],
+  "license": "UNLICENSED"
+}

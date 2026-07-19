@@ -3,15 +3,22 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "packages/*",
+    "cli"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "check": "tsc -b --noEmit"
+    "check": "tsc -b --noEmit",
+    "cli": "tsx cli/src/index.ts"
   },
   "dependencies": {
+    "@moyuan/core": "*",
     "@supabase/supabase-js": "^2.110.7",
+    "hono": "^4.6.0",
     "clsx": "^2.1.1",
     "html-to-image": "^1.11.11",
     "lucide-react": "^0.511.0",
@@ -35,6 +42,7 @@
     "globals": "^16.0.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.30.1",
     "vite": "^6.3.5",

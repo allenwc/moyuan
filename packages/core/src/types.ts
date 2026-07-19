@@ -1,0 +1,85 @@
+// 领域类型：前端、API、CLI 共享，不依赖任何运行环境（无 import.meta.env）。
+
+export type ThemeColor =
+  | "ink"
+  | "vermillion"
+  | "gold"
+  | "moss"
+  | "indigo"
+  | "plum";
+
+export type RelationType =
+  | "kin"
+  | "friend"
+  | "enemy"
+  | "master"
+  | "lover"
+  | "master-servant"
+  | "sect"
+  | "other";
+
+export type Direction = "one-way" | "mutual";
+
+export interface Novel {
+  id: string;
+  title: string;
+  author: string;
+  synopsis: string;
+  themeColor: ThemeColor;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface Character {
+  id: string;
+  novelId: string;
+  name: string;
+  alias?: string;
+  role: string;
+  faction: string;
+  color: string;
+  note: string;
+  x: number;
+  y: number;
+  createdAt: number;
+}
+
+export interface Relation {
+  id: string;
+  novelId: string;
+  sourceId: string;
+  targetId: string;
+  type: RelationType;
+  direction: Direction;
+  note: string;
+  createdAt: number;
+}
+
+/** 创建小说时由调用方提供的字段 */
+export interface NovelInput {
+  title: string;
+  author?: string;
+  synopsis?: string;
+  themeColor?: ThemeColor;
+}
+
+/** 创建角色时由调用方提供的字段 */
+export interface CharacterInput {
+  name: string;
+  alias?: string;
+  role: string;
+  faction: string;
+  color: string;
+  note: string;
+  x: number;
+  y: number;
+}
+
+/** 创建关系时由调用方提供的字段 */
+export interface RelationInput {
+  sourceId: string;
+  targetId: string;
+  type: RelationType;
+  direction: Direction;
+  note: string;
+}

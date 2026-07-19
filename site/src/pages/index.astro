@@ -1,0 +1,60 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="墨缘 · 小说人物关系图谱">
+  <section class="hero">
+    <div class="container">
+      <div class="kicker">Novel Character Graph</div>
+      <h1>墨缘</h1>
+      <p class="lead">
+        把小说里的人物与关系画成一张可拖拽、可沉淀的图谱。从《红楼梦》到《冰与火之歌》，
+        让复杂的人物脉络一眼看清，也让 AI Agent 能直接读懂并改写你的故事宇宙。
+      </p>
+      <div class="actions">
+        <a class="btn btn-primary" href="https://moyuan.vercel.app" target="_blank"
+          >打开应用</a
+        >
+        <a class="btn btn-ghost" href="/agent">给 Agent 用 ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container">
+    <div class="features">
+      <div class="card">
+        <h3>可视化关系</h3>
+        <p>角色即节点，关系即连线。拖拽布局、配色分组，复杂家族与阵营一目了然。</p>
+      </div>
+      <div class="card">
+        <h3>云端沉淀</h3>
+        <p>基于 Supabase 实时保存，刷新不丢、跨设备同步，专注于创作本身。</p>
+      </div>
+      <div class="card">
+        <h3>对外 API</h3>
+        <p>同一套数据暴露为 REST API，可被脚本、CI 与第三方应用调用。</p>
+      </div>
+      <div class="card">
+        <h3>Agent 友好</h3>
+        <p>内置标准 agent skill 与 CLI，让 AI 直接增删角色、梳理关系、对账整图。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>从一张图，到一个故事宇宙</h2>
+      <p class="muted">
+        在浏览器里自由搭建人物关系；当你需要批量整理、与外部数据打通、或交给 AI
+        协同创作时，墨缘的 CLI 与 API 让这一切变得可编程。
+      </p>
+      <div class="callout">
+        想让你的 AI 助手直接操作墨缘？前往
+        <a href="/agent">Agent 用法</a>，几行配置即可获得一个可调用的小说图谱工具。
+      </div>
+      <p>
+        <a class="btn btn-primary" href="/agent">查看 Agent 集成</a>
+      </p>
+    </div>
+  </section>
+</Base>

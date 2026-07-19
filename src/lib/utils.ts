@@ -6,13 +6,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-let counter = 0;
-export function uid(prefix = "id"): string {
-  counter += 1;
-  const t = Date.now().toString(36);
-  const r = Math.random().toString(36).slice(2, 8);
-  return `${prefix}_${t}_${r}_${counter.toString(36)}`;
-}
+// uid 现由 @moyuan/core 提供，前端与 API/CLI 共用同一实现
+export { uid } from "@moyuan/core";
 
 export function formatTime(ts: number): string {
   if (!ts) return "—";

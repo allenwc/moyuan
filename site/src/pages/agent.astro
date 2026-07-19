@@ -1,0 +1,87 @@
+---
+import Base from "../layouts/Base.astro";
+
+// 代码块以字符串形式渲染，避免 Astro 把 JSON 里的 { } 当成表达式解析。
+const reconcileExample = `// graph.json
+{
+  "novel": { "title": "红楼梦", "author": "曹雪芹" },
+  "characters": [
+    { "name": "贾宝玉", "role": "公子", "faction": "荣国府", "x": 0, "y": 0, "color": "#a8322d" },
+    { "name": "林黛玉", "role": "孤女", "faction": "荣国府", "x": 200, "y": 0, "color": "#3f6f4f" }
+  ],
+  "relations": [
+    { "sourceId": "<宝玉id>", "targetId": "<黛玉id>", "type": "lover", "direction": "mutual" }
+  ]
+}
+
+moyuan reconcile <novelId> --file graph.json`;
+---
+
+<Base
+  title="Agent 用法 · 墨缘"
+  description="用墨缘 CLI 与 agent skill 让 AI 直接操作小说人物关系图谱"
+>
+  <section class="section">
+    <div class="container">
+      <h2>让 AI 直接操作你的小说图谱</h2>
+      <p class="muted">
+        墨缘对外提供 REST API，并附带一个 墨缘 CLI 与标准 agent skill。
+        你的 AI 助手（CodeBuddy / Cursor / Claude 等）装上 skill 后，就能创建小说、
+        增删角色与关系、读取整图，或把一整张图谱状态批量对账到云端。
+      </p>
+
+      <h3>1. 配置</h3>
+      <p>CLI 通过两个环境变量定位并鉴权 API：</p>
+      <pre><code>export MOYUAN_API_URL="https://&lt;你的vercel域名&gt;/api"
+export MOYUAN_API_KEY="&lt;服务端配置的 MOYUAN_API_KEY&gt;"</code></pre>
+      <div class="callout">
+        本仓库使用 npm workspaces。在仓库根目录执行 <code>npm install</code> 后即可通过
+        <code>npm run cli -- &lt;子命令&gt;</code> 调用，或全局安装后使用
+        <code>moyuan</code> 命令。
+      </div>
+
+      <h3>2. 常用命令</h3>
+      <table>
+        <thead>
+          <tr><th>命令</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>moyuan novel list</code></td><td>列出全部小说</td></tr>
+          <tr><td><code>moyuan novel create --title "红楼梦" --author "曹雪芹"</code></td><td>新建小说</td></tr>
+          <tr><td><code>moyuan novel get &lt;id&gt;</code></td><td>读取一本小说的完整图谱</td></tr>
+          <tr>
+            <td><code>moyuan character add &lt;novelId&gt; --name 贾宝玉 --role 公子 --faction 荣国府</code>
+          </td><td>新增角色</td></tr>
+          <tr>
+            <td><code>moyuan relation add &lt;novelId&gt; --source &lt;id&gt; --target &lt;id&gt; --type kin</code>
+          </td><td>新增关系</td></tr>
+          <tr><td><code>moyuan graph &lt;id&gt;</code></td><td>输出整图 JSON</td></tr>
+          <tr><td><code>moyuan reconcile &lt;id&gt; --file graph.json</code></td><td>批量对账整图</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3. 批量对账（最可靠的方式）</h3>
+      <p>
+        把整本小说的完整状态写成 JSON，通过 <code>reconcile</code> 一次性提交：
+      </p>
+      <pre><code>{reconcileExample}</code></pre>
+      <p>
+        小说不存在时会自动创建；已存在的行会被 upsert，云端多余的行会被删除，
+        从而保证本地与云端完全一致。
+      </p>
+
+      <h3>4. 作为 agent skill 使用</h3>
+      <p>
+        仓库内已内置标准 skill（<code>.codebuddy/skills/moyuan/</code>）。AI 客户端加载后，
+        即可在对话中直接说“给《红楼梦》加一个角色薛宝钗”，由 skill 调用 CLI 完成。
+        完整端点与字段说明见
+        <a href="https://github.com/" target="_blank" rel="noreferrer">API 参考</a>。
+      </p>
+
+      <div class="callout">
+        安全提示：API 使用 <code>service_role</code> 直连 Supabase，可写全库。
+        仅限应用所有者或受信任的 Agent 使用，<code>MOYUAN_API_KEY</code> 切勿写入前端或暴露给公网。
+      </div>
+    </div>
+  </section>
+</Base>
