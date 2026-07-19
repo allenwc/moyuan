@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #f5efe2;
+  --paper-deep: #ebe3d2;
+  --paper-shade: #ddd2bc;
+  --paper-soft: #faf6ec;
+  --ink: #1f1b16;
+  --ink-soft: #3a3530;
+  --ink-mute: #6b6359;
+  --ink-wash: #a39a8b;
+  --vermillion: #a8322d;
+  --gold: #a3824a;
+
+  font-family: "Noto Sans SC", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--ink);
+  background-color: var(--paper);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(circle at 18% 22%, rgba(122, 98, 53, 0.05) 0, transparent 42%),
+    radial-gradient(circle at 82% 78%, rgba(168, 50, 45, 0.04) 0, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(31, 27, 22, 0.015) 0, transparent 60%);
+  background-attachment: fixed;
+  overscroll-behavior-y: none;
+  touch-action: manipulation;
+}
+
+/* paper grain noise overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.10 0 0 0 0 0.08 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(31, 27, 22, 0.18);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(31, 27, 22, 0.32);
+}
+
+/* ===== Typographic primitives ===== */
+.font-display {
+  font-family: "Cormorant Garamond", "Noto Serif SC", Georgia, serif;
+  font-feature-settings: "liga" 1, "kern" 1;
+}
+
+.font-song {
+  font-family: "Noto Serif SC", "Cormorant Garamond", serif;
+}
+
+.font-brush {
+  font-family: "Ma Shan Zheng", "Noto Serif SC", serif;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* ===== Components ===== */
+@layer components {
+  .paper-card {
+    @apply relative bg-paper-soft border border-ink/10 rounded-[2px] shadow-paper transition-all duration-300;
+  }
+
+  .ink-line {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-ink/30 to-transparent;
+  }
+
+  .seal {
+    @apply inline-flex items-center justify-center rounded-[2px] bg-vermillion text-paper-soft font-song font-semibold;
+    box-shadow: 0 0 0 1px rgba(168, 50, 45, 0.18),
+      0 6px 18px -6px rgba(168, 50, 45, 0.32);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 h-10 rounded-[2px] border border-ink/15 bg-transparent text-ink text-sm tracking-editorial transition-all duration-200 hover:bg-ink/5 active:scale-[0.98];
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 h-10 rounded-[2px] bg-vermillion text-paper-soft text-sm tracking-editorial transition-all duration-200 hover:bg-vermillion-deep active:scale-[0.98];
+    box-shadow: 0 0 0 1px rgba(168, 50, 45, 0.2),
+      0 6px 18px -6px rgba(168, 50, 45, 0.32);
+  }
+
+  .btn-icon {
+    @apply inline-flex items-center justify-center w-10 h-10 rounded-[2px] border border-ink/10 bg-paper-soft text-ink transition-all duration-200 hover:bg-ink/5 active:scale-95;
+  }
+
+  .field-line {
+    @apply w-full bg-transparent border-0 border-b border-ink/20 px-0 py-2 text-ink placeholder:text-ink/35 focus:outline-none focus:border-vermillion transition-colors duration-200;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 px-2.5 h-6 rounded-[2px] border border-ink/15 text-[11px] tracking-editorial text-ink-mute;
+  }
+
+  .divider-dot {
+    @apply inline-block w-1 h-1 rounded-full bg-ink/25 mx-2;
+  }
+}
+
+/* ===== Utility ===== */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+}
+.safe-top {
+  padding-top: max(env(safe-area-inset-top), 0px);
+}
+
+/* line clamp helpers */
+.clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* selection */
+::selection {
+  background: rgba(168, 50, 45, 0.18);
+  color: var(--ink);
+}
+
+/* canvas no callout */
+.canvas-area,
+.canvas-area * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
