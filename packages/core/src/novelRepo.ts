@@ -3,6 +3,7 @@ import type {
   Character,
   CharacterInput,
   Direction,
+  Gender,
   Novel,
   NovelInput,
   Relation,
@@ -43,6 +44,7 @@ interface CharacterRow {
   faction: string;
   color: string;
   note: string;
+  gender: string | null;
   x: number;
   y: number;
   created_at: number;
@@ -92,6 +94,7 @@ function rowToCharacter(r: CharacterRow): Character {
     alias: r.alias ?? undefined,
     role: r.role,
     faction: r.faction,
+    gender: (r.gender as Gender) ?? undefined,
     color: r.color,
     note: r.note,
     x: Number(r.x),
@@ -108,6 +111,7 @@ function characterToRow(c: Character): CharacterRow {
     alias: c.alias ?? null,
     role: c.role,
     faction: c.faction,
+    gender: c.gender ?? null,
     color: c.color,
     note: c.note,
     x: c.x,
@@ -280,6 +284,7 @@ export async function addCharacter(
     alias: input.alias?.trim() || undefined,
     role: input.role,
     faction: input.faction,
+    gender: input.gender ?? null,
     color: input.color,
     note: input.note,
     x: input.x,
@@ -304,6 +309,7 @@ export async function updateCharacter(
   if (patch.alias !== undefined) row.alias = patch.alias.trim() || null;
   if (patch.role !== undefined) row.role = patch.role;
   if (patch.faction !== undefined) row.faction = patch.faction;
+  if (patch.gender !== undefined) row.gender = patch.gender ?? null;
   if (patch.color !== undefined) row.color = patch.color;
   if (patch.note !== undefined) row.note = patch.note;
   if (patch.x !== undefined) row.x = patch.x;

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import type { Character, Relation } from "@/types";
+import type { Character, Gender, Relation } from "@/types";
 import {
   CHARACTER_COLOR_PRESETS,
+  CHARACTER_GENDERS,
   CHARACTER_ROLES,
   cn,
   getRelationMeta,
 } from "@/lib/utils";
+import { GenderShape, getGenderShape } from "@/lib/GenderShape";
 import { BottomSheet } from "@/components/BottomSheet";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Trash2, ArrowRight, ArrowLeftRight } from "lucide-react";
@@ -36,6 +38,7 @@ export function CharacterPanel({
   const [role, setRole] = useState("");
   const [faction, setFaction] = useState("");
   const [color, setColor] = useState("");
+  const [gender, setGender] = useState<Gender | undefined>(undefined);
   const [note, setNote] = useState("");
   const [dirty, setDirty] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -47,6 +50,7 @@ export function CharacterPanel({
       setRole(character.role);
       setFaction(character.faction);
       setColor(character.color);
+      setGender(character.gender);
       setNote(character.note);
       setDirty(false);
     }
@@ -60,6 +64,7 @@ export function CharacterPanel({
     if (patch.role !== undefined) setRole(patch.role);
     if (patch.faction !== undefined) setFaction(patch.faction);
     if (patch.color !== undefined) setColor(patch.color);
+    if ("gender" in patch) setGender(patch.gender);
     if (patch.note !== undefined) setNote(patch.note);
     setDirty(true);
   };
@@ -82,6 +87,7 @@ export function CharacterPanel({
       role,
       faction,
       color,
+      gender,
       note,
     });
     onClose();
@@ -122,12 +128,45 @@ export function CharacterPanel({
           <label className="text-[11px] tracking-seal text-ink-mute uppercase">
             姓名 · NAME
           </label>
-          <input
-            value={name}
-            onChange={(e) => update({ name: e.target.value })}
-            placeholder="例：林黛玉"
-            className="field-line font-song text-lg"
-          />
+          <div className="flex items-center gap-3 mt-1">
+            <input
+              value={name}
+              onChange={(e) => update({ name: e.target.value })}
+              placeholder="例：林黛玉"
+              className="field-line font-song text-lg flex-1 min-w-0"
+            />
+            <div className="flex gap-1.5 shrink-0">
+              {[
+                ...CHARACTER_GENDERS,
+                { key: undefined, label: "未知", color: "#6b6359" },
+              ].map((g) => {
+                const selected = gender === g.key;
+                return (
+                  <button
+                    key={g.label}
+                    type="button"
+                    title={g.label}
+                    onClick={() => update({ gender: g.key })}
+                    className={cn(
+                      "flex items-center gap-1 px-2.5 h-9 rounded-[3px] border transition-all duration-150",
+                      selected
+                        ? "bg-ink text-paper-soft border-ink"
+                        : "border-ink/15 text-ink-mute hover:bg-ink/5",
+                    )}
+                  >
+                    <GenderShape
+                      shape={getGenderShape(g.key)}
+                      r={5}
+                      fill={selected ? "#faf6ec" : g.color}
+                      stroke="none"
+                      strokeWidth={0}
+                    />
+                    {g.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">

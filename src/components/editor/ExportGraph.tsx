@@ -2,7 +2,8 @@ import { forwardRef, useMemo } from "react";
 import type { Character, Relation } from "@/types";
 import { getRelationMeta } from "@/lib/utils";
 import { computeBounds } from "@/lib/layout";
-import { NODE_RADIUS } from "./CharacterNode";
+import { getNodeRadius } from "@/lib/utils";
+import { GenderShape, getGenderShape } from "@/lib/GenderShape";
 
 interface ExportGraphProps {
   characters: Character[];
@@ -192,10 +193,12 @@ export const ExportGraph = forwardRef<SVGSVGElement, ExportGraphProps>(
             const dist = Math.hypot(dx, dy) || 1;
             const ux = dx / dist;
             const uy = dy / dist;
-            const sx = source.x + ux * NODE_RADIUS;
-            const sy = source.y + uy * NODE_RADIUS;
-            const ex = target.x - ux * (NODE_RADIUS + 6);
-            const ey = target.y - uy * (NODE_RADIUS + 6);
+            const sr = getNodeRadius(source.role);
+            const tr = getNodeRadius(target.role);
+            const sx = source.x + ux * sr;
+            const sy = source.y + uy * sr;
+            const ex = target.x - ux * (tr + 6);
+            const ey = target.y - uy * (tr + 6);
             const mx = (sx + ex) / 2;
             const my = (sy + ey) / 2;
             return (
@@ -259,9 +262,12 @@ export const ExportGraph = forwardRef<SVGSVGElement, ExportGraphProps>(
         {/* characters */}
         <g>
           {characters.map((c) => {
+            const r = getNodeRadius(c.role);
+            const glyphSize = Math.max(12, Math.round(r * 0.72));
+            const shape = getGenderShape(c.gender);
             const textColorInner = (() => {
               const hex = c.color.replace("#", "");
-              if (hex.length !== 6) return "#1f1b16";
+              if (hex.length !== 6) return "#faf6ec";
               const r0 = parseInt(hex.slice(0, 2), 16);
               const g0 = parseInt(hex.slice(2, 4), 16);
               const b0 = parseInt(hex.slice(4, 6), 16);
@@ -272,19 +278,21 @@ export const ExportGraph = forwardRef<SVGSVGElement, ExportGraphProps>(
               <g key={`n-${c.id}`} transform={`translate(${c.x}, ${c.y})`} filter="url(#export-shadow)">
                 <ellipse
                   cx={0}
-                  cy={NODE_RADIUS + 5}
-                  rx={NODE_RADIUS * 0.75}
+                  cy={r + 5}
+                  rx={r * 0.75}
                   ry={3}
                   fill="rgba(31,27,22,0.18)"
                 />
-                <circle
-                  r={NODE_RADIUS}
+                <GenderShape
+                  shape={shape}
+                  r={r}
                   fill={c.color}
-                  stroke="rgba(245,239,226,0.45)"
+                  stroke="rgba(245,239,226,0.55)"
                   strokeWidth={1.2}
                 />
-                <circle
-                  r={NODE_RADIUS - 5}
+                <GenderShape
+                  shape={shape}
+                  r={r - 5}
                   fill="none"
                   stroke="rgba(245,239,226,0.3)"
                   strokeWidth={0.8}
@@ -293,14 +301,20 @@ export const ExportGraph = forwardRef<SVGSVGElement, ExportGraphProps>(
                   textAnchor="middle"
                   dominantBaseline="central"
                   fontFamily='"Noto Serif SC", serif'
-                  fontSize={20}
+                  fontSize={glyphSize}
                   fontWeight={700}
                   fill={textColorInner}
                 >
                   {c.name.slice(0, 1)}
                 </text>
+                {c.alias && (
+                  <g transform={`translate(${r - 2}, ${-r + 4})`}>
+                    <circle r={6} fill="#a3824a" stroke="#faf6ec" strokeWidth={1} />
+                    <text textAnchor="middle" dominantBaseline="central" fontFamily='"Noto Serif SC", serif' fontSize={7} fill="#faf6ec">别</text>
+                  </g>
+                )}
                 {includeLabels && (
-                  <g transform={`translate(0, ${NODE_RADIUS + 16})`}>
+                  <g transform={`translate(0, ${r + 16})`}>
                     <text
                       textAnchor="middle"
                       fontFamily='"Noto Serif SC", serif'

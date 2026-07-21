@@ -1,7 +1,9 @@
 import { memo } from "react";
 import type { Character } from "@/types";
+import { getNodeRadius } from "@/lib/utils";
+import { GenderShape, getGenderShape } from "@/lib/GenderShape";
 
-export const NODE_RADIUS = 28;
+export const NODE_RADIUS = 36;
 
 interface CharacterNodeProps {
   character: Character;
@@ -30,8 +32,10 @@ function CharacterNodeImpl({
   connectingFrom,
   showLabel,
 }: CharacterNodeProps) {
-  const label = character.color;
-  const textColor = getLabelColor(label);
+  const r = getNodeRadius(character.role);
+  const glyphSize = Math.max(12, Math.round(r * 0.72));
+  const shape = getGenderShape(character.gender);
+  const textColor = getLabelColor(character.color);
   const firstChar = character.name.slice(0, 1);
   const opacity = dimmed ? 0.32 : 1;
 
@@ -44,66 +48,70 @@ function CharacterNodeImpl({
     >
       {/* halo for selected */}
       {selected && (
-        <circle
-          r={NODE_RADIUS + 8}
+        <GenderShape
+          shape={shape}
+          r={r + 8}
           fill="none"
           stroke="#a8322d"
           strokeWidth={1.2}
-          opacity={0.5}
-          strokeDasharray="2 3"
+          style={{ strokeDasharray: "2 3" }}
           className="animate-breathe"
         />
       )}
       {/* drop shadow */}
       <ellipse
         cx={0}
-        cy={NODE_RADIUS + 6}
-        rx={NODE_RADIUS * 0.8}
+        cy={r + 6}
+        rx={r * 0.8}
         ry={4}
         fill="rgba(31,27,22,0.18)"
         filter="blur(2px)"
       />
       {/* connecting-from pulse */}
       {connectingFrom && (
-        <circle
-          r={NODE_RADIUS + 14}
+        <GenderShape
+          shape={shape}
+          r={r + 14}
           fill="none"
           stroke="#a8322d"
           strokeWidth={2}
-          opacity={0.4}
+          style={{ opacity: 0.4 }}
           className="animate-breathe"
         />
       )}
       {/* highlighted ring */}
       {highlighted && (
-        <circle
-          r={NODE_RADIUS + 4}
+        <GenderShape
+          shape={shape}
+          r={r + 4}
           fill="none"
           stroke="#a3824a"
           strokeWidth={1.4}
-          opacity={0.7}
+          style={{ opacity: 0.7 }}
         />
       )}
-      {/* main body */}
-      <circle
-        r={NODE_RADIUS}
-        fill={label}
-        stroke={selected ? "#1f1b16" : "rgba(245,239,226,0.45)"}
+      {/* main body：形状代表性别，填充色为角色自选色 */}
+      <GenderShape
+        shape={shape}
+        r={r}
+        fill={character.color}
+        stroke={selected ? "#1f1b16" : "rgba(245,239,226,0.55)"}
         strokeWidth={selected ? 1.5 : 1.2}
       />
       {/* inner ring */}
-      <circle
-        r={NODE_RADIUS - 5}
+      <GenderShape
+        shape={shape}
+        r={r - 5}
         fill="none"
         stroke="rgba(245,239,226,0.32)"
         strokeWidth={0.8}
       />
-      {/* glyph */}
+      {/* glyph：人物姓名首字 */}
       <text
         textAnchor="middle"
         dominantBaseline="central"
         fontFamily='"Noto Serif SC", serif'
-        fontSize={20}
+        fontSize={glyphSize}
         fontWeight={700}
         fill={textColor}
         style={{ pointerEvents: "none" }}
@@ -112,7 +120,7 @@ function CharacterNodeImpl({
       </text>
       {/* alias small marker */}
       {character.alias && (
-        <g transform={`translate(${NODE_RADIUS - 2}, ${-NODE_RADIUS + 4})`}>
+        <g transform={`translate(${r - 2}, ${-r + 4})`}>
           <circle r={6} fill="#a3824a" stroke="#faf6ec" strokeWidth={1} />
           <text
             textAnchor="middle"
@@ -127,7 +135,7 @@ function CharacterNodeImpl({
         </g>
       )}
       {showLabel && (
-        <g transform={`translate(0, ${NODE_RADIUS + 14})`} style={{ pointerEvents: "none" }}>
+        <g transform={`translate(0, ${r + 14})`} style={{ pointerEvents: "none" }}>
           <text
             textAnchor="middle"
             fontFamily='"Noto Serif SC", serif'

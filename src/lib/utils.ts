@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { RelationType, ThemeColor } from "@/types";
+import type { Gender, RelationType, ThemeColor } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -139,6 +139,32 @@ export const CHARACTER_ROLES = [
   "叙述者",
   "其他",
 ];
+
+// ---------- 性别 ----------
+// 可选：男 / 女；不选（undefined）表示中性。形状由 src/lib/GenderShape 决定。
+export const CHARACTER_GENDERS: {
+  key: Gender;
+  label: string;
+  glyph: string;
+  color: string;
+}[] = [
+  { key: "male", label: "男", glyph: "男", color: "#2f4858" },
+  { key: "female", label: "女", glyph: "女", color: "#7a3b52" },
+];
+
+// ---------- 身份对应的节点半径 ----------
+// 主角最大、重要配角次之、配角明显更小；其他身份与主角同大。
+// 重要配角与配角的半径差刻意拉大，保证大小区分一目了然。
+export const ROLE_RADIUS: Record<string, number> = {
+  主角: 36,
+  重要配角: 24,
+  配角: 15,
+};
+
+/** 根据身份返回人物节点半径（默认与主角同大） */
+export function getNodeRadius(role: string): number {
+  return ROLE_RADIUS[role] ?? 36;
+}
 
 export const CHARACTER_COLOR_PRESETS = [
   "#a8322d",

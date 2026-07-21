@@ -4,6 +4,7 @@ export type {
   ThemeColor,
   RelationType,
   Direction,
+  Gender,
   Novel,
   Character,
   Relation,

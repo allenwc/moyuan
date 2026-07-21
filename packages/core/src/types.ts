@@ -20,6 +20,8 @@ export type RelationType =
 
 export type Direction = "one-way" | "mutual";
 
+export type Gender = "male" | "female";
+
 export interface Novel {
   id: string;
   title: string;
@@ -37,6 +39,7 @@ export interface Character {
   alias?: string;
   role: string;
   faction: string;
+  gender?: Gender;
   color: string;
   note: string;
   x: number;
@@ -69,6 +72,7 @@ export interface CharacterInput {
   alias?: string;
   role: string;
   faction: string;
+  gender?: Gender;
   color: string;
   note: string;
   x: number;

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { Character, Viewport } from "@/types";
 import { computeBounds } from "@/lib/layout";
-import { NODE_RADIUS } from "./CharacterNode";
+import { getNodeRadius } from "@/lib/utils";
 
 interface MiniMapProps {
   characters: Character[];
@@ -87,7 +87,7 @@ export function MiniMap({
                 key={c.id}
                 cx={p.x}
                 cy={p.y}
-                r={Math.max(1.4, NODE_RADIUS * sx * 0.4)}
+                r={Math.max(1.4, getNodeRadius(c.role) * sx * 0.4)}
                 fill={c.color}
                 opacity={0.85}
               />

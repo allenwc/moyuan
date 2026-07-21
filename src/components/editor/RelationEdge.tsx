@@ -1,7 +1,7 @@
 import { memo } from "react";
 import type { Character, Relation } from "@/types";
 import { getRelationMeta } from "@/lib/utils";
-import { NODE_RADIUS } from "./CharacterNode";
+import { getNodeRadius } from "@/lib/utils";
 
 interface RelationEdgeProps {
   relation: Relation;
@@ -27,13 +27,15 @@ function RelationEdgeImpl({
   const ux = dx / dist;
   const uy = dy / dist;
 
+  const sr = getNodeRadius(source.role);
+  const tr = getNodeRadius(target.role);
   const start = {
-    x: source.x + ux * NODE_RADIUS,
-    y: source.y + uy * NODE_RADIUS,
+    x: source.x + ux * sr,
+    y: source.y + uy * sr,
   };
   const end = {
-    x: target.x - ux * (NODE_RADIUS + 4),
-    y: target.y - uy * (NODE_RADIUS + 4),
+    x: target.x - ux * (tr + 4),
+    y: target.y - uy * (tr + 4),
   };
 
   const curveOffset = 0;
