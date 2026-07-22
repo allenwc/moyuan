@@ -28,13 +28,12 @@ export default function Library() {
   const [menuNovel, setMenuNovel] = useState<Novel | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Novel | null>(null);
 
-  // 下拉到“新开一卷”按钮将不可见时（pinned=true）：
-  // 收缩头（0–56）滑入、检索栏吸顶固定（top-14），二者合成一条常驻 header；
+  // 检索栏到达吸顶位（top-14）时 pinned=true：
+  // 收缩头（0–56）滑入、检索栏由 sticky 转 fixed（top-14），二者合成常驻 header；
   // 外层占位（toolbarWrapRef）撑住检索栏原位，下方列表不会跳动。
   const toolbarRef = useRef<HTMLDivElement>(null);
   const toolbarWrapRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
-  const createBtnRef = useRef<HTMLButtonElement>(null);
   const [pinned, setPinned] = useState(false);
   useEffect(() => {
     const BAR = 56; // 收缩头高度（h-14）
@@ -46,11 +45,14 @@ export default function Library() {
       if (t && w) w.style.height = `${t.offsetHeight}px`;
     };
     const thresholdOf = () => {
-      // 以“新开一卷”按钮为准：其顶部刚被固定头下沿（56px）遮住时即收缩，
-      // 下拉到按钮将不可见就收
-      const el = createBtnRef.current ?? toolbarRef.current;
+      // 以检索栏为准：其顶部刚到固定头下沿（56px）时收缩合并
+      // （此时 Hero/统计已滚出，列表紧跟检索栏，无提前空档）
+      const el = toolbarRef.current;
       if (!el) return Infinity;
-      return el.getBoundingClientRect().top + window.scrollY - BAR;
+      // pinned 后 toolbar 为 fixed，不能再用其 getBoundingClientRect 算文档位置；
+      // 改用占位 wrap 的文档 top，阈值在吸顶前后保持稳定
+      const anchor = toolbarWrapRef.current ?? el;
+      return anchor.getBoundingClientRect().top + window.scrollY - BAR;
     };
     let threshold = thresholdOf();
     const onScroll = () => {
@@ -197,27 +199,22 @@ export default function Library() {
             </div>
           </div>
 
-          {/* Stats + 新开一卷（按钮在统计栏上方，不挤压统计宽度） */}
+          {/* 刊头：一行统计文案 + 新开一卷（与收缩头统计口径一致） */}
           <div
             ref={statsRef}
-            className="mt-8 animate-fade-up"
+            className="mt-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 animate-fade-up"
             style={{ animationDelay: "120ms" }}
           >
-            <div className="flex justify-end mb-3">
-              <button
-                ref={createBtnRef}
-                onClick={() => setCreating(true)}
-                className="btn-primary text-xs sm:text-sm whitespace-nowrap shrink-0"
-              >
-                <Plus className="w-4 h-4" strokeWidth={1.8} />
-                新开一卷
-              </button>
-            </div>
-            <div className="grid grid-cols-3 max-w-md border-y border-ink/15 divide-x divide-ink/10">
-              <Stat label="藏书" value={stats.novelCount} suffix="卷" />
-              <Stat label="人物" value={stats.characterCount} suffix="人" />
-              <Stat label="关系" value={stats.relationCount} suffix="缘" />
-            </div>
+            <p className="text-[12px] sm:text-[13px] tracking-seal text-ink-mute tabular-nums">
+              {stats.novelCount}卷 · {stats.characterCount}人 · {stats.relationCount}缘
+            </p>
+            <button
+              onClick={() => setCreating(true)}
+              className="btn-primary text-xs sm:text-sm whitespace-nowrap shrink-0"
+            >
+              <Plus className="w-4 h-4" strokeWidth={1.8} />
+              新开一卷
+            </button>
           </div>
         </div>
       </header>
@@ -391,30 +388,6 @@ export default function Library() {
           setConfirmDelete(null);
         }}
       />
-    </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  suffix,
-}: {
-  label: string;
-  value: number;
-  suffix: string;
-}) {
-  return (
-    <div className="px-4 py-3 flex flex-col items-center justify-center">
-      <div className="flex items-baseline gap-1">
-        <span className="font-display text-3xl sm:text-4xl font-semibold text-ink tabular-nums">
-          {value}
-        </span>
-        <span className="text-xs text-ink-mute">{suffix}</span>
-      </div>
-      <span className="text-[11px] tracking-seal text-ink-mute mt-0.5">
-        {label}
-      </span>
     </div>
   );
 }

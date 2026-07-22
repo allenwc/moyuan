@@ -37,7 +37,7 @@ export function NovelCard({
     >
       {/* Book spine / cover */}
       <div
-        className="relative w-20 sm:w-24 shrink-0 flex flex-col items-center justify-between py-4 overflow-hidden"
+        className="relative w-20 sm:w-24 shrink-0 flex flex-col items-center py-4 overflow-hidden"
         style={{
           background: `linear-gradient(160deg, ${palette.primary} 0%, ${palette.deep} 100%)`,
           color: palette.text,
@@ -58,27 +58,12 @@ export function NovelCard({
             {String(index + 1).padStart(2, "0")}
           </span>
         </div>
-        <div className="relative flex flex-col items-center gap-1">
+        <div className="relative flex-1 flex flex-col items-center justify-center">
           <span
             className="font-song font-bold text-base leading-tight text-center px-1"
             style={{ letterSpacing: "0.08em" }}
           >
             {novel.title.slice(0, 8)}
-          </span>
-          <span
-            className="inline-block w-8 h-px"
-            style={{ backgroundColor: palette.text, opacity: 0.5 }}
-          />
-        </div>
-        <div className="relative">
-          <span
-            className="inline-flex items-center justify-center w-6 h-6 rounded-[2px] font-song text-[10px] font-bold"
-            style={{
-              backgroundColor: "rgba(245,239,226,0.18)",
-              border: "1px solid rgba(245,239,226,0.35)",
-            }}
-          >
-            缘
           </span>
         </div>
       </div>
