@@ -69,6 +69,7 @@ export function BottomSheet({
           size === "full" && "h-[92vh]",
           className,
         )}
+        style={{ overscrollBehavior: "contain" }}
       >
         <div className="pt-2.5 pb-1 flex justify-center shrink-0">
           <span className="block w-10 h-1 rounded-full bg-ink/15" />

@@ -9,11 +9,12 @@ interface CanvasProps {
   characters: Character[];
   relations: Relation[];
   viewport: Viewport;
-  selectedCharacterId: string | null;
+  focusedCharacterId: string | null;
   selectedRelationId: string | null;
   connectingFromId: string | null;
-  onViewportChange: (vp: Viewport) => void;
-  onSelectCharacter: (id: string | null) => void;
+  onViewportChange: (vp: Viewport | ((prev: Viewport) => Viewport)) => void;
+  onFocusCharacter: (id: string | null) => void;
+  onEditCharacter: (id: string) => void;
   onSelectRelation: (id: string | null) => void;
   onStartConnect: (id: string) => void;
   onCompleteConnect: (sourceId: string, targetId: string) => void;
@@ -22,17 +23,20 @@ interface CanvasProps {
   onCommitPosition: (id: string, x: number, y: number) => void;
   onAddCharacterAt: (x: number, y: number) => void;
   clampScale: (s: number) => number;
+  relationGuideOpen?: boolean;
+  onDismissRelationGuide?: () => void;
 }
 
 export function Canvas({
   characters,
   relations,
   viewport,
-  selectedCharacterId,
+  focusedCharacterId,
   selectedRelationId,
   connectingFromId,
   onViewportChange,
-  onSelectCharacter,
+  onFocusCharacter,
+  onEditCharacter,
   onSelectRelation,
   onStartConnect,
   onCompleteConnect,
@@ -41,14 +45,18 @@ export function Canvas({
   onCommitPosition,
   onAddCharacterAt,
   clampScale,
+  relationGuideOpen = false,
+  onDismissRelationGuide,
 }: CanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dragId, setDragId] = useState<string | null>(null);
+  const dragIdRef = useRef<string | null>(null);
   const dragOffset = useRef<{ dx: number; dy: number }>({ dx: 0, dy: 0 });
   const [size, setSize] = useState({ w: 0, h: 0 });
   const dragStartWorld = useRef<{ x: number; y: number } | null>(null);
   const positionChangedRef = useRef(false);
+  const viewportRef = useRef(viewport);
+  viewportRef.current = viewport;
 
   // Track container size
   useEffect(() => {
@@ -62,30 +70,28 @@ export function Canvas({
     return () => ro.disconnect();
   }, []);
 
-  const screenToWorld = useCallback(
-    (clientX: number, clientY: number) => {
-      const rect = svgRef.current?.getBoundingClientRect();
-      const left = rect?.left ?? 0;
-      const top = rect?.top ?? 0;
-      const x = clientX - left;
-      const y = clientY - top;
-      return {
-        x: (x - viewport.x) / viewport.scale,
-        y: (y - viewport.y) / viewport.scale,
-      };
-    },
-    [viewport],
-  );
+  const screenToWorld = useCallback((clientX: number, clientY: number) => {
+    const rect = svgRef.current?.getBoundingClientRect();
+    const left = rect?.left ?? 0;
+    const top = rect?.top ?? 0;
+    const vp = viewportRef.current;
+    const x = clientX - left;
+    const y = clientY - top;
+    return {
+      x: (x - vp.x) / vp.scale,
+      y: (y - vp.y) / vp.scale,
+    };
+  }, []);
 
   const handlePan = useCallback(
     (dx: number, dy: number) => {
-      onViewportChange({
-        ...viewport,
-        x: viewport.x + dx,
-        y: viewport.y + dy,
-      });
+      onViewportChange((prev) => ({
+        ...prev,
+        x: prev.x + dx,
+        y: prev.y + dy,
+      }));
     },
-    [viewport, onViewportChange],
+    [onViewportChange],
   );
 
   const handleZoom = useCallback(
@@ -95,13 +101,17 @@ export function Canvas({
       const top = rect?.top ?? 0;
       const px = cx - left;
       const py = cy - top;
-      const newScale = clampScale(viewport.scale * factor);
-      const k = newScale / viewport.scale;
-      const nx = px - (px - viewport.x) * k;
-      const ny = py - (py - viewport.y) * k;
-      onViewportChange({ scale: newScale, x: nx, y: ny });
+      onViewportChange((prev) => {
+        const newScale = clampScale(prev.scale * factor);
+        const k = newScale / prev.scale;
+        return {
+          scale: newScale,
+          x: px - (px - prev.x) * k,
+          y: py - (py - prev.y) * k,
+        };
+      });
     },
-    [viewport, onViewportChange, clampScale],
+    [onViewportChange, clampScale],
   );
 
   const handleStartNodeDrag = useCallback(
@@ -116,7 +126,7 @@ export function Canvas({
       const world = screenToWorld(x, y);
       dragOffset.current = { dx: world.x - c.x, dy: world.y - c.y };
       dragStartWorld.current = { x: c.x, y: c.y };
-      setDragId(id);
+      dragIdRef.current = id;
       positionChangedRef.current = false;
       return true;
     },
@@ -125,7 +135,8 @@ export function Canvas({
 
   const handleNodeDrag = useCallback(
     (_pointerId: number, x: number, y: number) => {
-      if (!dragId) return;
+      const id = dragIdRef.current;
+      if (!id) return;
       const world = screenToWorld(x, y);
       const nx = world.x - dragOffset.current.dx;
       const ny = world.y - dragOffset.current.dy;
@@ -135,19 +146,20 @@ export function Canvas({
       ) {
         positionChangedRef.current = true;
       }
-      onUpdatePosition(dragId, nx, ny);
+      onUpdatePosition(id, nx, ny);
     },
-    [dragId, onUpdatePosition, screenToWorld],
+    [onUpdatePosition, screenToWorld],
   );
 
   const handleEndNodeDrag = useCallback(() => {
-    if (dragId && positionChangedRef.current && dragStartWorld.current) {
-      onCommitPosition(dragId, dragStartWorld.current.x, dragStartWorld.current.y);
+    const id = dragIdRef.current;
+    if (id && positionChangedRef.current && dragStartWorld.current) {
+      onCommitPosition(id, dragStartWorld.current.x, dragStartWorld.current.y);
     }
-    setDragId(null);
+    dragIdRef.current = null;
     dragStartWorld.current = null;
     positionChangedRef.current = false;
-  }, [dragId, onCommitPosition]);
+  }, [onCommitPosition]);
 
   const handleTap = useCallback(
     (_x: number, _y: number, target: string) => {
@@ -156,7 +168,7 @@ export function Canvas({
           onCancelConnect();
           return;
         }
-        onSelectCharacter(null);
+        onFocusCharacter(null);
         onSelectRelation(null);
         return;
       }
@@ -170,7 +182,11 @@ export function Canvas({
           onCompleteConnect(connectingFromId, id);
           return;
         }
-        onSelectCharacter(id);
+        if (id === focusedCharacterId) {
+          onEditCharacter(id);
+          return;
+        }
+        onFocusCharacter(id);
         return;
       }
       if (target.startsWith("edge:")) {
@@ -180,9 +196,11 @@ export function Canvas({
     },
     [
       connectingFromId,
+      focusedCharacterId,
       onCancelConnect,
       onCompleteConnect,
-      onSelectCharacter,
+      onEditCharacter,
+      onFocusCharacter,
       onSelectRelation,
     ],
   );
@@ -218,17 +236,16 @@ export function Canvas({
   const showHint = useMemo(() => connectingFromId !== null, [connectingFromId]);
   const fromChar = characters.find((c) => c.id === connectingFromId);
 
-  // dim/highlight when one is selected
-  const selectedRelIds = useMemo(() => {
-    if (!selectedCharacterId) return new Set<string>();
-    return new Set(
-      relations
-        .filter(
-          (r) => r.sourceId === selectedCharacterId || r.targetId === selectedCharacterId,
-        )
-        .map((r) => r.id),
-    );
-  }, [relations, selectedCharacterId]);
+  // 一度邻居：焦点节点 + 直接相连人物
+  const focusedNeighborIds = useMemo(() => {
+    if (!focusedCharacterId) return new Set<string>();
+    const ids = new Set<string>([focusedCharacterId]);
+    for (const r of relations) {
+      if (r.sourceId === focusedCharacterId) ids.add(r.targetId);
+      if (r.targetId === focusedCharacterId) ids.add(r.sourceId);
+    }
+    return ids;
+  }, [relations, focusedCharacterId]);
 
   return (
     <div
@@ -285,11 +302,11 @@ export function Canvas({
             if (!source || !target) return null;
             const isSelected = r.id === selectedRelationId;
             const isRelated =
-              selectedCharacterId !== null &&
-              (r.sourceId === selectedCharacterId ||
-                r.targetId === selectedCharacterId);
+              focusedCharacterId !== null &&
+              (r.sourceId === focusedCharacterId ||
+                r.targetId === focusedCharacterId);
             const dimmed =
-              (selectedCharacterId !== null && !isRelated) ||
+              (focusedCharacterId !== null && !isRelated) ||
               (selectedRelationId !== null && !isSelected);
             return (
               <RelationEdge
@@ -305,16 +322,15 @@ export function Canvas({
           })}
 
           {characters.map((c) => {
-            const isSelected = c.id === selectedCharacterId;
-            const isRelated =
-              selectedRelIds.has(c.id) || c.id === selectedCharacterId;
-            const dimmed = selectedCharacterId !== null && !isRelated;
+            const isFocused = c.id === focusedCharacterId;
+            const isNeighbor = focusedNeighborIds.has(c.id);
+            const dimmed = focusedCharacterId !== null && !isNeighbor;
             return (
               <CharacterNode
                 key={c.id}
                 character={c}
-                selected={isSelected}
-                highlighted={false}
+                selected={isFocused}
+                highlighted={isNeighbor && !isFocused}
                 dimmed={dimmed}
                 connectingFrom={c.id === connectingFromId}
                 showLabel={true}
@@ -325,23 +341,50 @@ export function Canvas({
       </svg>
 
       {showHint && fromChar && (
-        <div className="absolute top-[88px] left-1/2 -translate-x-1/2 z-30 animate-fade-up pointer-events-none">
+        <div className="absolute top-[max(calc(env(safe-area-inset-top)+3.75rem),4.25rem)] right-3 z-30 animate-fade-up pointer-events-none max-w-[min(100%-1.5rem,20rem)]">
           <div className="bg-ink/90 text-paper-soft px-4 py-2 rounded-[2px] shadow-paper-lg backdrop-blur-sm flex items-center gap-2">
             <span
-              className="inline-block w-2.5 h-2.5 rounded-full animate-breathe"
+              className="inline-block w-2.5 h-2.5 rounded-full animate-breathe shrink-0"
               style={{ backgroundColor: fromChar.color }}
             />
-            <span className="font-song text-sm">
+            <span className="font-song text-sm min-w-0">
               自「{fromChar.name}」起 · 点另一位人物建立关系
             </span>
             <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 onCancelConnect();
               }}
-              className="pointer-events-auto ml-1 px-2 py-0.5 text-[11px] text-paper-soft/80 border border-paper-soft/20 rounded-[2px] hover:bg-paper-soft/10"
+              className="pointer-events-auto ml-1 px-2 py-0.5 text-[11px] text-paper-soft/80 border border-paper-soft/20 rounded-[2px] hover:bg-paper-soft/10 shrink-0"
             >
               取消
+            </button>
+          </div>
+        </div>
+      )}
+
+      {relationGuideOpen && !connectingFromId && (
+        <div className="absolute top-[max(calc(env(safe-area-inset-top)+3.75rem),4.25rem)] right-3 z-30 animate-fade-up pointer-events-none max-w-[min(100%-1.5rem,20rem)]">
+          <div className="bg-ink/90 text-paper-soft px-4 py-2 rounded-[2px] shadow-paper-lg backdrop-blur-sm flex items-center gap-2">
+            <span
+              className="inline-block w-2.5 h-2.5 rounded-full bg-gold animate-breathe shrink-0"
+              aria-hidden="true"
+            />
+            <span className="font-song text-sm min-w-0">
+              {characters.length < 2
+                ? "至少两位人物才能建关系 · 请先新增"
+                : "长按一位人物作为起点，再点另一位建立关系"}
+            </span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDismissRelationGuide?.();
+              }}
+              className="pointer-events-auto ml-1 px-2 py-0.5 text-[11px] text-paper-soft/80 border border-paper-soft/20 rounded-[2px] hover:bg-paper-soft/10 shrink-0"
+            >
+              关闭
             </button>
           </div>
         </div>

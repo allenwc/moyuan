@@ -6,8 +6,9 @@ import { clamp } from "@/lib/utils";
 import type { Character, CharacterInput, Relation, Viewport } from "@/types";
 import { Toolbar } from "@/components/editor/Toolbar";
 import { Canvas } from "@/components/editor/Canvas";
-import { MiniMap } from "@/components/editor/MiniMap";
+import { ZoomControls } from "@/components/editor/ZoomControls";
 import { Fab } from "@/components/editor/Fab";
+import { FocusPeek } from "@/components/editor/FocusPeek";
 import { CharacterPanel } from "@/components/editor/CharacterPanel";
 import { RelationPanel } from "@/components/editor/RelationPanel";
 import { AddCharacterSheet } from "@/components/editor/AddCharacterSheet";
@@ -45,13 +46,15 @@ export default function Editor() {
   );
 
   const [viewport, setViewport] = useState<Viewport>({ scale: 1, x: 0, y: 0 });
-  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
+  const [focusedCharacterId, setFocusedCharacterId] = useState<string | null>(null);
+  const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null);
   const [selectedRelationId, setSelectedRelationId] = useState<string | null>(null);
   const [connectingFromId, setConnectingFromId] = useState<string | null>(null);
 
   const [addSheetOpen, setAddSheetOpen] = useState(false);
   const [addPosition, setAddPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [exportOpen, setExportOpen] = useState(false);
+  const [relationGuideOpen, setRelationGuideOpen] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [undoStack, setUndoStack] = useState<Snapshot[]>([]);
@@ -177,13 +180,32 @@ export default function Editor() {
   const handleDeleteCharacter = (id: string) => {
     pushHistory();
     removeCharacter(novelId, id);
-    setSelectedCharacterId(null);
+    setFocusedCharacterId(null);
+    setEditingCharacterId(null);
   };
+
+  const handleFocusCharacter = useCallback((id: string | null) => {
+    setFocusedCharacterId(id);
+    if (id) {
+      setSelectedRelationId(null);
+      setEditingCharacterId(null);
+    } else {
+      setEditingCharacterId(null);
+    }
+  }, []);
+
+  const handleEditCharacter = useCallback((id: string) => {
+    setFocusedCharacterId(id);
+    setEditingCharacterId(id);
+    setSelectedRelationId(null);
+  }, []);
 
   // ===== Relation operations =====
   const handleStartConnect = (id: string) => {
     setConnectingFromId(id);
-    setSelectedCharacterId(null);
+    setRelationGuideOpen(false);
+    setFocusedCharacterId(null);
+    setEditingCharacterId(null);
     setSelectedRelationId(null);
   };
 
@@ -257,26 +279,29 @@ export default function Editor() {
   const zoomBy = (factor: number) => {
     const cx = window.innerWidth / 2;
     const cy = window.innerHeight / 2;
-    const newScale = clamp(viewport.scale * factor, 0.25, 3);
-    const k = newScale / viewport.scale;
-    const nx = cx - (cx - viewport.x) * k;
-    const ny = cy - (cy - viewport.y) * k;
-    setViewport({ scale: newScale, x: nx, y: ny });
-  };
-
-  const handleMinimapJump = (worldX: number, worldY: number) => {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    setViewport((vp) => ({
-      ...vp,
-      x: w / 2 - worldX * vp.scale,
-      y: h / 2 - worldY * vp.scale,
-    }));
+    setViewport((vp) => {
+      const newScale = clamp(vp.scale * factor, 0.25, 3);
+      const k = newScale / vp.scale;
+      return {
+        scale: newScale,
+        x: cx - (cx - vp.x) * k,
+        y: cy - (cy - vp.y) * k,
+      };
+    });
   };
 
   const clampScale = (s: number) => clamp(s, 0.25, 3);
 
-  const selectedCharacter = characters.find((c) => c.id === selectedCharacterId) ?? null;
+  const focusedCharacter =
+    characters.find((c) => c.id === focusedCharacterId) ?? null;
+  const editingCharacter =
+    characters.find((c) => c.id === editingCharacterId) ?? null;
+  const focusedRelationCount = focusedCharacter
+    ? relations.filter(
+        (r) =>
+          r.sourceId === focusedCharacter.id || r.targetId === focusedCharacter.id,
+      ).length
+    : 0;
   const selectedRelation = relations.find((r) => r.id === selectedRelationId) ?? null;
   const relSource = selectedRelation
     ? characters.find((c) => c.id === selectedRelation.sourceId) ?? null
@@ -299,17 +324,18 @@ export default function Editor() {
         characters={characters}
         relations={relations}
         viewport={viewport}
-        selectedCharacterId={selectedCharacterId}
+        focusedCharacterId={focusedCharacterId}
         selectedRelationId={selectedRelationId}
         connectingFromId={connectingFromId}
         onViewportChange={setViewport}
-        onSelectCharacter={(id) => {
-          setSelectedCharacterId(id);
-          if (id) setSelectedRelationId(null);
-        }}
+        onFocusCharacter={handleFocusCharacter}
+        onEditCharacter={handleEditCharacter}
         onSelectRelation={(id) => {
           setSelectedRelationId(id);
-          if (id) setSelectedCharacterId(null);
+          if (id) {
+            setFocusedCharacterId(null);
+            setEditingCharacterId(null);
+          }
         }}
         onStartConnect={handleStartConnect}
         onCompleteConnect={handleCompleteConnect}
@@ -318,26 +344,41 @@ export default function Editor() {
         onCommitPosition={handleCommitPosition}
         onAddCharacterAt={handleAddCharacterAt}
         clampScale={clampScale}
+        relationGuideOpen={relationGuideOpen && !connectingFromId}
+        onDismissRelationGuide={() => setRelationGuideOpen(false)}
       />
 
-      <Toolbar
-        title={novel.title}
-        subtitle={novel.author || "佚名"}
-        saving={saving}
-        canUndo={undoStack.length > 0}
-        canRedo={redoStack.length > 0}
-        onUndo={performUndo}
-        onRedo={performRedo}
-        onExport={() => setExportOpen(true)}
+      <div className="absolute top-0 left-0 right-0 z-30 safe-top">
+        <Toolbar
+          title={novel.title}
+          subtitle={novel.author || "佚名"}
+          saving={saving}
+          canUndo={undoStack.length > 0}
+          canRedo={redoStack.length > 0}
+          onUndo={performUndo}
+          onRedo={performRedo}
+          onExport={() => setExportOpen(true)}
+          onAutoLayout={handleAutoLayout}
+        />
+        {focusedCharacter && !editingCharacter && !connectingFromId && (
+          <FocusPeek
+            key={focusedCharacter.id}
+            character={focusedCharacter}
+            relationCount={focusedRelationCount}
+            onEdit={() => handleEditCharacter(focusedCharacter.id)}
+            onDismiss={() => handleFocusCharacter(null)}
+          />
+        )}
+      </div>
+
+      <ZoomControls
+        characterCount={characters.length}
+        relationCount={relations.length}
+        scalePercent={Math.round(viewport.scale * 100)}
+        onZoomIn={() => zoomBy(1.25)}
+        onZoomOut={() => zoomBy(0.8)}
+        onFitView={fitView}
         onAutoLayout={handleAutoLayout}
-      />
-
-      <MiniMap
-        characters={characters}
-        viewport={viewport}
-        canvasWidth={window.innerWidth}
-        canvasHeight={window.innerHeight}
-        onJump={handleMinimapJump}
       />
 
       <Fab
@@ -346,28 +387,21 @@ export default function Editor() {
           const cy = (window.innerHeight / 2 - viewport.y) / viewport.scale;
           handleAddCharacterAt(cx, cy);
         }}
-        onAddRelation={() => {
-          if (characters.length < 2) return;
-          // start connect mode from the most recently added character
-          setConnectingFromId(characters[characters.length - 1].id);
-        }}
-        onAutoLayout={handleAutoLayout}
-        onZoomIn={() => zoomBy(1.25)}
-        onZoomOut={() => zoomBy(0.8)}
-        onFitView={fitView}
+        onAddRelation={() => setRelationGuideOpen(true)}
       />
 
       {/* Character panel */}
       <CharacterPanel
-        open={!!selectedCharacter}
-        character={selectedCharacter}
+        open={!!editingCharacter}
+        character={editingCharacter}
         relations={relations}
         characters={characters}
-        onClose={() => setSelectedCharacterId(null)}
+        onClose={() => setEditingCharacterId(null)}
         onSave={handleUpdateCharacter}
         onDelete={handleDeleteCharacter}
         onSelectRelation={(id) => {
-          setSelectedCharacterId(null);
+          setEditingCharacterId(null);
+          setFocusedCharacterId(null);
           setSelectedRelationId(id);
         }}
       />
@@ -399,17 +433,6 @@ export default function Editor() {
         relations={relations}
         onClose={() => setExportOpen(false)}
       />
-
-      {/* status footer */}
-      <div className="absolute bottom-[max(env(safe-area-inset-bottom),0.6rem)] left-4 z-20 pointer-events-none">
-        <div className="flex items-center gap-2 text-[10px] text-ink-mute tracking-editorial bg-paper-soft/70 backdrop-blur-sm px-2.5 py-1 rounded-[2px] border border-ink/8">
-          <span>{characters.length} 人</span>
-          <span className="divider-dot" />
-          <span>{relations.length} 缘</span>
-          <span className="divider-dot" />
-          <span>{Math.round(viewport.scale * 100)}%</span>
-        </div>
-      </div>
     </div>
   );
 }

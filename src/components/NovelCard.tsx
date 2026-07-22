@@ -104,7 +104,7 @@ export function NovelCard({
               {relations.length} 缘
             </span>
           </div>
-          <span className="tracking-editorial">{formatTime(novel.updatedAt)}</span>
+          <span className="tracking-editorial">{formatTime(novel.createdAt)}</span>
         </div>
       </div>
     </article>

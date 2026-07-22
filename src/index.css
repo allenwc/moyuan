@@ -194,6 +194,7 @@ body::before {
   .animate-fade-in,
   .animate-scale-in,
   .animate-slide-up,
+  .animate-peek-down,
   .animate-seal-press {
     animation: none !important;
   }
