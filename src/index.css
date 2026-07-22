@@ -106,7 +106,7 @@ body::before {
 /* ===== Components ===== */
 @layer components {
   .paper-card {
-    @apply relative bg-paper-soft border border-ink/10 rounded-[2px] shadow-paper transition-all duration-300;
+    @apply relative bg-paper-soft border border-ink/10 rounded-[2px] shadow-paper transition-[transform,box-shadow,border-color] duration-300;
   }
 
   .ink-line {
@@ -120,17 +120,17 @@ body::before {
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-4 h-10 rounded-[2px] border border-ink/15 bg-transparent text-ink text-sm tracking-editorial transition-all duration-200 hover:bg-ink/5 active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 px-4 h-10 rounded-[2px] border border-ink/15 bg-transparent text-ink text-sm tracking-editorial transition-[background-color,transform] duration-200 hover:bg-ink/5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-5 h-10 rounded-[2px] bg-vermillion text-paper-soft text-sm tracking-editorial transition-all duration-200 hover:bg-vermillion-deep active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 px-5 h-10 rounded-[2px] bg-vermillion text-paper-soft text-sm tracking-editorial transition-[background-color,transform] duration-200 hover:bg-vermillion-deep active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vermillion/40;
     box-shadow: 0 0 0 1px rgba(168, 50, 45, 0.2),
       0 6px 18px -6px rgba(168, 50, 45, 0.32);
   }
 
   .btn-icon {
-    @apply inline-flex items-center justify-center w-10 h-10 rounded-[2px] border border-ink/10 bg-paper-soft text-ink transition-all duration-200 hover:bg-ink/5 active:scale-95;
+    @apply inline-flex items-center justify-center w-10 h-10 rounded-[2px] border border-ink/10 bg-paper-soft text-ink transition-[background-color,transform] duration-200 hover:bg-ink/5 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30;
   }
 
   .field-line {
@@ -186,6 +186,17 @@ body::before {
 ::selection {
   background: rgba(168, 50, 45, 0.18);
   color: var(--ink);
+}
+
+/* ===== Reduced motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-fade-in,
+  .animate-scale-in,
+  .animate-slide-up,
+  .animate-seal-press {
+    animation: none !important;
+  }
 }
 
 /* canvas no callout */

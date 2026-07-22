@@ -14,6 +14,7 @@ dist-ssr
 
 # Astro build cache / generated types
 site/.astro/
+site/Supabase/
 
 # Editor directories and files
 .vscode/*

@@ -13,6 +13,12 @@ export default function App() {
     void hydrate();
   }, [hydrate]);
 
+  // 首帧渲染完成后让启动页淡出，平滑衔接到加载页 / 应用
+  useEffect(() => {
+    const hide = () => (window as unknown as { __hideSplash?: () => void }).__hideSplash?.();
+    requestAnimationFrame(() => requestAnimationFrame(hide));
+  }, []);
+
   if (!hydrated) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-paper text-ink">

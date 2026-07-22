@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNovelStore } from "@/store/useNovelStore";
 import { NovelCard } from "@/components/NovelCard";
 import { NovelForm } from "@/components/NovelForm";
@@ -27,6 +27,54 @@ export default function Library() {
   const [editing, setEditing] = useState<Novel | null>(null);
   const [menuNovel, setMenuNovel] = useState<Novel | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Novel | null>(null);
+
+  // 下拉到“新开一卷”按钮将不可见时（pinned=true）：
+  // 收缩头（0–56）滑入、检索栏吸顶固定（top-14），二者合成一条常驻 header；
+  // 外层占位（toolbarWrapRef）撑住检索栏原位，下方列表不会跳动。
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const toolbarWrapRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const createBtnRef = useRef<HTMLButtonElement>(null);
+  const [pinned, setPinned] = useState(false);
+  useEffect(() => {
+    const BAR = 56; // 收缩头高度（h-14）
+    let raf = 0;
+    // 量取工具栏高度，固定时由外层占位撑住，下方书架不会上跳
+    const syncWrap = () => {
+      const t = toolbarRef.current;
+      const w = toolbarWrapRef.current;
+      if (t && w) w.style.height = `${t.offsetHeight}px`;
+    };
+    const thresholdOf = () => {
+      // 以“新开一卷”按钮为准：其顶部刚被固定头下沿（56px）遮住时即收缩，
+      // 下拉到按钮将不可见就收
+      const el = createBtnRef.current ?? toolbarRef.current;
+      if (!el) return Infinity;
+      return el.getBoundingClientRect().top + window.scrollY - BAR;
+    };
+    let threshold = thresholdOf();
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        setPinned(window.scrollY >= threshold);
+      });
+    };
+    const onResize = () => {
+      syncWrap();
+      threshold = thresholdOf();
+      onScroll();
+    };
+    syncWrap();
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   const stats = useMemo(
     () => ({
@@ -73,6 +121,42 @@ export default function Library() {
 
   return (
     <div className="min-h-full">
+      {/* ===== 收缩头：下拉时滑入的精简头部 ===== */}
+      <div
+        className={
+          "fixed inset-x-0 top-0 z-40 transition-[transform,opacity,background-color] duration-300 ease-out motion-reduce:transition-none " +
+          (pinned
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-full opacity-0 pointer-events-none")
+        }
+        style={{
+          background: "rgba(245,239,226,0.82)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+        }}
+      >
+        <div className="safe-top max-w-6xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <Seal text="墨缘" size={30} rotate={-3} />
+            <span className="font-song font-bold text-lg text-ink tracking-editorial">
+              墨缘
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] sm:text-[11px] tracking-seal text-ink-mute tabular-nums whitespace-nowrap">
+              {stats.novelCount}卷 · {stats.characterCount}人 · {stats.relationCount}缘
+            </span>
+              <button
+                onClick={() => setCreating(true)}
+                className="btn-primary text-xs h-9 px-3.5 whitespace-nowrap shrink-0"
+              >
+              <Plus className="w-3.5 h-3.5" strokeWidth={1.8} />
+              新开一卷
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* ===== HERO ===== */}
       <header className="relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
@@ -108,40 +192,66 @@ export default function Library() {
                 <span className="text-vermillion">·</span>梳理为可看可分享的一卷。
               </p>
             </div>
-            <div className="hidden sm:block">
+            <div className="hidden sm:block shrink-0">
               <SealStamp className="w-28 h-28 opacity-90 animate-seal-press" />
             </div>
           </div>
 
-          {/* Stats */}
+          {/* Stats + 新开一卷（按钮在统计栏上方，不挤压统计宽度） */}
           <div
-            className="mt-8 grid grid-cols-3 max-w-md border-y border-ink/15 divide-x divide-ink/10 animate-fade-up"
+            ref={statsRef}
+            className="mt-8 animate-fade-up"
             style={{ animationDelay: "120ms" }}
           >
-            <Stat label="藏书" value={stats.novelCount} suffix="卷" />
-            <Stat label="人物" value={stats.characterCount} suffix="人" />
-            <Stat label="关系" value={stats.relationCount} suffix="缘" />
+            <div className="flex justify-end mb-3">
+              <button
+                ref={createBtnRef}
+                onClick={() => setCreating(true)}
+                className="btn-primary text-xs sm:text-sm whitespace-nowrap shrink-0"
+              >
+                <Plus className="w-4 h-4" strokeWidth={1.8} />
+                新开一卷
+              </button>
+            </div>
+            <div className="grid grid-cols-3 max-w-md border-y border-ink/15 divide-x divide-ink/10">
+              <Stat label="藏书" value={stats.novelCount} suffix="卷" />
+              <Stat label="人物" value={stats.characterCount} suffix="人" />
+              <Stat label="关系" value={stats.relationCount} suffix="缘" />
+            </div>
           </div>
         </div>
       </header>
 
-      {/* ===== TOOLBAR ===== */}
-      <div className="max-w-6xl mx-auto px-5 sm:px-8">
-        <div className="flex flex-wrap items-center gap-3 py-4">
+      {/* ===== TOOLBAR（吸顶，与收缩头组成固定头部） ===== */}
+      <div ref={toolbarWrapRef} className="relative">
+      <div
+        ref={toolbarRef}
+        className={
+          "z-30 transition-colors duration-300 " +
+          (pinned
+            ? "fixed inset-x-0 top-14 bg-paper/90 backdrop-blur-[10px] border-b border-ink/10"
+            : "sticky top-14")
+        }
+      >
+        <div className="max-w-6xl mx-auto px-5 sm:px-8">
+          <div className="flex flex-wrap items-center gap-3 py-4">
           <div className="flex-1 min-w-[200px] relative">
             <Search
+              aria-hidden="true"
               className="absolute left-1 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-mute"
               strokeWidth={1.6}
             />
             <input
+              aria-label="检索藏书"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="检索书名、作者、内容…"
-              className="w-full bg-transparent border-0 border-b border-ink/15 pl-7 pr-2 py-2 text-sm focus:outline-none focus:border-vermillion transition-colors"
+              className="w-full bg-transparent border-0 border-b border-ink/15 pl-7 pr-2 py-2 text-sm focus:border-vermillion focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vermillion/30 transition-colors"
             />
           </div>
           <div className="flex items-center gap-1 text-[12px] tracking-editorial text-ink-mute">
             <button
+              aria-pressed={sort === "updated"}
               onClick={() => setSort("updated")}
               className={
                 sort === "updated"
@@ -151,8 +261,9 @@ export default function Library() {
             >
               近时
             </button>
-            <span className="text-ink/20">·</span>
+            <span className="text-ink/20" aria-hidden="true">·</span>
             <button
+              aria-pressed={sort === "title"}
               onClick={() => setSort("title")}
               className={
                 sort === "title"
@@ -163,16 +274,13 @@ export default function Library() {
               书名
             </button>
           </div>
-          <button
-            onClick={() => setCreating(true)}
-            className="btn-primary text-xs sm:text-sm"
-          >
-            <Plus className="w-4 h-4" strokeWidth={1.8} />
-            新开一卷
-          </button>
+          </div>
         </div>
+      </div>
+      </div>
 
-        {/* ===== SHELF ===== */}
+      {/* ===== SHELF ===== */}
+      <div className="max-w-6xl mx-auto px-5 sm:px-8">
         {filtered.length === 0 ? (
           <EmptyShelf onCreate={() => setCreating(true)} hasQuery={query.length > 0} />
         ) : (
