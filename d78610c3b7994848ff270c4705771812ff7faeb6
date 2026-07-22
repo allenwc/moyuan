@@ -1,0 +1,95 @@
+src/components/BottomSheet.tsx
+  40931b322a6b1402 72
+src/components/editor/Canvas.tsx
+  40931b322a6b1402 12,15-17,26-27,34,38-39,48-49,53,58-59,73-84,88-92,94,104-112,114,129,138-139,149,151,155-157,159,162,171,185-186,189,199,202-203,239-248,305-307,309,325-327,332-333,344,347,350,354,359,366-387
+src/components/editor/Toolbar.tsx
+  40931b322a6b1402 2,30-38,40-58,60,62-79,81-89
+src/components/NovelCard.tsx
+  40931b322a6b1402 107
+src/components/editor/FocusPeek.tsx
+  40931b322a6b1402 1-3,5-10,13-26,29-64,66-67
+src/components/editor/ZoomControls.tsx
+  40931b322a6b1402 1-52
+src/pages/Editor.tsx
+  40931b322a6b1402 9,11,49-50,57,183-184,187-202,206-208,282-290,295-304,327,331-332,335-338,347-348,351-372,374-381,390,395-396,399,403-404
+tailwind.config.js
+  40931b322a6b1402 76-79,95
+src/index.css
+  40931b322a6b1402 197
+src/components/editor/Fab.tsx
+  40931b322a6b1402 2,10,22,25,51-65,83,86,94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8-ntes.9",
+  "base_commit_sha": "d78610c3b7994848ff270c4705771812ff7faeb6",
+  "prompts": {
+    "40931b322a6b1402": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "1361f401-4755-463e-bac5-717940edc580",
+        "model": "default"
+      },
+      "human_author": "allenwc",
+      "messages": [],
+      "total_additions": 609,
+      "total_deletions": 596,
+      "accepted_lines": 414,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "src/pages/Editor.tsx": {
+          "additions": 127,
+          "deletions": 104,
+          "accepted_lines": 92
+        },
+        "src/components/editor/FocusPeek.tsx": {
+          "additions": 109,
+          "deletions": 38,
+          "accepted_lines": 71
+        },
+        "src/components/editor/ZoomControls.tsx": {
+          "additions": 71,
+          "deletions": 19,
+          "accepted_lines": 52
+        },
+        "src/components/editor/MiniMap.tsx": {
+          "additions": 80,
+          "deletions": 194
+        },
+        "src/components/BottomSheet.tsx": {
+          "additions": 1,
+          "accepted_lines": 1
+        },
+        "tailwind.config.js": {
+          "additions": 8,
+          "deletions": 3,
+          "accepted_lines": 5
+        },
+        "src/components/editor/Fab.tsx": {
+          "additions": 28,
+          "deletions": 80,
+          "accepted_lines": 22
+        },
+        "src/components/editor/Toolbar.tsx": {
+          "additions": 67,
+          "deletions": 84,
+          "accepted_lines": 58
+        },
+        "src/components/NovelCard.tsx": {
+          "additions": 1,
+          "deletions": 1,
+          "accepted_lines": 1
+        },
+        "src/index.css": {
+          "additions": 1,
+          "accepted_lines": 1
+        },
+        "src/components/editor/Canvas.tsx": {
+          "additions": 116,
+          "deletions": 73,
+          "accepted_lines": 111
+        }
+      }
+    }
+  }
+}
