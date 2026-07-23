@@ -1,0 +1,51 @@
+src/app.scss
+  0cd95e7a369e08e2 99-104
+src/store/useAuthStore.ts
+  0cd95e7a369e08e2 40-58,63-65
+src/pages/library/index.tsx
+  0cd95e7a369e08e2 19,21-26,83-84,368-374,438-444,481,491,494,500-501,503,505,517-518,520,522,554-570,573-577,579,582-596,696-738
+src/lib/readerIdentity.ts
+  0cd95e7a369e08e2 1-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8-ntes.9",
+  "base_commit_sha": "82a2ba516c5696bd8b6c1ae35832f4c7da7887e0",
+  "prompts": {
+    "0cd95e7a369e08e2": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e782b345-4825-41cb-b403-e56f83d83879",
+        "model": "default"
+      },
+      "human_author": "allenwc",
+      "messages": [],
+      "total_additions": 225,
+      "total_deletions": 40,
+      "accepted_lines": 211,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "src/store/useAuthStore.ts": {
+          "additions": 22,
+          "deletions": 4,
+          "accepted_lines": 22
+        },
+        "src/pages/library/index.tsx": {
+          "additions": 120,
+          "deletions": 27,
+          "accepted_lines": 115
+        },
+        "src/lib/readerIdentity.ts": {
+          "additions": 74,
+          "deletions": 6,
+          "accepted_lines": 68
+        },
+        "src/app.scss": {
+          "additions": 9,
+          "deletions": 3,
+          "accepted_lines": 6
+        }
+      }
+    }
+  }
+}
