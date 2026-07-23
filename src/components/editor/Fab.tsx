@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, UserPlus, Link2 } from "lucide-react";
+import { IconPlus, IconUserPlus, IconLink } from "@/components/uiIcons";
 import { cn } from "@/lib/utils";
 
 interface FabProps {
@@ -30,7 +30,7 @@ export function Fab({ onAddCharacter, onAddRelation }: FabProps) {
         >
           <FabItem
             label="新建关系"
-            icon={<Link2 className="w-4 h-4" strokeWidth={1.6} />}
+            icon={<IconLink className="w-4 h-4 text-ink" strokeWidth={1.6} />}
             tone="default"
             onClick={() => {
               setOpen(false);
@@ -39,7 +39,12 @@ export function Fab({ onAddCharacter, onAddRelation }: FabProps) {
           />
           <FabItem
             label="新增人物"
-            icon={<UserPlus className="w-4 h-4" strokeWidth={1.6} />}
+            icon={
+              <IconUserPlus
+                className="w-4 h-4 text-paper-soft"
+                strokeWidth={1.6}
+              />
+            }
             tone="gold"
             onClick={() => {
               setOpen(false);
@@ -61,7 +66,7 @@ export function Fab({ onAddCharacter, onAddRelation }: FabProps) {
           }}
           aria-label={open ? "收起" : "展开操作"}
         >
-          <Plus className="w-6 h-6" strokeWidth={1.8} />
+          <IconPlus className="w-6 h-6 text-paper-soft" strokeWidth={1.8} />
         </button>
       </div>
     </>
@@ -80,7 +85,11 @@ function FabItem({
   tone?: "default" | "gold";
 }) {
   return (
-    <button type="button" onClick={onClick} className="flex items-center gap-2 group">
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-2 bg-transparent group"
+    >
       <span
         className={cn(
           "font-song text-sm px-3 py-1.5 rounded-[2px] shadow-paper border border-ink/10 transition-transform duration-200 group-hover:translate-x-[-2px]",

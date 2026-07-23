@@ -1,41 +1,34 @@
-import { isSupabaseConfigured, supabase } from "@/lib/supabase";
+/**
+ * novelRepo（前端适配层）—— 将 core 包的纯函数注入 CloudBase PgDb 适配器，
+ * 所有数据直接通过 CloudBase 云函数 `pg` 访问 PostgreSQL。
+ *
+ * 注意：api/ 是对外 REST API，前端自身数据访问不经过它。
+ */
+import { pgDb } from "@/lib/cloudbase";
 import {
   fetchAll as coreFetchAll,
   reconcileNovel as coreReconcile,
   deleteNovel as coreDeleteNovel,
-  type Character,
-  type Novel,
-  type Relation,
-  type RemoteSnapshot,
 } from "@moyuan/core";
+import type { RemoteSnapshot, Novel, Character, Relation } from "@moyuan/core";
 
 export type { RemoteSnapshot };
 
-/**
- * 浏览器端持久化仓储薄封装：复用 @moyuan/core 的纯逻辑，
- * 注入浏览器 anon client，并保留“未配置 Supabase 时静默跳过”的行为。
- */
-
-/** 启动时全量拉取云端数据（无配置时返回空快照） */
-export async function fetchAll(): Promise<RemoteSnapshot> {
-  if (!isSupabaseConfigured) {
-    return { novels: [], characters: [], relations: [] };
-  }
-  return coreFetchAll(supabase);
+/** 从云端拉取当前用户的全量快照 */
+export async function fetchAll(userId: string): Promise<RemoteSnapshot> {
+  return coreFetchAll(pgDb, { userId });
 }
 
-/** 将某本小说当前状态对账到云端（无配置时静默跳过） */
+/** 将本地状态以云端为事实来源进行对账（upsert 模式） */
 export async function reconcileNovel(
   novel: Novel,
   characters: Character[],
   relations: Relation[],
 ): Promise<void> {
-  if (!isSupabaseConfigured) return;
-  return coreReconcile(supabase, novel, characters, relations);
+  await coreReconcile(pgDb, novel, characters, relations);
 }
 
-/** 删除整本小说（无配置时静默跳过） */
-export async function deleteNovelRemote(novelId: string): Promise<void> {
-  if (!isSupabaseConfigured) return;
-  return coreDeleteNovel(supabase, novelId);
+/** 删除整本小说 */
+export async function deleteNovelRemote(id: string): Promise<void> {
+  await coreDeleteNovel(pgDb, id);
 }

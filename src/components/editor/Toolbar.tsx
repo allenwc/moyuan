@@ -1,5 +1,10 @@
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, Undo2, Redo2 } from "lucide-react";
+import {
+  IconArrowLeft,
+  IconDownload,
+  IconUndo,
+  IconRedo,
+} from "@/components/uiIcons";
+import { goLibrary } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
 interface EditorToolbarProps {
@@ -25,21 +30,20 @@ export function Toolbar({
   onExport,
   onAutoLayout,
 }: EditorToolbarProps) {
-  const navigate = useNavigate();
   return (
     <div className="px-3 py-2.5 flex items-center gap-2 bg-paper-soft/95 backdrop-blur-md border-b border-ink/10">
       <button
         type="button"
-        onClick={() => navigate("/")}
+        onClick={() => goLibrary()}
         className="btn-icon shrink-0"
         aria-label="返回图书馆"
       >
-        <ArrowLeft className="w-4 h-4" strokeWidth={1.6} />
+        <IconArrowLeft className="w-4 h-4" strokeWidth={1.6} />
       </button>
 
       <button
         type="button"
-        className="flex-1 min-w-0 text-left rounded-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30"
+        className="flex-1 min-w-0 text-left bg-transparent rounded-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30"
         onClick={onAutoLayout}
         aria-label="自动排版"
       >
@@ -66,7 +70,7 @@ export function Toolbar({
         className="btn-icon shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label="撤销"
       >
-        <Undo2 className="w-4 h-4" strokeWidth={1.6} />
+        <IconUndo className="w-4 h-4" strokeWidth={1.6} />
       </button>
       <button
         type="button"
@@ -75,7 +79,7 @@ export function Toolbar({
         className="btn-icon shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label="重做"
       >
-        <Redo2 className="w-4 h-4" strokeWidth={1.6} />
+        <IconRedo className="w-4 h-4" strokeWidth={1.6} />
       </button>
 
       <button
@@ -83,7 +87,7 @@ export function Toolbar({
         onClick={onExport}
         className="btn-primary text-xs px-3 h-10 shrink-0"
       >
-        <Download className="w-3.5 h-3.5" strokeWidth={1.8} />
+        <IconDownload className="w-3.5 h-3.5 text-paper-soft" strokeWidth={1.8} />
         装裱
       </button>
     </div>

@@ -1,82 +1,110 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   Character,
   CharacterInput,
   Direction,
   Gender,
   Novel,
+  NovelGraph,
   NovelInput,
   Relation,
   RelationInput,
   RelationType,
+  RemoteSnapshot,
   ThemeColor,
 } from "./types";
 import { uid } from "./uid";
+import { ident, lit, inList, type PgDb, type Row } from "./sql";
 
-/**
- * 与运行环境无关的 Supabase 持久化逻辑。
- *
- * 所有函数都接收一个 `SupabaseClient` 参数（依赖注入），
- * 以便浏览器端（anon key）与服务端（service_role）复用同一份逻辑，
- * 而无需关心 key / RLS / import.meta.env。
- *
- * 数据模型：novels / characters / relations。对单本小说采用“增量对账（reconcile）”：
- * upsert 当前存在的行并删除云端多余的行，统一覆盖增删改 / 拖拽 / 复制等场景。
- */
+export type { RemoteSnapshot, NovelGraph } from "./types";
 
-// ---------- 数据库行类型 ----------
-interface NovelRow {
-  id: string;
-  title: string;
-  author: string;
-  synopsis: string;
-  theme_color: string;
-  created_at: number;
-  updated_at: number;
-}
+// ---------- 行映射（CloudBase PG 返回数值为字符串，需 Number 转换）----------
 
-interface CharacterRow {
-  id: string;
-  novel_id: string;
-  name: string;
-  alias: string | null;
-  role: string;
-  faction: string;
-  color: string;
-  note: string;
-  gender: string | null;
-  x: number;
-  y: number;
-  created_at: number;
-}
-
-interface RelationRow {
-  id: string;
-  novel_id: string;
-  source_id: string;
-  target_id: string;
-  type: string;
-  direction: string;
-  note: string;
-  created_at: number;
-}
-
-// ---------- 行 <-> 领域对象 映射 ----------
-function rowToNovel(r: NovelRow): Novel {
+function rowToNovel(r: Row): Novel {
   return {
-    id: r.id,
-    title: r.title,
-    author: r.author,
-    synopsis: r.synopsis,
-    themeColor: r.theme_color as ThemeColor,
-    createdAt: Number(r.created_at),
-    updatedAt: Number(r.updated_at),
+    id: String(r.id),
+    userId: r.user_id == null ? "" : String(r.user_id),
+    title: String(r.title ?? ""),
+    author: String(r.author ?? ""),
+    synopsis: String(r.synopsis ?? ""),
+    themeColor: (r.theme_color as ThemeColor) ?? "vermillion",
+    createdAt: Number(r.created_at) || 0,
+    updatedAt: Number(r.updated_at) || 0,
   };
 }
 
-function novelToRow(n: Novel): NovelRow {
+function rowToCharacter(r: Row): Character {
+  return {
+    id: String(r.id),
+    novelId: String(r.novel_id),
+    name: String(r.name ?? "无名氏"),
+    alias: r.alias == null ? undefined : String(r.alias),
+    role: String(r.role ?? ""),
+    faction: String(r.faction ?? ""),
+    gender: (r.gender as Gender) ?? undefined,
+    color: String(r.color ?? ""),
+    note: String(r.note ?? ""),
+    x: Number(r.x) || 0,
+    y: Number(r.y) || 0,
+    createdAt: Number(r.created_at) || 0,
+  };
+}
+
+function rowToRelation(r: Row): Relation {
+  return {
+    id: String(r.id),
+    novelId: String(r.novel_id),
+    sourceId: String(r.source_id),
+    targetId: String(r.target_id),
+    type: (r.type as RelationType) ?? "other",
+    direction: (r.direction as Direction) ?? "one-way",
+    note: String(r.note ?? ""),
+    createdAt: Number(r.created_at) || 0,
+  };
+}
+
+// ---------- 写入行构造 ----------
+
+const NOVEL_COLS = [
+  "id",
+  "user_id",
+  "title",
+  "author",
+  "synopsis",
+  "theme_color",
+  "created_at",
+  "updated_at",
+] as const;
+
+const CHARACTER_COLS = [
+  "id",
+  "novel_id",
+  "name",
+  "alias",
+  "role",
+  "faction",
+  "gender",
+  "color",
+  "note",
+  "x",
+  "y",
+  "created_at",
+] as const;
+
+const RELATION_COLS = [
+  "id",
+  "novel_id",
+  "source_id",
+  "target_id",
+  "type",
+  "direction",
+  "note",
+  "created_at",
+] as const;
+
+function novelRow(n: Novel): Record<string, unknown> {
   return {
     id: n.id,
+    user_id: n.userId,
     title: n.title,
     author: n.author,
     synopsis: n.synopsis,
@@ -86,24 +114,7 @@ function novelToRow(n: Novel): NovelRow {
   };
 }
 
-function rowToCharacter(r: CharacterRow): Character {
-  return {
-    id: r.id,
-    novelId: r.novel_id,
-    name: r.name,
-    alias: r.alias ?? undefined,
-    role: r.role,
-    faction: r.faction,
-    gender: (r.gender as Gender) ?? undefined,
-    color: r.color,
-    note: r.note,
-    x: Number(r.x),
-    y: Number(r.y),
-    createdAt: Number(r.created_at),
-  };
-}
-
-function characterToRow(c: Character): CharacterRow {
+function characterRow(c: Character): Record<string, unknown> {
   return {
     id: c.id,
     novel_id: c.novelId,
@@ -120,20 +131,7 @@ function characterToRow(c: Character): CharacterRow {
   };
 }
 
-function rowToRelation(r: RelationRow): Relation {
-  return {
-    id: r.id,
-    novelId: r.novel_id,
-    sourceId: r.source_id,
-    targetId: r.target_id,
-    type: r.type as RelationType,
-    direction: r.direction as Direction,
-    note: r.note,
-    createdAt: Number(r.created_at),
-  };
-}
-
-function relationToRow(r: Relation): RelationRow {
+function relationRow(r: Relation): Record<string, unknown> {
   return {
     id: r.id,
     novel_id: r.novelId,
@@ -146,207 +144,234 @@ function relationToRow(r: Relation): RelationRow {
   };
 }
 
-export interface RemoteSnapshot {
-  novels: Novel[];
-  characters: Character[];
-  relations: Relation[];
+/** 生成 INSERT ... ON CONFLICT(id) DO UPDATE SET ...（全列覆盖，幂等 upsert）。 */
+function insertSql(
+  table: string,
+  cols: readonly string[],
+  rows: Record<string, unknown>[],
+): string {
+  const colList = cols.map((c) => ident(c)).join(", ");
+  const valueRows = rows
+    .map((row) => "(" + cols.map((c) => lit(row[c])).join(", ") + ")")
+    .join(", ");
+  const updateCols = cols
+    .filter((c) => c !== "id")
+    .map((c) => `${ident(c)} = EXCLUDED.${ident(c)}`)
+    .join(", ");
+  return `INSERT INTO ${ident(table)} (${colList}) VALUES ${valueRows} ON CONFLICT (${ident(
+    "id",
+  )}) DO UPDATE SET ${updateCols}`;
 }
 
-export interface NovelGraph {
-  novel: Novel;
-  characters: Character[];
-  relations: Relation[];
-}
+// ---------- 读 ----------
 
-/** 将 id 列表格式化为 PostgREST `in` 过滤所需的 `("a","b")` 形式 */
-function idList(ids: string[]): string {
-  return `(${ids.map((id) => `"${id.replace(/"/g, '""')}"`).join(",")})`;
-}
-
-// ---------- 查询 ----------
-
-/** 全量拉取所有小说 / 角色 / 关系 */
 export async function fetchAll(
-  supabase: SupabaseClient,
+  db: PgDb,
+  opts: { userId?: string | null } = {},
 ): Promise<RemoteSnapshot> {
-  const [novelsRes, charsRes, relsRes] = await Promise.all([
-    supabase.from("novels").select("*").order("updated_at", { ascending: false }),
-    supabase.from("characters").select("*"),
-    supabase.from("relations").select("*"),
+  let sql = "SELECT * FROM " + ident("novels");
+  if (opts.userId) sql += ` WHERE ${ident("user_id")} = ${lit(opts.userId)}`;
+  sql += ` ORDER BY ${ident("updated_at")} DESC`;
+  const novels = (await db.query(sql)).map(rowToNovel);
+  if (novels.length === 0) return { novels: [], characters: [], relations: [] };
+  const ids = novels.map((n) => n.id);
+  const [characters, relations] = await Promise.all([
+    db.query(
+      `SELECT * FROM ${ident("characters")} WHERE ${ident("novel_id")} IN ${inList(ids)}`,
+    ),
+    db.query(
+      `SELECT * FROM ${ident("relations")} WHERE ${ident("novel_id")} IN ${inList(ids)}`,
+    ),
   ]);
-  if (novelsRes.error) throw novelsRes.error;
-  if (charsRes.error) throw charsRes.error;
-  if (relsRes.error) throw relsRes.error;
-
   return {
-    novels: (novelsRes.data as NovelRow[]).map(rowToNovel),
-    characters: (charsRes.data as CharacterRow[]).map(rowToCharacter),
-    relations: (relsRes.data as RelationRow[]).map(rowToRelation),
+    novels,
+    characters: characters.map(rowToCharacter),
+    relations: relations.map(rowToRelation),
   };
 }
 
-/** 列出全部小说（按更新时间倒序） */
-export async function listNovels(supabase: SupabaseClient): Promise<Novel[]> {
-  const { data, error } = await supabase
-    .from("novels")
-    .select("*")
-    .order("updated_at", { ascending: false });
-  if (error) throw error;
-  return (data as NovelRow[]).map(rowToNovel);
+export async function listNovels(
+  db: PgDb,
+  opts: { userId?: string | null } = {},
+): Promise<Novel[]> {
+  let sql = "SELECT * FROM " + ident("novels");
+  if (opts.userId) sql += ` WHERE ${ident("user_id")} = ${lit(opts.userId)}`;
+  sql += ` ORDER BY ${ident("updated_at")} DESC`;
+  return (await db.query(sql)).map(rowToNovel);
 }
 
-/** 拉取某本小说的完整图谱（小说本身 + 角色 + 关系），不存在时返回 null */
 export async function fetchGraph(
-  supabase: SupabaseClient,
+  db: PgDb,
   novelId: string,
 ): Promise<NovelGraph | null> {
-  const { data: novelRow, error: novelErr } = await supabase
-    .from("novels")
-    .select("*")
-    .eq("id", novelId)
-    .maybeSingle();
-  if (novelErr) throw novelErr;
-  if (!novelRow) return null;
-
-  const [charsRes, relsRes] = await Promise.all([
-    supabase.from("characters").select("*").eq("novel_id", novelId),
-    supabase.from("relations").select("*").eq("novel_id", novelId),
+  const rows = await db.query(
+    `SELECT * FROM ${ident("novels")} WHERE ${ident("id")} = ${lit(novelId)}`,
+  );
+  if (rows.length === 0) return null;
+  const [characters, relations] = await Promise.all([
+    db.query(
+      `SELECT * FROM ${ident("characters")} WHERE ${ident("novel_id")} = ${lit(novelId)}`,
+    ),
+    db.query(
+      `SELECT * FROM ${ident("relations")} WHERE ${ident("novel_id")} = ${lit(novelId)}`,
+    ),
   ]);
-  if (charsRes.error) throw charsRes.error;
-  if (relsRes.error) throw relsRes.error;
-
   return {
-    novel: rowToNovel(novelRow as NovelRow),
-    characters: (charsRes.data as CharacterRow[]).map(rowToCharacter),
-    relations: (relsRes.data as RelationRow[]).map(rowToRelation),
+    novel: rowToNovel(rows[0]),
+    characters: characters.map(rowToCharacter),
+    relations: relations.map(rowToRelation),
   };
 }
 
-// ---------- 小说 CRUD ----------
+export async function getCharacter(
+  db: PgDb,
+  id: string,
+): Promise<Character | null> {
+  const rows = await db.query(
+    `SELECT * FROM ${ident("characters")} WHERE ${ident("id")} = ${lit(id)}`,
+  );
+  return rows.length ? rowToCharacter(rows[0]) : null;
+}
 
-/** 创建小说（自动生成 id 与时间戳） */
+export async function getRelation(
+  db: PgDb,
+  id: string,
+): Promise<Relation | null> {
+  const rows = await db.query(
+    `SELECT * FROM ${ident("relations")} WHERE ${ident("id")} = ${lit(id)}`,
+  );
+  return rows.length ? rowToRelation(rows[0]) : null;
+}
+
+// ---------- 写：小说 ----------
+
 export async function createNovel(
-  supabase: SupabaseClient,
+  db: PgDb,
   input: NovelInput,
+  opts: { userId: string },
 ): Promise<Novel> {
   const now = Date.now();
   const novel: Novel = {
     id: uid("novel"),
-    title: input.title?.trim() || "未命名",
-    author: input.author?.trim() ?? "",
-    synopsis: input.synopsis?.trim() ?? "",
+    userId: opts.userId,
+    title: input.title.trim() || "未命名",
+    author: (input.author ?? "").trim(),
+    synopsis: (input.synopsis ?? "").trim(),
     themeColor: input.themeColor ?? "vermillion",
     createdAt: now,
     updatedAt: now,
   };
-  const { error } = await supabase.from("novels").insert(novelToRow(novel));
-  if (error) throw error;
+  await db.query(insertSql("novels", NOVEL_COLS, [novelRow(novel)]));
   return novel;
 }
 
-/** 更新小说的可编辑字段 */
 export async function updateNovel(
-  supabase: SupabaseClient,
+  db: PgDb,
   id: string,
-  patch: Partial<Pick<Novel, "title" | "author" | "synopsis" | "themeColor">>,
+  patch: Partial<NovelInput>,
 ): Promise<void> {
-  const row: Partial<NovelRow> = { updated_at: Date.now() };
-  if (patch.title !== undefined) row.title = patch.title.trim() || "未命名";
-  if (patch.author !== undefined) row.author = patch.author.trim();
-  if (patch.synopsis !== undefined) row.synopsis = patch.synopsis.trim();
-  if (patch.themeColor !== undefined) row.theme_color = patch.themeColor;
-  const { error } = await supabase.from("novels").update(row).eq("id", id);
-  if (error) throw error;
+  const sets: string[] = [];
+  if (patch.title !== undefined)
+    sets.push(`${ident("title")} = ${lit(patch.title.trim() || "未命名")}`);
+  if (patch.author !== undefined)
+    sets.push(`${ident("author")} = ${lit(patch.author.trim())}`);
+  if (patch.synopsis !== undefined)
+    sets.push(`${ident("synopsis")} = ${lit(patch.synopsis.trim())}`);
+  if (patch.themeColor !== undefined)
+    sets.push(`${ident("theme_color")} = ${lit(patch.themeColor)}`);
+  sets.push(`${ident("updated_at")} = ${lit(Date.now())}`);
+  if (sets.length === 0) return;
+  await db.query(
+    `UPDATE ${ident("novels")} SET ${sets.join(", ")} WHERE ${ident("id")} = ${lit(id)}`,
+  );
 }
 
-/** 删除整本小说（级联删除其角色与关系） */
-export async function deleteNovel(
-  supabase: SupabaseClient,
-  novelId: string,
-): Promise<void> {
-  const { error } = await supabase.from("novels").delete().eq("id", novelId);
-  if (error) throw error;
+export async function deleteNovel(db: PgDb, novelId: string): Promise<void> {
+  await db.query(
+    `DELETE FROM ${ident("relations")} WHERE ${ident("novel_id")} = ${lit(novelId)}`,
+  );
+  await db.query(
+    `DELETE FROM ${ident("characters")} WHERE ${ident("novel_id")} = ${lit(novelId)}`,
+  );
+  await db.query(
+    `DELETE FROM ${ident("novels")} WHERE ${ident("id")} = ${lit(novelId)}`,
+  );
 }
 
-// ---------- 角色 CRUD ----------
+// ---------- 写：角色 ----------
 
-/** 新增角色（自动生成 id 与时间戳） */
 export async function addCharacter(
-  supabase: SupabaseClient,
+  db: PgDb,
   novelId: string,
   input: CharacterInput,
 ): Promise<Character> {
-  const now = Date.now();
   const character: Character = {
     id: uid("char"),
     novelId,
-    name: input.name?.trim() || "无名氏",
+    name: input.name.trim() || "无名氏",
     alias: input.alias?.trim() || undefined,
     role: input.role,
     faction: input.faction,
-    gender: input.gender ?? null,
+    gender: input.gender,
     color: input.color,
     note: input.note,
     x: input.x,
     y: input.y,
-    createdAt: now,
+    createdAt: Date.now(),
   };
-  const { error } = await supabase
-    .from("characters")
-    .insert(characterToRow(character));
-  if (error) throw error;
+  await db.query(insertSql("characters", CHARACTER_COLS, [characterRow(character)]));
   return character;
 }
 
-/** 更新角色的可编辑字段 */
 export async function updateCharacter(
-  supabase: SupabaseClient,
+  db: PgDb,
   id: string,
   patch: Partial<CharacterInput>,
 ): Promise<void> {
-  const row: Partial<CharacterRow> = {};
-  if (patch.name !== undefined) row.name = patch.name.trim() || "无名氏";
-  if (patch.alias !== undefined) row.alias = patch.alias.trim() || null;
-  if (patch.role !== undefined) row.role = patch.role;
-  if (patch.faction !== undefined) row.faction = patch.faction;
-  if (patch.gender !== undefined) row.gender = patch.gender ?? null;
-  if (patch.color !== undefined) row.color = patch.color;
-  if (patch.note !== undefined) row.note = patch.note;
-  if (patch.x !== undefined) row.x = patch.x;
-  if (patch.y !== undefined) row.y = patch.y;
-  const { error } = await supabase.from("characters").update(row).eq("id", id);
-  if (error) throw error;
+  const sets: string[] = [];
+  if (patch.name !== undefined)
+    sets.push(`${ident("name")} = ${lit(patch.name.trim() || "无名氏")}`);
+  if (patch.alias !== undefined)
+    sets.push(`${ident("alias")} = ${lit(patch.alias?.trim() || null)}`);
+  if (patch.role !== undefined) sets.push(`${ident("role")} = ${lit(patch.role)}`);
+  if (patch.faction !== undefined)
+    sets.push(`${ident("faction")} = ${lit(patch.faction)}`);
+  if (patch.gender !== undefined)
+    sets.push(`${ident("gender")} = ${lit(patch.gender ?? null)}`);
+  if (patch.color !== undefined) sets.push(`${ident("color")} = ${lit(patch.color)}`);
+  if (patch.note !== undefined) sets.push(`${ident("note")} = ${lit(patch.note)}`);
+  if (patch.x !== undefined) sets.push(`${ident("x")} = ${lit(patch.x)}`);
+  if (patch.y !== undefined) sets.push(`${ident("y")} = ${lit(patch.y)}`);
+  if (sets.length === 0) return;
+  await db.query(
+    `UPDATE ${ident("characters")} SET ${sets.join(", ")} WHERE ${ident("id")} = ${lit(id)}`,
+  );
 }
 
-/** 删除角色，同时清理引用它的关系 */
 export async function removeCharacter(
-  supabase: SupabaseClient,
+  db: PgDb,
   novelId: string,
   id: string,
 ): Promise<void> {
-  const { error: relErr } = await supabase
-    .from("relations")
-    .delete()
-    .eq("novel_id", novelId)
-    .or(`source_id.eq.${id},target_id.eq.${id}`);
-  if (relErr) throw relErr;
-  const { error } = await supabase
-    .from("characters")
-    .delete()
-    .eq("novel_id", novelId)
-    .eq("id", id);
-  if (error) throw error;
+  await db.query(
+    `DELETE FROM ${ident("relations")} WHERE ${ident("novel_id")} = ${lit(
+      novelId,
+    )} AND (${ident("source_id")} = ${lit(id)} OR ${ident("target_id")} = ${lit(id)})`,
+  );
+  await db.query(
+    `DELETE FROM ${ident("characters")} WHERE ${ident("novel_id")} = ${lit(
+      novelId,
+    )} AND ${ident("id")} = ${lit(id)}`,
+  );
 }
 
-// ---------- 关系 CRUD ----------
+// ---------- 写：关系 ----------
 
-/** 新增关系（自动生成 id 与时间戳） */
 export async function addRelation(
-  supabase: SupabaseClient,
+  db: PgDb,
   novelId: string,
   input: RelationInput,
 ): Promise<Relation> {
-  const now = Date.now();
   const relation: Relation = {
     id: uid("rel"),
     novelId,
@@ -355,98 +380,69 @@ export async function addRelation(
     type: input.type,
     direction: input.direction,
     note: input.note,
-    createdAt: now,
+    createdAt: Date.now(),
   };
-  const { error } = await supabase
-    .from("relations")
-    .insert(relationToRow(relation));
-  if (error) throw error;
+  await db.query(insertSql("relations", RELATION_COLS, [relationRow(relation)]));
   return relation;
 }
 
-/** 更新关系的可编辑字段 */
 export async function updateRelation(
-  supabase: SupabaseClient,
+  db: PgDb,
   id: string,
   patch: Partial<RelationInput>,
 ): Promise<void> {
-  const row: Partial<RelationRow> = {};
-  if (patch.sourceId !== undefined) row.source_id = patch.sourceId;
-  if (patch.targetId !== undefined) row.target_id = patch.targetId;
-  if (patch.type !== undefined) row.type = patch.type;
-  if (patch.direction !== undefined) row.direction = patch.direction;
-  if (patch.note !== undefined) row.note = patch.note;
-  const { error } = await supabase.from("relations").update(row).eq("id", id);
-  if (error) throw error;
+  const sets: string[] = [];
+  if (patch.sourceId !== undefined)
+    sets.push(`${ident("source_id")} = ${lit(patch.sourceId)}`);
+  if (patch.targetId !== undefined)
+    sets.push(`${ident("target_id")} = ${lit(patch.targetId)}`);
+  if (patch.type !== undefined) sets.push(`${ident("type")} = ${lit(patch.type)}`);
+  if (patch.direction !== undefined)
+    sets.push(`${ident("direction")} = ${lit(patch.direction)}`);
+  if (patch.note !== undefined) sets.push(`${ident("note")} = ${lit(patch.note)}`);
+  if (sets.length === 0) return;
+  await db.query(
+    `UPDATE ${ident("relations")} SET ${sets.join(", ")} WHERE ${ident("id")} = ${lit(id)}`,
+  );
 }
 
-/** 删除关系 */
-export async function removeRelation(
-  supabase: SupabaseClient,
-  novelId: string,
-  id: string,
-): Promise<void> {
-  const { error } = await supabase
-    .from("relations")
-    .delete()
-    .eq("novel_id", novelId)
-    .eq("id", id);
-  if (error) throw error;
-}
+// ---------- 对账：云端为事实来源 ----------
 
-// ---------- 增量对账 ----------
-
-/**
- * 将某本小说当前的完整状态对账到云端：
- * upsert 现存 novel/characters/relations，并删除云端多余的行。
- */
 export async function reconcileNovel(
-  supabase: SupabaseClient,
+  db: PgDb,
   novel: Novel,
   characters: Character[],
   relations: Relation[],
-): Promise<void> {
-  const novelId = novel.id;
+): Promise<NovelGraph> {
+  // 同步即视为一次写操作：刷新 updatedAt 后幂等 upsert 小说本体。
+  novel.updatedAt = Date.now();
+  await db.query(insertSql("novels", NOVEL_COLS, [novelRow(novel)]));
 
-  // 1. upsert 小说本身
-  {
-    const { error } = await supabase
-      .from("novels")
-      .upsert(novelToRow(novel), { onConflict: "id" });
-    if (error) throw error;
-  }
-
-  // 2. upsert 角色
+  const keepCharIds = characters.map((c) => c.id);
   if (characters.length > 0) {
-    const { error } = await supabase
-      .from("characters")
-      .upsert(characters.map(characterToRow), { onConflict: "id" });
-    if (error) throw error;
+    await db.query(
+      insertSql("characters", CHARACTER_COLS, characters.map(characterRow)),
+    );
   }
+  let delChars = `DELETE FROM ${ident("characters")} WHERE ${ident("novel_id")} = ${lit(
+    novel.id,
+  )}`;
+  if (keepCharIds.length > 0)
+    delChars += ` AND ${ident("id")} NOT IN ${inList(keepCharIds)}`;
+  await db.query(delChars);
 
-  // 3. 删除云端多余角色（级联删除其关系）
-  {
-    const keepIds = characters.map((c) => c.id);
-    let q = supabase.from("characters").delete().eq("novel_id", novelId);
-    if (keepIds.length > 0) q = q.not("id", "in", idList(keepIds));
-    const { error } = await q;
-    if (error) throw error;
-  }
-
-  // 4. upsert 关系（此时端点角色均已存在）
+  const keepRelIds = relations.map((r) => r.id);
   if (relations.length > 0) {
-    const { error } = await supabase
-      .from("relations")
-      .upsert(relations.map(relationToRow), { onConflict: "id" });
-    if (error) throw error;
+    await db.query(
+      insertSql("relations", RELATION_COLS, relations.map(relationRow)),
+    );
   }
+  let delRels = `DELETE FROM ${ident("relations")} WHERE ${ident("novel_id")} = ${lit(
+    novel.id,
+  )}`;
+  if (keepRelIds.length > 0)
+    delRels += ` AND ${ident("id")} NOT IN ${inList(keepRelIds)}`;
+  await db.query(delRels);
 
-  // 5. 删除云端多余关系
-  {
-    const keepIds = relations.map((r) => r.id);
-    let q = supabase.from("relations").delete().eq("novel_id", novelId);
-    if (keepIds.length > 0) q = q.not("id", "in", idList(keepIds));
-    const { error } = await q;
-    if (error) throw error;
-  }
+  return { novel, characters, relations };
 }

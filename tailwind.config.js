@@ -2,7 +2,11 @@
 
 export default {
   darkMode: "class",
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  // 小程序不需要浏览器 preflight；H5 保留
+  corePlugins: {
+    preflight: process.env.TARO_ENV === "h5",
+  },
   theme: {
     container: {
       center: true,

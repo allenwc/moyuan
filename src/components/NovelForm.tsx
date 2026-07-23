@@ -9,12 +9,6 @@ interface NovelFormProps {
   submitText?: string;
 }
 
-const EXAMPLES = [
-  { title: "红楼梦", author: "曹雪芹", synopsis: "贾府兴衰中的儿女情长与世态炎凉。" },
-  { title: "三体", author: "刘慈欣", synopsis: "宇宙黑暗森林中，文明的存亡抉择。" },
-  { title: "边城", author: "沈从文", synopsis: "湘西小镇翠翠的青涩与守望。" },
-];
-
 export function NovelForm({
   initial,
   onSubmit,
@@ -59,8 +53,6 @@ export function NovelForm({
     });
   };
 
-  const example = EXAMPLES[Math.floor(Math.random() * EXAMPLES.length)];
-
   return (
     <div className="flex flex-col">
       <div className="space-y-5">
@@ -72,7 +64,6 @@ export function NovelForm({
             ref={titleRef}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder={`例：${example.title}`}
             className="field-line font-song text-lg"
           />
           {touched && !valid && (
@@ -87,7 +78,6 @@ export function NovelForm({
           <input
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
-            placeholder={`例：${example.author}`}
             className="field-line"
           />
         </div>
@@ -99,9 +89,8 @@ export function NovelForm({
           <textarea
             value={synopsis}
             onChange={(e) => setSynopsis(e.target.value)}
-            placeholder={`例：${example.synopsis}`}
             rows={3}
-            className="w-full bg-transparent border-0 border-b border-ink/20 px-0 py-2 text-ink placeholder:text-ink/35 focus:outline-none focus:border-vermillion transition-colors duration-200 resize-none"
+            className="field-line resize-none"
           />
         </div>
 
@@ -124,6 +113,7 @@ export function NovelForm({
                 style={{ backgroundColor: p.primary, color: p.text }}
                 aria-label={p.label}
                 title={p.label}
+                aria-pressed={themeColor === p.key}
               >
                 <span className="font-song text-sm font-semibold">
                   {p.label[0]}
@@ -138,10 +128,11 @@ export function NovelForm({
       </div>
 
       <div className="mt-7 flex items-center gap-2">
-        <button onClick={onCancel} className="btn-ghost flex-1">
+        <button type="button" onClick={onCancel} className="btn-ghost flex-1">
           取消
         </button>
         <button
+          type="button"
           onClick={handleSubmit}
           className={cn("btn-primary flex-1", !valid && "opacity-50")}
         >

@@ -5,7 +5,6 @@ import { DEFAULT_EXPORT_OPTIONS } from "@/types";
 import { cn } from "@/lib/utils";
 import { BottomSheet } from "@/components/BottomSheet";
 import { ExportGraph } from "./ExportGraph";
-import { Download, Share2, Clipboard, FileImage, FileType, Image as ImageIcon, Check } from "lucide-react";
 
 interface ExportStudioProps {
   open: boolean;
@@ -172,15 +171,15 @@ export function ExportStudio({
       footer={
         <>
           <button onClick={copyToClipboard} disabled={busy} className="btn-ghost flex-1 disabled:opacity-50">
-            {copied ? <Check className="w-4 h-4" strokeWidth={1.6} /> : <Clipboard className="w-4 h-4" strokeWidth={1.6} />}
+            {copied ? <span>✓</span> : <span>贴</span>}
             {copied ? "已复制" : "复制"}
           </button>
           <button onClick={share} disabled={busy} className="btn-ghost flex-1 disabled:opacity-50">
-            <Share2 className="w-4 h-4" strokeWidth={1.6} />
+            <span>↗</span>
             分享
           </button>
           <button onClick={download} disabled={busy} className="btn-primary flex-[2] disabled:opacity-60">
-            <Download className="w-4 h-4" strokeWidth={1.6} />
+            <span>↓</span>
             {busy ? "装裱中…" : "下载"}
           </button>
         </>
@@ -238,21 +237,21 @@ export function ExportStudio({
             <FormatCard
               active={opts.format === "png"}
               onClick={() => setOpts((o) => ({ ...o, format: "png" }))}
-              icon={<FileImage className="w-4 h-4" strokeWidth={1.6} />}
+              icon={<span>图</span>}
               label="PNG"
               hint="透明支持"
             />
             <FormatCard
               active={opts.format === "jpg"}
               onClick={() => setOpts((o) => ({ ...o, format: "jpg" }))}
-              icon={<ImageIcon className="w-4 h-4" strokeWidth={1.6} />}
+              icon={<span>图</span>}
               label="JPG"
               hint="体量更小"
             />
             <FormatCard
               active={opts.format === "svg"}
               onClick={() => setOpts((o) => ({ ...o, format: "svg" }))}
-              icon={<FileType className="w-4 h-4" strokeWidth={1.6} />}
+              icon={<span>文</span>}
               label="SVG"
               hint="矢量无损"
             />
@@ -268,12 +267,13 @@ export function ExportStudio({
             {[1, 2, 3].map((s) => (
               <button
                 key={s}
+                type="button"
                 onClick={() => setOpts((o) => ({ ...o, scale: s as 1 | 2 | 3 }))}
                 className={cn(
                   "flex-1 h-10 rounded-[2px] border text-sm transition-all",
                   opts.scale === s
                     ? "border-ink bg-paper-soft shadow-paper"
-                    : "border-ink/10 hover:bg-ink/5",
+                    : "bg-transparent border-ink/10 hover:bg-ink/5",
                 )}
               >
                 <span className="font-display text-base">{s}</span>
@@ -292,12 +292,13 @@ export function ExportStudio({
             {BG_OPTIONS.map((b) => (
               <button
                 key={b.key}
+                type="button"
                 onClick={() => setOpts((o) => ({ ...o, background: b.key }))}
                 className={cn(
                   "flex items-center gap-2 px-3 h-9 rounded-[2px] border text-xs transition-all",
                   opts.background === b.key
                     ? "border-ink bg-paper-soft shadow-paper"
-                    : "border-ink/10 hover:bg-ink/5",
+                    : "bg-transparent border-ink/10 hover:bg-ink/5",
                 )}
               >
                 <span
@@ -319,7 +320,7 @@ export function ExportStudio({
                 "flex items-center gap-2 px-3 h-9 rounded-[2px] border text-xs transition-all cursor-pointer",
                 opts.background === "custom"
                   ? "border-ink bg-paper-soft shadow-paper"
-                  : "border-ink/10 hover:bg-ink/5",
+                  : "bg-transparent border-ink/10 hover:bg-ink/5",
               )}
             >
               <span
@@ -379,10 +380,13 @@ function FormatCard({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className={cn(
         "flex flex-col items-center gap-1 py-3 rounded-[2px] border transition-all",
-        active ? "border-ink bg-paper-soft shadow-paper" : "border-ink/10 hover:bg-ink/5",
+        active
+          ? "border-ink bg-paper-soft shadow-paper"
+          : "bg-transparent border-ink/10 hover:bg-ink/5",
       )}
     >
       <span className={active ? "text-vermillion" : "text-ink"}>{icon}</span>
@@ -403,10 +407,13 @@ function Toggle({
 }) {
   return (
     <button
+      type="button"
       onClick={() => onChange(!checked)}
       className={cn(
         "flex items-center gap-2 px-3 h-10 rounded-[2px] border transition-all flex-1",
-        checked ? "border-ink bg-paper-soft shadow-paper" : "border-ink/10 hover:bg-ink/5",
+        checked
+          ? "border-ink bg-paper-soft shadow-paper"
+          : "bg-transparent border-ink/10 hover:bg-ink/5",
       )}
     >
       <span

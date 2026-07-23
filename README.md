@@ -3,33 +3,49 @@
 把小说里的人物与关系画成可拖拽、可沉淀的图谱，并对外提供 **REST API + CLI + 标准 agent skill**，
 让脚本与 AI Agent 也能直接读懂并改写你的故事宇宙。
 
-数据层基于 **Supabase**（Postgres + RLS）。前端用 anon key 直连；服务端 API 用
-`service_role` 直连，绕过 RLS 做全量 CRUD，并受 `MOYUAN_API_KEY` 鉴权。
+数据层基于 **CloudBase PostgreSQL**。前端经 REST API（Vercel Hono）访问，服务端用
+`@cloudbase/manager-node` 执行原生 SQL；鉴权为自建会话（JWT），按 `user_id`
+在应用层隔离，并受 `MOYUAN_API_KEY` 鉴权（等同管理员权限）。
 
 ## 架构
 
 ```
 moyuan/
-├── src/                 # 前端（React + Vite），anon key 直连 Supabase
-├── packages/core/       # 共享：领域类型 + 纯持久化逻辑（依赖注入 Supabase client）
+├── src/                 # Taro 多端前端（weapp + h5），经 REST API 访问 CloudBase
+├── packages/core/       # 共享：领域类型 + 纯持久化逻辑（依赖注入 PgDb）
 ├── api/                 # Hono 写的 Vercel Serverless Function → /api
 ├── cli/                 # 墨缘 CLI（commander，HTTP 调 /api）
 ├── site/                # Astro 官网/文档（独立 Vercel 项目）
-└── .codebuddy/skills/moyuan/   # 标准 agent skill（SKILL.md + 脚本）
+└── skill/               # 标准 agent skill（SKILL.md + 脚本）
 ```
 
-- 浏览器前端：`src/lib/supabase.ts` 用 anon key，受 RLS 约束。
-- `packages/core` 抽离 `reconcileNovel` 等纯逻辑，浏览器端（anon）与服务端（service_role）
-  共用同一份代码，避免重写对账逻辑。
-- `api/` 作为 Vercel Serverless Function 部署在 `/api`，与前端**同项目同域**。
+- 前端：`src/lib/api.ts` 经 REST API 访问，请求头带自建 JWT（`Authorization: Bearer`）。
+- `packages/core` 抽离 `reconcileNovel` 等纯逻辑，前后端共用（服务端注入 `PgDb`），
+  避免重写对账逻辑。
+- `api/` 作为 Vercel Serverless Function 部署在 `/api`，与 H5 **同项目同域**。
 
 ## 本地开发
 
+在仓库根目录创建 `.env.local`（可参考 `.env.example`），至少配置：
+
 ```bash
-npm install            # 安装根 + 所有 workspace 依赖
-npm run dev            # 启动前端（vite）
-vercel dev             # 本地同时跑前端 + /api 函数（需全局装 vercel）
-npm run cli -- novel list   # 用 CLI 调本地 API（需先设置下面环境变量）
+CLOUDBASE_ENV_ID=your-env-id
+CLOUDBASE_SECRET_ID=your-secret-id
+CLOUDBASE_SECRET_KEY=your-secret-key
+MOYUAN_JWT_SECRET=change-me-strong-secret
+MOYUAN_API_KEY=change-me-api-key
+# 小程序必填；H5 本地可留空（相对路径 /api）
+TARO_APP_API_BASE=
+```
+
+只有 `TARO_APP_` 前缀会注入前端；改完后需重启 dev。
+
+```bash
+npm install
+npm run dev:h5         # H5
+npm run dev:weapp      # 微信小程序（产物在 dist/weapp，用开发者工具打开仓库根）
+vercel dev             # 本地同时跑 H5 + /api（需全局装 vercel）
+npm run cli -- novel list
 ```
 
 CLI / 本地调用所需环境变量（参见 `.env.example`）：
@@ -62,15 +78,21 @@ moyuan reconcile <id> --file graph.json   # 批量对账整图
 
 需要 **两个 Vercel 项目**（同一仓库，不同根目录）：
 
-1. **应用项目**（Root = 仓库根）：`vite build` 产出 `dist/`（前端），`api/` 自动作为
-   Serverless Function 部署到 `/api`。在 Vercel 项目设置里添加服务端环境变量：
-   - `SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY`（**仅服务端，绝不进 VITE_**）
-   - `MOYUAN_API_KEY`
+1. **应用项目**（Root = 仓库根）：`npm run build:h5` 产出 `dist/h5/`，`api/` 自动作为
+   Serverless Function 部署到 `/api`。在 Vercel 项目设置里添加：
+
+   前端构建变量（`TARO_APP_*`）：
+   - `TARO_APP_API_BASE`（生产一般为 `https://你的域名/api`）
+   - `TARO_APP_WECHAT_APPID` / `TARO_APP_WECHAT_SECRET`（小程序登录用）
+
+   服务端变量（**绝不进前端包**）：
+   - `CLOUDBASE_ENV_ID` / `CLOUDBASE_SECRET_ID` / `CLOUDBASE_SECRET_KEY`
+   - `MOYUAN_JWT_SECRET` / `MOYUAN_API_KEY`
+   - 微信相关：`WECHAT_APPID` / `WECHAT_SECRET`（或 `TARO_APP_WECHAT_*`）
 
 2. **官网项目**（Root = `site/`）：Astro 静态站，独立域名（如 `moyuan.app`）。
 
-> 安全：API 使用 `service_role` 可写全库，必须配合 `MOYUAN_API_KEY` 鉴权；
+> 安全：API 使用 `MOYUAN_API_KEY` 以管理员权限可写全库，必须配合该密钥鉴权；
 > 不要把 key 写进前端或暴露给未授权来源。
 
 ## 数据模型

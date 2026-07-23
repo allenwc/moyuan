@@ -79,7 +79,7 @@ export MOYUAN_API_KEY="&lt;服务端配置的 MOYUAN_API_KEY&gt;"</code></pre>
       </p>
 
       <div class="callout">
-        安全提示：API 使用 <code>service_role</code> 直连 Supabase，可写全库。
+        安全提示：API 使用 <code>MOYUAN_API_KEY</code> 以管理员权限直连 CloudBase PostgreSQL，可写全库。
         仅限应用所有者或受信任的 Agent 使用，<code>MOYUAN_API_KEY</code> 切勿写入前端或暴露给公网。
       </div>
     </div>

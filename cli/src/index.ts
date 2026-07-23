@@ -8,7 +8,8 @@ import type {
 
 /**
  * 墨缘 CLI —— 通过 REST API 操作小说人物关系图谱。
- * 配置：MOYUAN_API_URL（默认 http://localhost:3000/api）、MOYUAN_API_KEY。
+ * 配置：MOYUAN_API_URL（默认 http://localhost:3000/api）、MOYUAN_API_KEY、
+ * 可选 MOYUAN_USER_ID（API Key 模式下创建/列表过滤/对账归属用户）。
  * Agent / 脚本可通过 stdout 的 JSON 输出进行管道处理。
  */
 
@@ -75,25 +76,36 @@ const novel = program.command("novel").description("管理小说");
 
 novel
   .command("list")
-  .description("列出全部小说")
-  .action(async () => {
-    const r = await req<{ novels: unknown[] }>("GET", "/novels");
+  .description("列出小说（API Key 可用 --user 过滤）")
+  .option("-u, --user <userId>", "按用户过滤（或环境变量 MOYUAN_USER_ID）")
+  .action(async (opts) => {
+    const userId = opts.user || process.env.MOYUAN_USER_ID;
+    const path = userId
+      ? `/novels?userId=${encodeURIComponent(userId)}`
+      : "/novels";
+    const r = await req<{ novels: unknown[] }>("GET", path);
     out(r.novels);
   });
 
 novel
   .command("create")
-  .description("新建小说")
+  .description("新建小说（API Key 模式必须指定归属用户）")
   .requiredOption("-t, --title <title>", "小说标题")
   .option("-a, --author <author>", "作者")
   .option("-s, --synopsis <synopsis>", "简介")
   .option("-c, --theme <theme>", "主题色")
+  .option("-u, --user <userId>", "归属用户 id（或环境变量 MOYUAN_USER_ID）")
   .action(async (opts) => {
+    const userId = opts.user || process.env.MOYUAN_USER_ID;
+    if (!userId) {
+      throw new Error("API Key 创建小说需 --user <userId> 或设置 MOYUAN_USER_ID");
+    }
     const r = await req<{ novel: unknown }>("POST", "/novels", {
       title: opts.title,
       author: opts.author,
       synopsis: opts.synopsis,
       themeColor: opts.theme as ThemeColor | undefined,
+      userId,
     });
     out(r.novel);
   });
@@ -279,7 +291,17 @@ program
         process.stdin.on("error", reject);
       });
     }
-    const body = JSON.parse(raw);
+    const body = JSON.parse(raw) as {
+      novel?: { userId?: string };
+      characters?: unknown;
+      relations?: unknown;
+    };
+    const userId = process.env.MOYUAN_USER_ID;
+    if (userId && body.novel && !body.novel.userId) {
+      body.novel.userId = userId;
+    } else if (userId && !body.novel) {
+      body.novel = { userId };
+    }
     const r = await req("POST", `/novels/${id}/reconcile`, body);
     out(r);
   });

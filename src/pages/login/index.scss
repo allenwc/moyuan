@@ -1,0 +1,257 @@
+/* 登录页按 CSS px 设计；避免 weapp px→rpx 把按钮/字号缩成一半 */
+/*postcss-pxtransform disable*/
+
+/* ===== 页面容器 ===== */
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 24px;
+  box-sizing: border-box;
+  background: #f5efe2;
+  touch-action: manipulation;
+}
+
+/* ===== 卡片 ===== */
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  padding: 40px 32px 36px;
+  box-sizing: border-box;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 16px -4px rgba(31, 27, 22, 0.08),
+    0 8px 32px -8px rgba(31, 27, 22, 0.06);
+}
+
+/* ===== 头部 ===== */
+.login-header {
+  margin-bottom: 36px;
+  text-align: center;
+}
+
+.login-brand {
+  display: block;
+  font-family: "Noto Serif SC", "Songti SC", serif;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #a8322d;
+  line-height: 1.2;
+}
+
+.login-subtitle {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #9e958a;
+  letter-spacing: 0.1em;
+}
+
+/* ===== 表单字段 ===== */
+.login-field {
+  margin-bottom: 22px;
+}
+
+.login-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #4a4238;
+  text-transform: uppercase;
+}
+
+/* 盖过 app.scss 对 taro-input-core 的 transparent !important。
+ * 微信原生 input：不要用上下 padding + line-height:1.5，否则字被裁切、框像 textarea。
+ */
+.login-input {
+  display: block !important;
+  width: 100% !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  box-sizing: border-box !important;
+  padding: 0 14px !important;
+  margin: 0 !important;
+  font-size: 15px !important;
+  line-height: 44px !important;
+  color: #1f1b16 !important;
+  background: #fafaf7 !important;
+  background-color: #fafaf7 !important;
+  border: 1px solid rgba(31, 27, 22, 0.12) !important;
+  border-radius: 3px !important;
+  overflow: hidden !important;
+  -webkit-appearance: none;
+  appearance: none;
+  vertical-align: middle;
+
+  &--error {
+    border-color: #c0392b !important;
+  }
+}
+
+.login-input-placeholder {
+  color: #b8afa5 !important;
+  font-size: 15px !important;
+  line-height: 44px !important;
+}
+
+/* 密码输入行 */
+.login-input-wrap {
+  position: relative;
+  height: 44px;
+}
+
+.login-input--password {
+  padding-right: 48px !important;
+}
+
+.login-pwd-toggle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  z-index: 1;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.login-pwd-toggle-icon {
+  line-height: 1;
+}
+
+/* ===== 字段级错误 ===== */
+.login-field-error {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #c0392b;
+}
+
+/* ===== 全局错误 ===== */
+.login-global-error {
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border-radius: 3px;
+  background: rgba(192, 57, 43, 0.06);
+  border: 1px solid rgba(192, 57, 43, 0.15);
+  color: #a03028;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* ===== 按钮：必须 !important，否则被 app.scss taro-button-core 透明重置盖掉 ===== */
+.login-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 46px !important;
+  padding: 0 !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  line-height: 1 !important;
+  border-radius: 3px !important;
+  border: none !important;
+  box-shadow: none !important;
+  transition: background 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+  touch-action: manipulation;
+  text-align: center !important;
+  box-sizing: border-box !important;
+}
+
+.login-btn-text {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  color: inherit;
+}
+
+.login-btn--busy {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.login-btn--primary {
+  margin-top: 28px !important;
+  background: #a8322d !important;
+  background-color: #a8322d !important;
+  color: #faf6ec !important;
+  box-shadow: 0 2px 8px -2px rgba(168, 50, 45, 0.32) !important;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(168, 50, 45, 0.25),
+      0 2px 8px -2px rgba(168, 50, 45, 0.32) !important;
+  }
+
+  @media (hover: hover) {
+    &:not(.login-btn--busy):hover {
+      background: #8f2a26 !important;
+      background-color: #8f2a26 !important;
+    }
+    &:not(.login-btn--busy):active {
+      background: #7a2220 !important;
+      background-color: #7a2220 !important;
+      box-shadow: 0 1px 4px -1px rgba(168, 50, 45, 0.32) !important;
+    }
+  }
+}
+
+.login-btn--ghost {
+  margin-top: 12px !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #5c5348 !important;
+  border: 1px solid rgba(31, 27, 22, 0.15) !important;
+  box-shadow: none !important;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(31, 27, 22, 0.08) !important;
+  }
+
+  @media (hover: hover) {
+    &:not(.login-btn--busy):hover {
+      background: rgba(31, 27, 22, 0.04) !important;
+      background-color: rgba(31, 27, 22, 0.04) !important;
+      border-color: rgba(31, 27, 22, 0.25) !important;
+    }
+    &:not(.login-btn--busy):active {
+      background: rgba(31, 27, 22, 0.08) !important;
+      background-color: rgba(31, 27, 22, 0.08) !important;
+    }
+  }
+}
+
+/* ===== 底部 ===== */
+.login-footer {
+  margin-top: 28px;
+  text-align: center;
+}
+
+.login-footer-text {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #b0a89d;
+}

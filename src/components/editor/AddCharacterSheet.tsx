@@ -6,7 +6,7 @@ import {
   CHARACTER_ROLES,
   cn,
 } from "@/lib/utils";
-import { GenderShape, getGenderShape } from "@/lib/GenderShape";
+import { GenderShapeIcon, getGenderShape } from "@/lib/GenderShape";
 import { BottomSheet } from "@/components/BottomSheet";
 
 interface AddCharacterSheetProps {
@@ -110,15 +110,16 @@ export function AddCharacterSheet({
                       "flex items-center gap-1 px-2.5 h-9 rounded-[3px] border transition-all duration-150",
                       selected
                         ? "bg-ink text-paper-soft border-ink"
-                        : "border-ink/15 text-ink-mute hover:bg-ink/5",
+                        : "bg-transparent border-ink/15 text-ink-mute hover:bg-ink/5",
                     )}
                   >
-                    <GenderShape
+                    <GenderShapeIcon
                       shape={getGenderShape(g.key)}
                       r={5}
                       fill={selected ? "#faf6ec" : g.color}
                       stroke="none"
                       strokeWidth={0}
+                      className="shrink-0"
                     />
                     {g.label}
                   </button>
@@ -161,12 +162,13 @@ export function AddCharacterSheet({
             {CHARACTER_ROLES.map((r) => (
               <button
                 key={r}
+                type="button"
                 onClick={() => setRole(r)}
                 className={cn(
                   "px-3 h-7 text-xs rounded-[2px] border transition-all duration-150",
                   role === r
                     ? "bg-ink text-paper-soft border-ink"
-                    : "border-ink/15 text-ink-mute hover:bg-ink/5",
+                    : "bg-transparent border-ink/15 text-ink-mute hover:bg-ink/5",
                 )}
               >
                 {r}
@@ -183,6 +185,7 @@ export function AddCharacterSheet({
             {CHARACTER_COLOR_PRESETS.map((c) => (
               <button
                 key={c}
+                type="button"
                 onClick={() => setColor(c)}
                 className={cn(
                   "w-9 h-9 rounded-full border-2 transition-all duration-150",
@@ -205,8 +208,8 @@ export function AddCharacterSheet({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={2}
-            placeholder="为人物立一小传：出身、性情、关键事件…"
-            className="w-full bg-transparent border-0 border-b border-ink/20 px-0 py-2 text-ink placeholder:text-ink/35 focus:outline-none focus:border-vermillion transition-colors duration-200 resize-none leading-relaxed"
+            placeholder="为其人立一小传：出身、性情、关键事件…"
+            className="field-line resize-none leading-relaxed"
           />
         </div>
       </div>

@@ -1,189 +1,297 @@
-import { Hono } from "hono";
-import { cors } from "hono/cors";
-import { handle } from "hono/vercel";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { Hono, type Context } from "hono";
+import { HTTPException } from "hono/http-exception";
+import { getDb, type Db } from "./db";
 import {
-  listNovels,
-  fetchGraph,
-  createNovel,
-  updateNovel,
-  deleteNovel,
   addCharacter,
-  updateCharacter,
-  removeCharacter,
   addRelation,
-  updateRelation,
-  removeRelation,
+  createNovel,
+  deleteNovel,
+  fetchAll,
+  fetchGraph,
+  getCharacter,
+  getRelation,
+  listNovels,
   reconcileNovel,
-  type Character,
-  type CharacterInput,
-  type Novel,
-  type NovelInput,
-  type Relation,
-  type RelationInput,
-  type ThemeColor,
+  removeCharacter,
+  updateCharacter,
+  updateNovel,
+  updateRelation,
+  ident,
+  lit,
 } from "@moyuan/core";
+import {
+  loginMiniWithCode,
+  loginWebWithCode,
+  buildWebAuthorizeUrl,
+} from "./wechatAuth";
+import { issueDevBypassSession } from "./devAuth";
+import { loginWithEmailPassword } from "./emailAuth";
+import type {
+  CharacterInput,
+  NovelInput,
+  RelationInput,
+} from "@moyuan/core";
+import { verifyJwt } from "./authJwt";
 
-/** 小说可更新字段（themeColor 需为合法枚举值） */
-type NovelPatch = {
-  title?: string;
-  author?: string;
-  synopsis?: string;
-  themeColor?: ThemeColor;
-};
-
-/**
- * 墨缘对外 REST API —— 作为 Vercel Serverless Function 部署在 /api 下。
- *
- * - 使用 service_role key 直连 Supabase，绕过 RLS，做全量 CRUD（仅服务端可见）。
- * - 所有 /novels 路由都需要 Bearer MOYUAN_API_KEY 鉴权。
- * - 仅适合应用所有者本人 / 受信任的 Agent 调用（service_role 可写全库）。
- */
-
-const app = new Hono().basePath("/api");
-
-// 允许跨域，便于 CLI 与 AI Agent 从任意来源调用（接口本身受 key 保护）。
-app.use(
-  "/*",
-  cors({
-    origin: "*",
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
-  }),
-);
-
-// 鉴权中间件
-app.use("/novels/*", async (c, next) => {
-  const expected = process.env.MOYUAN_API_KEY;
-  if (!expected) {
-    return c.json({ error: "服务端未配置 MOYUAN_API_KEY" }, 500);
-  }
-  const auth = c.req.header("Authorization");
-  const token = auth?.startsWith("Bearer ") ? auth.slice(7) : null;
-  if (!token || token !== expected) {
-    return c.json({ error: "未授权：请在 Authorization 头携带有效的 API Key" }, 401);
-  }
-  await next();
-});
-
-/** 惰性创建 service_role 客户端（在请求内创建，便于复用连接） */
-function getSupabase(): SupabaseClient {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) {
-    throw new Error("服务端未配置 SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY");
-  }
-  return createClient(url, key, { auth: { persistSession: false } });
+interface AuthContext {
+  mode: "api_key" | "user";
+  userId: string | null;
 }
 
-// ---------- 健康检查 ----------
-app.get("/health", (c) => c.json({ ok: true }));
+function resolveAuth(c: Context): AuthContext {
+  const apiKey = process.env.MOYUAN_API_KEY;
+  const auth = c.req.header("authorization") || "";
+  const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+  if (apiKey && token === apiKey) {
+    return { mode: "api_key", userId: null };
+  }
+  if (token) {
+    const payload = verifyJwt(token);
+    if (payload?.sub) return { mode: "user", userId: payload.sub };
+  }
+  throw new HTTPException(401, { message: "未授权：缺少有效令牌" });
+}
 
-// ---------- 小说 ----------
+function scopeUserId(auth: AuthContext, c: Context): string | null {
+  if (auth.mode === "user") return auth.userId;
+  // service 模式：通过 ?userId= 指定归属用户
+  return new URL(c.req.url).searchParams.get("userId");
+}
+
+function requireWriteUserId(auth: AuthContext): string {
+  if (auth.mode === "api_key") {
+    if (!process.env.MOYUAN_API_KEY)
+      throw new HTTPException(401, { message: "服务端未配置 MOYUAN_API_KEY" });
+    throw new HTTPException(400, {
+      message: "API Key 模式需通过 ?userId= 指定归属用户",
+    });
+  }
+  const uid = auth.userId;
+  if (!uid) throw new HTTPException(401, { message: "未授权" });
+  return uid;
+}
+
+async function assertNovelAccess(
+  db: Db,
+  auth: AuthContext,
+  novelId: string,
+): Promise<void> {
+  if (auth.mode === "api_key") return; // service 全局可见
+  const rows = await db.query(
+    `SELECT id FROM novels WHERE id = ${lit(novelId)} AND user_id = ${lit(auth.userId)}`,
+  );
+  if (rows.length === 0)
+    throw new HTTPException(404, { message: "小说不存在或无权访问" });
+}
+
+const app = new Hono();
+
+app.onError((err, c) => {
+  if (err instanceof HTTPException) {
+    return c.json({ error: err.message }, err.status);
+  }
+  console.error("[api] 未处理异常:", err);
+  return c.json({ error: "服务器内部错误" }, 500);
+});
+
+// ---------- 数据：小说 ----------
+
 app.get("/novels", async (c) => {
-  const supabase = getSupabase();
-  const novels = await listNovels(supabase);
+  const auth = resolveAuth(c);
+  const db = getDb();
+  const userId = scopeUserId(auth, c);
+  if (auth.mode === "user" && !userId)
+    throw new HTTPException(401, { message: "用户身份缺失" });
+  const novels = await listNovels(db, { userId });
   return c.json({ novels });
 });
 
+// 全量快照（前端首屏拉取）
+app.get("/novels/snapshot", async (c) => {
+  const auth = resolveAuth(c);
+  const db = getDb();
+  const userId = scopeUserId(auth, c);
+  if (auth.mode === "user" && !userId)
+    throw new HTTPException(401, { message: "用户身份缺失" });
+  const snap = await fetchAll(db, { userId });
+  return c.json(snap);
+});
+
 app.post("/novels", async (c) => {
-  const supabase = getSupabase();
-  const body = await c.req.json<NovelInput>();
-  const novel = await createNovel(supabase, body);
+  const auth = resolveAuth(c);
+  const db = getDb();
+  const userId = requireWriteUserId(auth);
+  const body = (await c.req.json()) as Partial<NovelInput>;
+  const novel = await createNovel(
+    db,
+    {
+      title: body.title ?? "",
+      author: body.author,
+      synopsis: body.synopsis,
+      themeColor: body.themeColor,
+    },
+    { userId },
+  );
   return c.json({ novel }, 201);
 });
 
 app.get("/novels/:id", async (c) => {
-  const supabase = getSupabase();
-  const graph = await fetchGraph(supabase, c.req.param("id"));
-  if (!graph) return c.json({ error: "小说不存在" }, 404);
+  const auth = resolveAuth(c);
+  const db = getDb();
+  const novelId = c.req.param("id");
+  await assertNovelAccess(db, auth, novelId);
+  const graph = await fetchGraph(db, novelId);
+  if (!graph) throw new HTTPException(404, { message: "小说不存在" });
   return c.json(graph);
 });
 
 app.put("/novels/:id", async (c) => {
-  const supabase = getSupabase();
-  const body = await c.req.json<NovelPatch>();
-  await updateNovel(supabase, c.req.param("id"), body);
-  const graph = await fetchGraph(supabase, c.req.param("id"));
-  return c.json(graph ? graph.novel : { ok: true });
+  const auth = resolveAuth(c);
+  const db = getDb();
+  const novelId = c.req.param("id");
+  await assertNovelAccess(db, auth, novelId);
+  const body = (await c.req.json()) as Partial<NovelInput>;
+  await updateNovel(db, novelId, body);
+  const graph = await fetchGraph(db, novelId);
+  return c.json(graph);
 });
 
 app.delete("/novels/:id", async (c) => {
-  const supabase = getSupabase();
-  await deleteNovel(supabase, c.req.param("id"));
-  return c.json({ ok: true });
+  const auth = resolveAuth(c);
+  const db = getDb();
+  const novelId = c.req.param("id");
+  await assertNovelAccess(db, auth, novelId);
+  await deleteNovel(db, novelId);
+  return c.body(null, 204);
 });
 
-// ---------- 角色 ----------
+app.post("/novels/:id/reconcile", async (c) => {
+  const auth = resolveAuth(c);
+  const db = getDb();
+  const novelId = c.req.param("id");
+  await assertNovelAccess(db, auth, novelId);
+  const body = (await c.req.json()) as {
+    novel?: import("@moyuan/core").Novel;
+    characters?: import("@moyuan/core").Character[];
+    relations?: import("@moyuan/core").Relation[];
+  };
+  if (!body.novel) throw new HTTPException(400, { message: "缺少 novel" });
+  const graph = await reconcileNovel(
+    db,
+    body.novel,
+    body.characters ?? [],
+    body.relations ?? [],
+  );
+  return c.json(graph);
+});
+
+// ---------- 数据：角色 ----------
+
 app.post("/novels/:id/characters", async (c) => {
-  const supabase = getSupabase();
-  const body = await c.req.json<CharacterInput>();
-  const character = await addCharacter(supabase, c.req.param("id"), body);
+  const auth = resolveAuth(c);
+  const db = getDb();
+  const novelId = c.req.param("id");
+  await assertNovelAccess(db, auth, novelId);
+  const body = (await c.req.json()) as CharacterInput;
+  const character = await addCharacter(db, novelId, body);
   return c.json({ character }, 201);
 });
 
-app.put("/novels/:id/characters/:cid", async (c) => {
-  const supabase = getSupabase();
-  const body = await c.req.json<Partial<CharacterInput>>();
-  await updateCharacter(supabase, c.req.param("cid"), body);
-  return c.json({ ok: true });
+app.put("/novels/:id/characters/:charId", async (c) => {
+  const auth = resolveAuth(c);
+  const db = getDb();
+  const novelId = c.req.param("id");
+  const charId = c.req.param("charId");
+  await assertNovelAccess(db, auth, novelId);
+  const body = (await c.req.json()) as Partial<CharacterInput>;
+  await updateCharacter(db, charId, body);
+  const character = await getCharacter(db, charId);
+  return c.json({ character });
 });
 
-app.delete("/novels/:id/characters/:cid", async (c) => {
-  const supabase = getSupabase();
-  await removeCharacter(supabase, c.req.param("id"), c.req.param("cid"));
-  return c.json({ ok: true });
+app.delete("/novels/:id/characters/:charId", async (c) => {
+  const auth = resolveAuth(c);
+  const db = getDb();
+  const novelId = c.req.param("id");
+  const charId = c.req.param("charId");
+  await assertNovelAccess(db, auth, novelId);
+  await removeCharacter(db, novelId, charId);
+  return c.json({ characters: [], relations: [] });
 });
 
-// ---------- 关系 ----------
+// ---------- 数据：关系 ----------
+
 app.post("/novels/:id/relations", async (c) => {
-  const supabase = getSupabase();
-  const body = await c.req.json<RelationInput>();
-  const relation = await addRelation(supabase, c.req.param("id"), body);
+  const auth = resolveAuth(c);
+  const db = getDb();
+  const novelId = c.req.param("id");
+  await assertNovelAccess(db, auth, novelId);
+  const body = (await c.req.json()) as RelationInput;
+  const relation = await addRelation(db, novelId, body);
   return c.json({ relation }, 201);
 });
 
-app.put("/novels/:id/relations/:rid", async (c) => {
-  const supabase = getSupabase();
-  const body = await c.req.json<Partial<RelationInput>>();
-  await updateRelation(supabase, c.req.param("rid"), body);
-  return c.json({ ok: true });
+app.put("/novels/:id/relations/:relId", async (c) => {
+  const auth = resolveAuth(c);
+  const db = getDb();
+  const novelId = c.req.param("id");
+  const relId = c.req.param("relId");
+  await assertNovelAccess(db, auth, novelId);
+  const body = (await c.req.json()) as Partial<RelationInput>;
+  await updateRelation(db, relId, body);
+  const relation = await getRelation(db, relId);
+  return c.json({ relation });
 });
 
-app.delete("/novels/:id/relations/:rid", async (c) => {
-  const supabase = getSupabase();
-  await removeRelation(supabase, c.req.param("id"), c.req.param("rid"));
-  return c.json({ ok: true });
+app.delete("/novels/:id/relations/:relId", async (c) => {
+  const auth = resolveAuth(c);
+  const db = getDb();
+  const novelId = c.req.param("id");
+  const relId = c.req.param("relId");
+  await assertNovelAccess(db, auth, novelId);
+  await db.query(
+    `DELETE FROM ${ident("relations")} WHERE ${ident("id")} = ${lit(relId)}`,
+  );
+  return c.json({ relations: [] });
 });
 
-// ---------- 增量对账（核心：提交整本小说的完整状态） ----------
-app.post("/novels/:id/reconcile", async (c) => {
-  const supabase = getSupabase();
-  const id = c.req.param("id");
-  const body = await c.req.json<{
-    novel?: Partial<Novel>;
-    characters?: Character[];
-    relations?: Relation[];
-  }>();
+// ---------- 鉴权 ----------
 
-  let novel: Novel;
-  const existing = await fetchGraph(supabase, id);
-  if (existing) {
-    await updateNovel(supabase, id, body.novel ?? {});
-    novel = (await fetchGraph(supabase, id))!.novel;
-  } else {
-    novel = await createNovel(supabase, {
-      title: body.novel?.title ?? "未命名",
-      ...(body.novel ?? {}),
-    });
-  }
-
-  const characters = body.characters ?? existing?.characters ?? [];
-  const relations = body.relations ?? existing?.relations ?? [];
-  await reconcileNovel(supabase, novel, characters, relations);
-
-  const result = await fetchGraph(supabase, id);
-  return c.json(result);
+app.get("/auth/wechat/web/authorize-url", async (c) => {
+  const redirectUri = c.req.query("redirect_uri") || "";
+  if (!redirectUri) return c.json({ error: "缺少 redirect_uri" }, 400);
+  const url = buildWebAuthorizeUrl(redirectUri);
+  return c.json({ authorizeUrl: url });
 });
 
-export default handle(app);
+app.post("/auth/wechat/mini", async (c) => {
+  const { code } = (await c.req.json()) as { code?: string };
+  if (!code) return c.json({ error: "缺少 code" }, 400);
+  const session = await loginMiniWithCode(getDb(), code);
+  return c.json({ session });
+});
+
+app.post("/auth/wechat/web", async (c) => {
+  const { code } = (await c.req.json()) as { code?: string };
+  if (!code) return c.json({ error: "缺少 code" }, 400);
+  const session = await loginWebWithCode(getDb(), code);
+  return c.json({ session });
+});
+
+app.post("/auth/dev-login", async (c) => {
+  const session = await issueDevBypassSession(getDb());
+  return c.json({ session });
+});
+
+app.post("/auth/login", async (c) => {
+  const { email, password } = (await c.req.json()) as {
+    email?: string;
+    password?: string;
+  };
+  if (!email || !password)
+    return c.json({ error: "缺少邮箱或密码" }, 400);
+  const session = await loginWithEmailPassword(getDb(), email, password);
+  return c.json({ session });
+});
+
+export default app;

@@ -1,0 +1,18 @@
+.shell-page {
+  min-height: 100vh;
+  padding: 48px 32px;
+  box-sizing: border-box;
+}
+
+.shell-title {
+  display: block;
+  font-size: 40px;
+  letter-spacing: 0.2em;
+  margin-bottom: 24px;
+}
+
+.shell-hint {
+  font-size: 28px;
+  line-height: 1.6;
+  opacity: 0.7;
+}

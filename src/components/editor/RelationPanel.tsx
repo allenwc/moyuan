@@ -3,7 +3,7 @@ import type { Character, Relation, RelationType, Direction } from "@/types";
 import { RELATION_TYPES, cn, getRelationMeta } from "@/lib/utils";
 import { BottomSheet } from "@/components/BottomSheet";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { Trash2, ArrowRight, ArrowLeftRight } from "lucide-react";
+import { IconTrash } from "@/components/uiIcons";
 
 interface RelationPanelProps {
   open: boolean;
@@ -70,13 +70,14 @@ export function RelationPanel({
       footer={
         <>
           <button
+            type="button"
             onClick={() => setConfirmDelete(true)}
             className="btn-ghost text-vermillion border-vermillion/30 flex-1"
           >
-            <Trash2 className="w-4 h-4" strokeWidth={1.6} />
+            <IconTrash className="w-4 h-4" strokeWidth={1.6} aria-hidden="true" />
             删除
           </button>
-          <button onClick={save} className="btn-primary flex-[2]">
+          <button type="button" onClick={save} className="btn-primary flex-[2]">
             保存
           </button>
         </>
@@ -115,9 +116,9 @@ export function RelationPanel({
               style={{ backgroundColor: meta.color, color: "#faf6ec" }}
             >
               {direction === "mutual" ? (
-                <ArrowLeftRight className="w-3.5 h-3.5" strokeWidth={1.8} />
+                <span>↔</span>
               ) : (
-                <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.8} />
+                <span>→</span>
               )}
             </span>
             <div
@@ -141,6 +142,7 @@ export function RelationPanel({
             {RELATION_TYPES.map((r) => (
               <button
                 key={r.key}
+                type="button"
                 onClick={() => {
                   setType(r.key);
                   setDirty(true);
@@ -149,7 +151,7 @@ export function RelationPanel({
                   "flex flex-col items-center gap-1 py-2 rounded-[2px] border transition-all duration-150",
                   type === r.key
                     ? "border-ink bg-paper-soft shadow-paper"
-                    : "border-ink/10 hover:bg-ink/5",
+                    : "bg-transparent border-ink/10 hover:bg-ink/5",
                 )}
               >
                 <span
@@ -170,6 +172,7 @@ export function RelationPanel({
           </label>
           <div className="flex gap-2 mt-2">
             <button
+              type="button"
               onClick={() => {
                 setDirection("one-way");
                 setDirty(true);
@@ -178,14 +181,15 @@ export function RelationPanel({
                 "flex-1 h-11 rounded-[2px] border flex items-center justify-center gap-2 transition-all",
                 direction === "one-way"
                   ? "border-ink bg-paper-soft shadow-paper"
-                  : "border-ink/10 hover:bg-ink/5",
+                  : "bg-transparent border-ink/10 hover:bg-ink/5",
               )}
             >
-              <ArrowRight className="w-4 h-4" strokeWidth={1.6} />
+              <span>→</span>
               <span className="text-sm">单向</span>
               <span className="text-[11px] text-ink-mute">源 → 的</span>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setDirection("mutual");
                 setDirty(true);
@@ -194,10 +198,10 @@ export function RelationPanel({
                 "flex-1 h-11 rounded-[2px] border flex items-center justify-center gap-2 transition-all",
                 direction === "mutual"
                   ? "border-ink bg-paper-soft shadow-paper"
-                  : "border-ink/10 hover:bg-ink/5",
+                  : "bg-transparent border-ink/10 hover:bg-ink/5",
               )}
             >
-              <ArrowLeftRight className="w-4 h-4" strokeWidth={1.6} />
+              <span>↔</span>
               <span className="text-sm">双向</span>
               <span className="text-[11px] text-ink-mute">互为</span>
             </button>

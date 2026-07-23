@@ -116,8 +116,8 @@ export function autoArrange(
   characters: Character[],
   relations: Relation[],
   options: { width: number; height: number; seed?: boolean } = {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: 375,
+    height: 667,
   },
 ): Character[] {
   if (characters.length === 0) return [];

@@ -13,6 +13,8 @@ interface ConfirmDialogProps {
   onCancel: () => void;
 }
 
+const isH5 = process.env.TARO_ENV === "h5";
+
 export function ConfirmDialog({
   open,
   title,
@@ -24,7 +26,7 @@ export function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   useEffect(() => {
-    if (!open) return;
+    if (!open || !isH5) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onCancel();
     };
@@ -34,7 +36,7 @@ export function ConfirmDialog({
 
   if (!open) return null;
 
-  return createPortal(
+  const node = (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-6">
       <div
         className="absolute inset-0 bg-ink/40 backdrop-blur-[2px] animate-fade-in"
@@ -72,7 +74,11 @@ export function ConfirmDialog({
           </button>
         </div>
       </div>
-    </div>,
-    document.body,
+    </div>
   );
+
+  if (isH5 && typeof document !== "undefined") {
+    return createPortal(node, document.body);
+  }
+  return node;
 }

@@ -24,6 +24,8 @@ export type Gender = "male" | "female";
 
 export interface Novel {
   id: string;
+  /** 所属用户（CloudBase users 表 id） */
+  userId: string;
   title: string;
   author: string;
   synopsis: string;
@@ -86,4 +88,18 @@ export interface RelationInput {
   type: RelationType;
   direction: Direction;
   note: string;
+}
+
+/** 全量快照：小说 + 角色 + 关系 */
+export interface RemoteSnapshot {
+  novels: Novel[];
+  characters: Character[];
+  relations: Relation[];
+}
+
+/** 单本小说完整图谱 */
+export interface NovelGraph {
+  novel: Novel;
+  characters: Character[];
+  relations: Relation[];
 }

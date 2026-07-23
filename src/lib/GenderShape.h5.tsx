@@ -1,28 +1,7 @@
-import type { Gender } from "@/types";
+export { getGenderShape, type GenderShapeKind, type GenderShapeProps } from "./genderShapeShared";
+import type { GenderShapeProps } from "./genderShapeShared";
 
-export type GenderShapeKind = "square" | "circle" | "diamond";
-
-/** 性别 → 形状：男=方形，女=圆形，未选择=菱形（家谱图惯例，最直观） */
-export function getGenderShape(gender?: Gender): GenderShapeKind {
-  if (gender === "male") return "square";
-  if (gender === "female") return "circle";
-  return "diamond";
-}
-
-interface GenderShapeProps {
-  shape: GenderShapeKind;
-  r: number;
-  fill: string;
-  stroke: string;
-  strokeWidth: number;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-/**
- * 以性别形状绘制节点主体。方形/菱形均按外接圆半径为 r 计算，
- * 保证三种形状在画布上视觉大小一致，且与按身份缩放的半径对齐。
- */
+/** H5：SVG 图形节点（需置于 <svg> 内） */
 export function GenderShape({
   shape,
   r,
@@ -61,7 +40,6 @@ export function GenderShape({
       />
     );
   }
-  // diamond：旋转 45° 的方，外接圆半径 = r
   const s = r * 1.4142;
   return (
     <rect
@@ -77,5 +55,28 @@ export function GenderShape({
       className={className}
       style={style}
     />
+  );
+}
+
+/** 面板/表单用：自带 viewBox 的独立图标 */
+export function GenderShapeIcon({
+  r,
+  className,
+  style,
+  ...rest
+}: GenderShapeProps) {
+  const pad = Math.max(r * 0.25, 1);
+  const size = (r + pad) * 2;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`${-r - pad} ${-r - pad} ${size} ${size}`}
+      className={className}
+      style={style}
+      aria-hidden
+    >
+      <GenderShape r={r} {...rest} />
+    </svg>
   );
 }

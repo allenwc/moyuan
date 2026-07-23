@@ -1,6 +1,6 @@
 import type { Character } from "@/types";
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
+import { IconX } from "@/components/uiIcons";
 
 interface FocusPeekProps {
   character: Character;
@@ -63,7 +63,7 @@ export function FocusPeek({
           className="btn-icon shrink-0"
           aria-label="取消焦点"
         >
-          <X className="w-4 h-4" strokeWidth={1.6} aria-hidden="true" />
+          <IconX className="w-4 h-4" strokeWidth={1.6} aria-hidden="true" />
         </button>
       </div>
     </div>

@@ -1,8 +1,12 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import type { Character, Novel, Relation } from "@/types";
 import { cn, formatTime, getThemePalette } from "@/lib/utils";
-import { MoreHorizontal, Users, GitBranch } from "lucide-react";
+import {
+  IconMore,
+  IconUsers,
+  IconGitBranch,
+} from "@/components/uiIcons";
+import { goEditor } from "@/lib/nav";
 
 interface NovelCardProps {
   novel: Novel;
@@ -19,7 +23,6 @@ export function NovelCard({
   onMore,
   index = 0,
 }: NovelCardProps) {
-  const navigate = useNavigate();
   const palette = getThemePalette(novel.themeColor);
   const [pressed, setPressed] = useState(false);
 
@@ -30,10 +33,13 @@ export function NovelCard({
         pressed && "translate-y-[-2px] shadow-paper-lg",
       )}
       style={{ animationDelay: `${Math.min(index * 40, 320)}ms` }}
-      onClick={() => navigate(`/editor/${novel.id}`)}
+      onClick={() => goEditor(novel.id)}
       onPointerDown={() => setPressed(true)}
       onPointerUp={() => setPressed(false)}
       onPointerLeave={() => setPressed(false)}
+      onTouchStart={() => setPressed(true)}
+      onTouchEnd={() => setPressed(false)}
+      onTouchCancel={() => setPressed(false)}
     >
       {/* Book spine / cover */}
       <div
@@ -75,6 +81,7 @@ export function NovelCard({
             {novel.title}
           </h3>
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               onMore(e, novel);
@@ -82,29 +89,29 @@ export function NovelCard({
             className="btn-icon -mr-1 -mt-1 shrink-0"
             aria-label="更多操作"
           >
-            <MoreHorizontal className="w-4 h-4" strokeWidth={1.6} />
+            <IconMore className="w-4 h-4" strokeWidth={1.6} />
           </button>
         </div>
         <p className="text-xs text-ink-mute mt-0.5 clamp-1">
           {novel.author || "佚名"}
         </p>
-        {novel.synopsis && (
+        {novel.synopsis ? (
           <p className="text-[13px] text-ink-soft mt-2 leading-relaxed clamp-2">
             {novel.synopsis}
           </p>
-        )}
+        ) : null}
         <div className="mt-auto pt-3 flex items-center justify-between text-[11px] text-ink-mute">
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1">
-              <Users className="w-3 h-3" strokeWidth={1.6} />
+              <IconUsers className="w-3 h-3" strokeWidth={1.6} />
               {characters.length} 人
             </span>
             <span className="inline-flex items-center gap-1">
-              <GitBranch className="w-3 h-3" strokeWidth={1.6} />
+              <IconGitBranch className="w-3 h-3" strokeWidth={1.6} />
               {relations.length} 缘
             </span>
           </div>
-          <span className="tracking-editorial">{formatTime(novel.createdAt)}</span>
+          <span className="tracking-editorial">{formatTime(novel.updatedAt)}</span>
         </div>
       </div>
     </article>

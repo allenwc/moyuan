@@ -5,7 +5,7 @@ description: >-
   novel character-relationship graphs in 墨缘 (Moyuan) — for example adding
   novels/characters/relations, reading a novel's full graph, or bulk-syncing a
   graph state. It wraps the 墨缘 CLI, which talks to the Moyuan REST API
-  (Supabase-backed). Use it whenever the user asks to operate on Moyuan novel
+  (CloudBase PostgreSQL-backed). Use it whenever the user asks to operate on Moyuan novel
   data through the API or CLI rather than the browser UI.
 ---
 
@@ -27,7 +27,7 @@ ever shared, it is published as an npm package (`moyuan-skill`) and installed vi
 
 - The user wants to inspect or edit a Moyuan novel, its characters, or relations.
 - The user asks to "add a character / build a relationship graph / export the
-  graph" and expects the change to persist to the cloud (Supabase).
+  graph" and expects the change to persist to the cloud (CloudBase).
 - The user references the Moyuan API, CLI, or "skill" explicitly.
 
 Do **not** use this skill for purely visual/UI edits that the browser app already

@@ -1,0 +1,7 @@
+{
+  "name": "moyuan-auth",
+  "version": "1.0.0",
+  "description": "墨缘认证云函数（邮箱登录代理）",
+  "main": "index.js",
+  "dependencies": {}
+}

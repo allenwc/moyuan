@@ -53,7 +53,27 @@ export function Seal({
   );
 }
 
+/** 装饰印章：H5 用原版 SVG；weapp 避免 defs/g 模板，用纯块实现 */
 export function SealStamp({ className }: { className?: string }) {
+  if (process.env.TARO_ENV === "weapp") {
+    return (
+      <div
+        className={cn(
+          "pointer-events-none flex flex-col items-center justify-center rounded-[2px] bg-vermillion-deep text-paper-soft",
+          className,
+        )}
+        style={{
+          boxShadow:
+            "0 0 0 1px rgba(122,36,32,0.4), inset 0 0 0 3px rgba(245,239,226,0.28)",
+        }}
+        aria-hidden
+      >
+        <span className="font-song font-bold text-3xl leading-none">墨</span>
+        <span className="mt-1 text-[10px] tracking-seal opacity-70">MOYUAN</span>
+      </div>
+    );
+  }
+
   return (
     <svg
       viewBox="0 0 100 100"

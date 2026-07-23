@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { IconX } from "@/components/uiIcons";
 import { cn } from "@/lib/utils";
 
 interface BottomSheetProps {
@@ -13,6 +14,8 @@ interface BottomSheetProps {
   className?: string;
 }
 
+const isH5 = process.env.TARO_ENV === "h5";
+
 export function BottomSheet({
   open,
   onClose,
@@ -23,11 +26,10 @@ export function BottomSheet({
   size = "auto",
   className,
 }: BottomSheetProps) {
-  const sheetRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || !isH5) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
@@ -37,8 +39,6 @@ export function BottomSheet({
 
   useEffect(() => {
     if (!open) return;
-    // 弹窗从底部滑入时，把内容滚动位置重置到顶部，
-    // 避免初始滚动停在底部导致顶部的 title 被顶出视口。
     const id = requestAnimationFrame(() => {
       if (contentRef.current) contentRef.current.scrollTop = 0;
     });
@@ -46,7 +46,7 @@ export function BottomSheet({
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || !isH5 || typeof document === "undefined") return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
@@ -56,14 +56,13 @@ export function BottomSheet({
 
   if (!open) return null;
 
-  return createPortal(
+  const node = (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       <div
         className="absolute inset-0 bg-ink/40 backdrop-blur-[2px] animate-fade-in"
         onClick={onClose}
       />
       <div
-        ref={sheetRef}
         className={cn(
           "relative w-full max-w-[640px] bg-paper-soft border-t border-x border-ink/15 shadow-paper-lg animate-slide-up flex flex-col max-h-[92vh] rounded-t-[8px]",
           size === "full" && "h-[92vh]",
@@ -89,13 +88,12 @@ export function BottomSheet({
               )}
             </div>
             <button
+              type="button"
               onClick={onClose}
               className="btn-icon shrink-0"
               aria-label="关闭"
             >
-              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-                <path d="M6 6l12 12M18 6L6 18" />
-              </svg>
+              <IconX className="w-4 h-4" strokeWidth={1.6} aria-hidden="true" />
             </button>
           </div>
         )}
@@ -111,7 +109,11 @@ export function BottomSheet({
           </div>
         )}
       </div>
-    </div>,
-    document.body,
+    </div>
   );
+
+  if (isH5 && typeof document !== "undefined") {
+    return createPortal(node, document.body);
+  }
+  return node;
 }

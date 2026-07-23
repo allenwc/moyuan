@@ -14,6 +14,7 @@ import {
   fetchAll,
   reconcileNovel,
 } from "@/lib/novelRepo";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface DataState {
   novels: Novel[];
@@ -25,7 +26,7 @@ interface NovelStore extends DataState {
   /** 云端数据加载状态 */
   hydrated: boolean;
   loadError: string | null;
-  /** 启动时从 Supabase 全量加载 */
+  /** 启动时从云端全量加载 */
   hydrate: () => Promise<void>;
 
   createNovel: (input: NovelInput) => string;
@@ -80,6 +81,7 @@ const syncTimers = new Map<string, ReturnType<typeof setTimeout>>();
 export const useNovelStore = create<NovelStore>()((set, get) => {
   /** 立即把某本小说的当前状态对账到云端 */
   async function flushNovel(novelId: string): Promise<void> {
+    if (!useAuthStore.getState().session) return;
     const s = get();
     const novel = s.novels.find((n) => n.id === novelId);
     if (!novel) return; // 已被删除，交由 deleteNovel 处理
@@ -113,8 +115,24 @@ export const useNovelStore = create<NovelStore>()((set, get) => {
     loadError: null,
 
     hydrate: async () => {
+      // 未登录：无需加载云端数据
+      if (!useAuthStore.getState().session) {
+        set({
+          novels: [],
+          characters: [],
+          relations: [],
+          hydrated: true,
+          loadError: null,
+        });
+        return;
+      }
       try {
-        const data = await fetchAll();
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) {
+          set({ hydrated: true, loadError: "未找到用户信息" });
+          return;
+        }
+        const data = await fetchAll(userId);
         set({
           novels: data.novels,
           characters: data.characters,
@@ -133,14 +151,20 @@ export const useNovelStore = create<NovelStore>()((set, get) => {
     },
 
     createNovel: (input) => {
+      const authUser = useAuthStore.getState().user;
+      if (!authUser) {
+        console.error("[store] createNovel 需要已登录用户");
+        return "";
+      }
       const now = Date.now();
       const id = uid("novel");
       const novel: Novel = {
         id,
+        userId: authUser.uid,
         title: input.title.trim() || "未命名",
-        author: input.author.trim(),
-        synopsis: input.synopsis.trim(),
-        themeColor: input.themeColor,
+        author: (input.author ?? "").trim(),
+        synopsis: (input.synopsis ?? "").trim(),
+        themeColor: input.themeColor ?? "vermillion",
         createdAt: now,
         updatedAt: now,
       };
@@ -176,9 +200,14 @@ export const useNovelStore = create<NovelStore>()((set, get) => {
         clearTimeout(t);
         syncTimers.delete(id);
       }
-      void deleteNovelRemote(id).catch((err) =>
-        console.error("[store] 云端删除小说失败:", id, err),
-      );
+      void (async () => {
+        if (!useAuthStore.getState().session) return;
+        try {
+          await deleteNovelRemote(id);
+        } catch (err) {
+          console.error("[store] 云端删除小说失败:", id, err);
+        }
+      })();
     },
 
     duplicateNovel: (id) => {
@@ -187,9 +216,11 @@ export const useNovelStore = create<NovelStore>()((set, get) => {
       if (!novel) return id;
       const now = Date.now();
       const newId = uid("novel");
+      const userId = useAuthStore.getState().user?.uid ?? novel.userId;
       const newNovel: Novel = {
         ...novel,
         id: newId,
+        userId,
         title: `${novel.title} · 副本`,
         createdAt: now,
         updatedAt: now,

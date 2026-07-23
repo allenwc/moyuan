@@ -10,7 +10,12 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dist/weapp
+dist/h5
 *.local
+# 已停用的 Vite 入口备份（阶段 1）
+*.vite.html.bak
+vite.config.ts.bak
 
 # Astro build cache / generated types
 site/.astro/
@@ -34,3 +39,6 @@ site/Supabase/
 .env
 .env.local
 .env.*.local
+
+.pnpm-store/
+.tasks/

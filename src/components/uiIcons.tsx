@@ -1,0 +1,22 @@
+/** H5：lucide 图标（与线上一致） */
+export {
+  Search as IconSearch,
+  Plus as IconPlus,
+  Edit3 as IconEdit,
+  Copy as IconCopy,
+  Download as IconDownload,
+  Trash2 as IconTrash,
+  MoreHorizontal as IconMore,
+  Users as IconUsers,
+  GitBranch as IconGitBranch,
+  ArrowLeft as IconArrowLeft,
+  Undo2 as IconUndo,
+  Redo2 as IconRedo,
+  Minus as IconMinus,
+  PlusCircle as IconPlusCircle,
+  Locate as IconLocate,
+  LayoutGrid as IconLayoutGrid,
+  Link2 as IconLink,
+  UserPlus as IconUserPlus,
+  X as IconX,
+} from "lucide-react";

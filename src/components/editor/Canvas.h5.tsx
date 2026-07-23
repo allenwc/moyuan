@@ -1,31 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Character, Relation, Viewport } from "@/types";
 import { useCanvasGestures } from "@/hooks/useGestures";
+import type { CanvasProps } from "./canvasTypes";
 import { CharacterNode } from "./CharacterNode";
 import { RelationEdge } from "./RelationEdge";
 import { EditorEmpty } from "./EditorEmpty";
-
-interface CanvasProps {
-  characters: Character[];
-  relations: Relation[];
-  viewport: Viewport;
-  focusedCharacterId: string | null;
-  selectedRelationId: string | null;
-  connectingFromId: string | null;
-  onViewportChange: (vp: Viewport | ((prev: Viewport) => Viewport)) => void;
-  onFocusCharacter: (id: string | null) => void;
-  onEditCharacter: (id: string) => void;
-  onSelectRelation: (id: string | null) => void;
-  onStartConnect: (id: string) => void;
-  onCompleteConnect: (sourceId: string, targetId: string) => void;
-  onCancelConnect: () => void;
-  onUpdatePosition: (id: string, x: number, y: number) => void;
-  onCommitPosition: (id: string, x: number, y: number) => void;
-  onAddCharacterAt: (x: number, y: number) => void;
-  clampScale: (s: number) => number;
-  relationGuideOpen?: boolean;
-  onDismissRelationGuide?: () => void;
-}
 
 export function Canvas({
   characters,
@@ -356,7 +334,7 @@ export function Canvas({
                 e.stopPropagation();
                 onCancelConnect();
               }}
-              className="pointer-events-auto ml-1 px-2 py-0.5 text-[11px] text-paper-soft/80 border border-paper-soft/20 rounded-[2px] hover:bg-paper-soft/10 shrink-0"
+              className="pointer-events-auto ml-1 px-2 py-0.5 text-[11px] text-paper-soft/80 bg-transparent border border-paper-soft/20 rounded-[2px] hover:bg-paper-soft/10 shrink-0"
             >
               取消
             </button>
@@ -382,7 +360,7 @@ export function Canvas({
                 e.stopPropagation();
                 onDismissRelationGuide?.();
               }}
-              className="pointer-events-auto ml-1 px-2 py-0.5 text-[11px] text-paper-soft/80 border border-paper-soft/20 rounded-[2px] hover:bg-paper-soft/10 shrink-0"
+              className="pointer-events-auto ml-1 px-2 py-0.5 text-[11px] text-paper-soft/80 bg-transparent border border-paper-soft/20 rounded-[2px] hover:bg-paper-soft/10 shrink-0"
             >
               关闭
             </button>

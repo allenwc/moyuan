@@ -7,10 +7,10 @@ import {
   cn,
   getRelationMeta,
 } from "@/lib/utils";
-import { GenderShape, getGenderShape } from "@/lib/GenderShape";
+import { GenderShapeIcon, getGenderShape } from "@/lib/GenderShape";
 import { BottomSheet } from "@/components/BottomSheet";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { Trash2, ArrowRight, ArrowLeftRight } from "lucide-react";
+import { IconTrash } from "@/components/uiIcons";
 
 interface CharacterPanelProps {
   open: boolean;
@@ -111,13 +111,14 @@ export function CharacterPanel({
       footer={
         <>
           <button
+            type="button"
             onClick={() => setConfirmDelete(true)}
             className="btn-ghost text-vermillion border-vermillion/30 flex-1"
           >
-            <Trash2 className="w-4 h-4" strokeWidth={1.6} />
+            <IconTrash className="w-4 h-4" strokeWidth={1.6} aria-hidden="true" />
             删除
           </button>
-          <button onClick={save} className="btn-primary flex-[2]">
+          <button type="button" onClick={save} className="btn-primary flex-[2]">
             保存
           </button>
         </>
@@ -151,15 +152,16 @@ export function CharacterPanel({
                       "flex items-center gap-1 px-2.5 h-9 rounded-[3px] border transition-all duration-150",
                       selected
                         ? "bg-ink text-paper-soft border-ink"
-                        : "border-ink/15 text-ink-mute hover:bg-ink/5",
+                        : "bg-transparent border-ink/15 text-ink-mute hover:bg-ink/5",
                     )}
                   >
-                    <GenderShape
+                    <GenderShapeIcon
                       shape={getGenderShape(g.key)}
                       r={5}
                       fill={selected ? "#faf6ec" : g.color}
                       stroke="none"
                       strokeWidth={0}
+                      className="shrink-0"
                     />
                     {g.label}
                   </button>
@@ -202,12 +204,13 @@ export function CharacterPanel({
             {CHARACTER_ROLES.map((r) => (
               <button
                 key={r}
+                type="button"
                 onClick={() => update({ role: r })}
                 className={cn(
                   "px-3 h-7 text-xs rounded-[2px] border transition-all duration-150",
                   role === r
                     ? "bg-ink text-paper-soft border-ink"
-                    : "border-ink/15 text-ink-mute hover:bg-ink/5",
+                    : "bg-transparent border-ink/15 text-ink-mute hover:bg-ink/5",
                 )}
               >
                 {r}
@@ -224,6 +227,7 @@ export function CharacterPanel({
             {CHARACTER_COLOR_PRESETS.map((c) => (
               <button
                 key={c}
+                type="button"
                 onClick={() => update({ color: c })}
                 className={cn(
                   "w-9 h-9 rounded-full border-2 transition-all duration-150",
@@ -259,7 +263,7 @@ export function CharacterPanel({
             onChange={(e) => update({ note: e.target.value })}
             rows={3}
             placeholder="为其人立一小传：出身、性情、关键事件…"
-            className="w-full bg-transparent border-0 border-b border-ink/20 px-0 py-2 text-ink placeholder:text-ink/35 focus:outline-none focus:border-vermillion transition-colors duration-200 resize-none leading-relaxed"
+            className="field-line resize-none leading-relaxed"
           />
         </div>
 
@@ -279,8 +283,9 @@ export function CharacterPanel({
               related.map(({ relation, other, meta, outward }) => (
                 <button
                   key={relation.id}
+                  type="button"
                   onClick={() => onSelectRelation(relation.id)}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-[2px] border border-ink/10 hover:bg-ink/5 transition-colors text-left"
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-[2px] border border-ink/10 bg-transparent hover:bg-ink/5 transition-colors text-left"
                 >
                   <span
                     className="inline-flex items-center justify-center w-6 h-6 rounded-[2px] font-song text-[11px] font-bold text-paper-soft"
@@ -300,9 +305,9 @@ export function CharacterPanel({
                     )}
                   </span>
                   {relation.direction === "mutual" ? (
-                    <ArrowLeftRight className="w-3 h-3 text-ink-mute" strokeWidth={1.6} />
+                    <span className="text-[10px] text-ink-mute">↔</span>
                   ) : (
-                    <ArrowRight className="w-3 h-3 text-ink-mute" strokeWidth={1.6} />
+                    <span className="text-[10px] text-ink-mute">→</span>
                   )}
                 </button>
               ))
