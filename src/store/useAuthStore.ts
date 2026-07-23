@@ -37,14 +37,32 @@ export const useAuthStore = create<AuthState>((set) => ({
       const loginState = await getLoginState();
       if (loginState) {
         const auth = getAuth();
-        const cbUser = auth.currentUser;
+        const cbUser = auth.currentUser as
+          | { uid?: string; email?: string | null }
+          | null
+          | undefined;
+        const lsUser = loginState.user as
+          | { uid?: string; email?: string | null; username?: string | null }
+          | null
+          | undefined;
+        const cached = loadSession();
+        const uid = cbUser?.uid || lsUser?.uid || cached?.user?.uid || "";
+        const lsIdentity = lsUser?.email || lsUser?.username || null;
+        const lsEmail =
+          lsIdentity && lsIdentity.includes("@") ? lsIdentity : null;
+        const sameUser = Boolean(uid && cached?.user?.uid === uid);
+        const email =
+          cbUser?.email || lsEmail || (sameUser ? cached?.user?.email : null) || null;
+        const channel =
+          (sameUser && cached?.user?.channel) ||
+          (email ? "email" : "cloudbase");
         const session: Session = {
           accessToken: loginState.credential?.accessToken || "",
           refreshToken: loginState.credential?.refreshToken || "",
           user: {
-            uid: cbUser?.uid || loginState.user?.uid || "",
-            email: (cbUser as any)?.email || null,
-            channel: "cloudbase",
+            uid,
+            email,
+            channel,
           },
         };
         saveSession(session);

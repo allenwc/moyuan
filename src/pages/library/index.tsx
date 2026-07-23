@@ -16,7 +16,14 @@ import {
   IconSearch,
 } from "@/components/uiIcons";
 import type { Novel, NovelInput } from "@/types";
+import type { SessionUser } from "@/lib/authStorage";
 import { goEditor, goLogin } from "@/lib/nav";
+import {
+  readerSealChar,
+  readerShortLabel,
+  readerFullLabel,
+  readerChannelLabel,
+} from "@/lib/readerIdentity";
 import "./index.scss";
 
 type SortKey = "updated" | "title";
@@ -73,6 +80,8 @@ export default function LibraryPage() {
   const [editing, setEditing] = useState<Novel | null>(null);
   const [menuNovel, setMenuNovel] = useState<Novel | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Novel | null>(null);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   // 检索栏到达吸顶位（top-14）时 pinned=true
   const toolbarRef = useRef<HTMLDivElement>(null);
@@ -356,18 +365,16 @@ export default function LibraryPage() {
               墨缘
             </span>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] sm:text-[11px] tracking-seal text-ink-mute tabular-nums whitespace-nowrap">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <ReaderMark
+              user={user}
+              compact
+              onOpen={() => setAccountOpen(true)}
+            />
+            <span className="text-[10px] sm:text-[11px] tracking-seal text-ink-mute tabular-nums whitespace-nowrap shrink-0">
               {stats.novelCount}卷 · {stats.characterCount}人 ·{" "}
               {stats.relationCount}缘
             </span>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="text-[11px] tracking-editorial text-ink-mute whitespace-nowrap"
-            >
-              退出
-            </button>
             <button
               type="button"
               onClick={() => setCreating(true)}
@@ -428,10 +435,13 @@ export default function LibraryPage() {
             className="mt-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 animate-fade-up"
             style={{ animationDelay: "120ms" }}
           >
-            <p className="text-[12px] sm:text-[13px] tracking-seal text-ink-mute tabular-nums">
-              {stats.novelCount}卷 · {stats.characterCount}人 ·{" "}
-              {stats.relationCount}缘
-            </p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 min-w-0">
+              <ReaderMark user={user} onOpen={() => setAccountOpen(true)} />
+              <p className="text-[12px] sm:text-[13px] tracking-seal text-ink-mute tabular-nums">
+                {stats.novelCount}卷 · {stats.characterCount}人 ·{" "}
+                {stats.relationCount}缘
+              </p>
+            </div>
             <button
               type="button"
               onClick={() => setCreating(true)}
@@ -468,7 +478,7 @@ export default function LibraryPage() {
               <div className="flex-1 min-w-[200px] relative">
                 <IconSearch
                   aria-hidden="true"
-                  className="absolute left-1 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-mute"
+                  className="absolute left-1 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-mute pointer-events-none"
                   strokeWidth={1.6}
                 />
                 <input
@@ -478,19 +488,21 @@ export default function LibraryPage() {
                     setQuery((e.target as HTMLInputElement).value)
                   }
                   placeholder="检索书名、作者、内容…"
-                  className="w-full bg-transparent border-0 border-b border-ink/15 pl-7 pr-2 py-2 text-sm focus:border-vermillion focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vermillion/30 transition-colors"
+                  className="field-line w-full bg-transparent border-0 border-b border-ink/15 pl-7 pr-2 py-2 text-sm leading-5 focus:border-vermillion focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vermillion/30 transition-colors"
                 />
               </div>
-              <div className="flex items-center gap-1 text-[12px] tracking-editorial text-ink-mute">
+              <div className="flex items-center gap-1 text-[12px] leading-[1.6] tracking-editorial text-ink-mute">
                 <button
                   type="button"
                   aria-pressed={sort === "updated"}
                   onClick={() => setSort("updated")}
                   className={
-                    sort === "updated"
+                    "text-[12px] leading-[19.2px] tracking-editorial " +
+                    (sort === "updated"
                       ? "bg-transparent border-0 border-b-2 border-vermillion text-ink px-2 py-1"
-                      : "bg-transparent border-0 px-2 py-1 hover:text-ink"
+                      : "bg-transparent border-0 border-b-2 border-transparent px-2 py-1 hover:text-ink")
                   }
+                  style={{ fontSize: 12, lineHeight: "19.2px" }}
                 >
                   近时
                 </button>
@@ -502,10 +514,12 @@ export default function LibraryPage() {
                   aria-pressed={sort === "title"}
                   onClick={() => setSort("title")}
                   className={
-                    sort === "title"
+                    "text-[12px] leading-[19.2px] tracking-editorial " +
+                    (sort === "title"
                       ? "bg-transparent border-0 border-b-2 border-vermillion text-ink px-2 py-1"
-                      : "bg-transparent border-0 px-2 py-1 hover:text-ink"
+                      : "bg-transparent border-0 border-b-2 border-transparent px-2 py-1 hover:text-ink")
                   }
+                  style={{ fontSize: 12, lineHeight: "19.2px" }}
                 >
                   书名
                 </button>
@@ -537,16 +551,49 @@ export default function LibraryPage() {
           </div>
         )}
 
-        <div className="pb-16 pt-2 text-center">
+        <div className="pb-16" />
+      </div>
+
+      <BottomSheet
+        open={accountOpen}
+        onClose={() => setAccountOpen(false)}
+        title="藏书人"
+        subtitle={readerChannelLabel(user)}
+        size="auto"
+      >
+        <div className="flex flex-col py-1">
+          <div className="px-3 py-3">
+            <p className="font-song text-lg text-ink leading-snug break-all">
+              {readerFullLabel(user)}
+            </p>
+          </div>
+          <div className="mx-3 border-t border-ink/10" />
           <button
             type="button"
-            onClick={handleLogout}
-            className="text-[12px] tracking-editorial text-ink-mute"
+            onClick={() => {
+              setAccountOpen(false);
+              setConfirmLogout(true);
+            }}
+            className="w-full flex items-center gap-3 px-3 py-3.5 text-left text-sm rounded-[2px] bg-transparent appearance-none font-inherit transition-colors hover:bg-ink/5 text-vermillion"
           >
-            退出登录
+            <span className="tracking-editorial">退出登录</span>
           </button>
         </div>
-      </div>
+      </BottomSheet>
+
+      <ConfirmDialog
+        open={confirmLogout}
+        title="合上此匣？"
+        description="退出后需重新登录才能翻阅藏书。云端卷宗仍会保留。"
+        tone="danger"
+        confirmText="退出登录"
+        cancelText="继续翻阅"
+        onCancel={() => setConfirmLogout(false)}
+        onConfirm={() => {
+          setConfirmLogout(false);
+          handleLogout();
+        }}
+      />
 
       <BottomSheet
         open={creating}
@@ -643,6 +690,49 @@ export default function LibraryPage() {
         }}
       />
     </div>
+  );
+}
+
+function ReaderMark({
+  user,
+  compact = false,
+  onOpen,
+}: {
+  user: SessionUser;
+  compact?: boolean;
+  onOpen: () => void;
+}) {
+  const seal = readerSealChar(user);
+  const short = readerShortLabel(user);
+
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label="查看帐号"
+        className="flex items-center gap-1.5 min-w-0 max-w-[9rem] sm:max-w-[12rem] px-1.5 py-1 -mx-1 rounded-[2px] bg-transparent appearance-none font-inherit transition-colors hover:bg-ink/5 active:bg-ink/8"
+      >
+        <Seal text={seal} size={22} rotate={-4} />
+        <span className="hidden sm:inline text-[11px] tracking-editorial text-ink truncate">
+          {short}
+        </span>
+      </button>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label="查看帐号"
+      className="flex items-center gap-2.5 min-w-0 max-w-[12rem] sm:max-w-[14rem] px-1.5 py-1 -mx-1.5 rounded-[2px] bg-transparent appearance-none font-inherit text-left transition-colors hover:bg-ink/5 active:bg-ink/8"
+    >
+      <Seal text={seal} size={28} rotate={-4} />
+      <span className="font-song text-sm text-ink truncate leading-tight">
+        {short}
+      </span>
+    </button>
   );
 }
 

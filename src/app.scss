@@ -96,6 +96,12 @@ taro-textarea-core {
   line-height: 1.6;
 }
 
+/* 书库检索等：保留 text-sm / leading-5，仅借用 height 解禁 */
+.field-line.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
 .field-line.font-song {
   font-family: "Noto Serif SC", "Cormorant Garamond", serif;
 }
