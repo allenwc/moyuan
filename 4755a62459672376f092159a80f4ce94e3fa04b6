@@ -1,0 +1,30 @@
+skill/SKILL.md
+  e84120efc3bbc194 220
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8-ntes.9",
+  "base_commit_sha": "4755a62459672376f092159a80f4ce94e3fa04b6",
+  "prompts": {
+    "e84120efc3bbc194": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20bb4b4d-33f9-49a7-b025-e3146cf99e15",
+        "model": "qwen3.7-max"
+      },
+      "human_author": "allenwc",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "skill/SKILL.md": {
+          "additions": 1,
+          "deletions": 1,
+          "accepted_lines": 1
+        }
+      }
+    }
+  }
+}
