@@ -217,4 +217,4 @@ npm run cli -- novel create \
 | 其他 / 未知 / 空 | `ink` | 默认回退 |
 
 > 上表为建议映射，agent 可据 `category` 语义做合理调整，但**所有取值必须落在**
-> `ink\|vermillion\|gold\|moss\|indigo\|plum` 内；无法判断时一律用 `ink`。
+> `ink|vermillion|gold|moss|indigo|plum` 内；无法判断时一律用 `ink`。
