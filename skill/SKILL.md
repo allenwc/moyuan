@@ -195,7 +195,7 @@ npm run cli -- novel create \
 > 字段名以 weread skill 回包为准（参考 weread `references/search.md`、
 > `references/book.md`）。`/book/info` 详情回包字段在顶层；若实际回包将书籍信息
 > 嵌套在 `book` 对象下（如 `book.title`），则相应取 `book.<field>`，**以真实回包为准**。
-> `--theme` 取值仅可为 `ink\|vermillion\|gold\|moss\|indigo\|plum`（见
+> `--theme` 取值仅可为 `ink|vermillion|gold|moss|indigo|plum`（见
 > `references/api.md`）。
 
 ### themeColor 派生规则
