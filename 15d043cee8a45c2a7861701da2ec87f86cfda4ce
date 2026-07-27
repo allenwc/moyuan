@@ -1,0 +1,951 @@
+pnpm-workspace.yaml
+  625b8cd50aebb147 4
+weapp/pages/login/index.js
+  625b8cd50aebb147 2-8,10-61,92-93
+h5/index.html
+  625b8cd50aebb147 1-22
+h5/tsconfig.json
+  625b8cd50aebb147 1-26
+h5/src/lib/cloudbase.ts
+  625b8cd50aebb147 1-24,26,31-35,38-42,45-50,52-53,56-57,60-61
+weapp/pages/library/index.wxss
+  c73bbaeed509ad9e 59,67,77,150,202,209,224,232
+  baf8c7fbe9ec5bea 136-140
+  625b8cd50aebb147 1-58,60-66,68-76,78-135,141-149,151-201,203-208,210-223,225-231,233-313
+weapp/pages/editor/index.wxss
+  baf8c7fbe9ec5bea 135,164,166-171,784-786,939-941
+  625b8cd50aebb147 1-42,44-57,59-129,136-141,144-145,152-163,165,172-199,201-269,272-333,335-365,367-387,389-454,456-467,469-532,534-542,544-680,682-687,689-755,757-783,787-840,842-938,942-1012
+  c73bbaeed509ad9e 43,58,130-134,142-143,146-151,200,270-271,334,366,388,455,468,533,543,681,688,756,841
+weapp/components/bottom-sheet/bottom-sheet.wxml
+  baf8c7fbe9ec5bea 17-19
+  625b8cd50aebb147 1-16,20-47
+weapp/components/bottom-sheet/bottom-sheet.wxss
+  c73bbaeed509ad9e 8,76
+  baf8c7fbe9ec5bea 28-29,36-37,41-42,108,115-120
+  625b8cd50aebb147 1-7,9-27,30-35,38-40,43-75,77-78,80-99,101-104,107,109-112,123-126,129-131,134-138,141-146,149-152,155-161
+weapp/components/reader-mark/reader-mark.js
+  625b8cd50aebb147 1-28
+weapp/components/seal/seal.json
+  625b8cd50aebb147 1-3
+weapp/components/reader-mark/reader-mark.json
+  625b8cd50aebb147 1-6
+weapp/lib/navBar.js
+  625b8cd50aebb147 1-38
+h5/src/App.tsx
+  625b8cd50aebb147 1-66
+weapp/components/seal/seal.js
+  625b8cd50aebb147 1-33
+weapp/components/confirm-dialog/confirm-dialog.js
+  625b8cd50aebb147 1-19
+h5/src/store/useNovelStore.ts
+  625b8cd50aebb147 276
+weapp/pages/login/index.wxss
+  625b8cd50aebb147 1-28,30-64,66-136,164-173
+  c73bbaeed509ad9e 29,65
+h5/package.json
+  625b8cd50aebb147 1-35
+weapp/components/seal/seal.wxml
+  625b8cd50aebb147 1-8
+weapp/lib/auth.js
+  625b8cd50aebb147 2-59,61-80,106-107,118-121,124-130
+weapp/lib/config.js
+  c73bbaeed509ad9e 4-56
+  625b8cd50aebb147 1-3,57-60
+weapp/lib/novelStore.js
+  625b8cd50aebb147 1-42,44-81,83-211
+packages/cloudbase/src/app.ts
+  625b8cd50aebb147 1-31
+weapp/project.config.json
+  625b8cd50aebb147 1-9,28-30,36-39
+weapp/lib/theme.js
+  625b8cd50aebb147 1-93
+weapp/components/confirm-dialog/confirm-dialog.json
+  625b8cd50aebb147 1-3
+packages/cloudbase/src/session.ts
+  625b8cd50aebb147 1-78
+packages/cloudbase/src/pg.ts
+  625b8cd50aebb147 1-22
+weapp/app.js
+  c73bbaeed509ad9e 3,12
+  625b8cd50aebb147 1-2,4-11,13-18
+weapp/lib/db.js
+  625b8cd50aebb147 1-20
+h5/src/pages/login/index.tsx
+  625b8cd50aebb147 2,6,13,19-22,29-30,34-35,48-50,58-62,65-67,72,75-76,80-81,85,89-95,97,99,102-103,107-109,111-112,117-120,123,125,128,131-132,134,139-140,142-145,148
+weapp/app.json
+  625b8cd50aebb147 1-5,8-19
+.env.example
+  625b8cd50aebb147 6,12-13,15-17
+types/global.d.ts
+  625b8cd50aebb147 1,4-9,12-13
+weapp/components/novel-card/novel-card.wxml
+  625b8cd50aebb147 1-26
+weapp/assets/icons/link-light.svg
+  baf8c7fbe9ec5bea 1-2
+weapp/scripts/upload-font.mjs
+  c73bbaeed509ad9e 1-109
+packages/cloudbase/package.json
+  625b8cd50aebb147 1-15
+h5/src/store/useAuthStore.ts
+  625b8cd50aebb147 6-9,11,31-32,34,80-82,88,98,100
+weapp/pages/library/index.wxml
+  baf8c7fbe9ec5bea 29-32,45-47,101
+  625b8cd50aebb147 1-28,33-44,48-100,102-181,183-208
+h5/src/pages/library/index.tsx
+  625b8cd50aebb147 32,48-49,85,88,109,173,319
+tsconfig.json
+  625b8cd50aebb147 3-5,7-8,10,12-15,17-18
+eslint.config.js
+  625b8cd50aebb147 1-4,7,10,16,20-21,24
+weapp/scripts/bundle-core.mjs
+  625b8cd50aebb147 1-22
+h5/src/components/ConfirmDialog.tsx
+  625b8cd50aebb147 16
+packages/cloudbase/src/auth.ts
+  625b8cd50aebb147 1-29
+weapp/lib/layout.js
+  625b8cd50aebb147 1-143
+weapp/app.wxss
+  625b8cd50aebb147 1-5
+weapp/pages/login/index.wxml
+  625b8cd50aebb147 1-44,56-60
+packages/cloudbase/src/index.ts
+  625b8cd50aebb147 1-16
+h5/src/lib/novelRepo.ts
+  625b8cd50aebb147 2,4,15,23,27
+weapp/lib/http.js
+  625b8cd50aebb147 1-4,6-42,44-45,48,50,52-56,71,74-80,83-85,88-93
+weapp/components/confirm-dialog/confirm-dialog.wxml
+  625b8cd50aebb147 1-14
+weapp/components/reader-mark/reader-mark.wxml
+  625b8cd50aebb147 1-6
+weapp/lib/graphDraw.js
+  baf8c7fbe9ec5bea 218-223,225-226,229-234,236-237
+  625b8cd50aebb147 1-173,175-184,186-217,224,227-228,235,238-250,252-264,266-270,272-275,277-303
+  c73bbaeed509ad9e 174,185,251,265,271,276
+weapp/components/ui-icon/ui-icon.wxss
+  baf8c7fbe9ec5bea 1,3,9
+  c73bbaeed509ad9e 2,4-8
+weapp/components/novel-card/novel-card.wxss
+  625b8cd50aebb147 1-9,11-23,25-31,33-40,42-64,66-126
+  c73bbaeed509ad9e 10,24,32,41,65
+weapp/components/ui-icon/ui-icon.js
+  baf8c7fbe9ec5bea 1-66,68-71
+  c73bbaeed509ad9e 67
+h5/src/lib/nav.ts
+  625b8cd50aebb147 1-24
+weapp/lib/novelRepo.js
+  625b8cd50aebb147 1-23
+weapp/sitemap.json
+  625b8cd50aebb147 1-9
+h5/src/lib/screen.ts
+  625b8cd50aebb147 1,3-4,6
+h5/src/lib/authStorage.ts
+  625b8cd50aebb147 1,3-4
+h5/src/components/BottomSheet.tsx
+  625b8cd50aebb147 17
+weapp/styles/tokens.wxss
+  625b8cd50aebb147 1-2,11,13-14,18,34-70,72-73,76-82,85-88,90-91,94-95,98-99
+  c73bbaeed509ad9e 16-17,27,71
+.gitignore
+  625b8cd50aebb147 45-46
+  c73bbaeed509ad9e 47-49
+h5/postcss.config.js
+  625b8cd50aebb147 1-6
+weapp/components/confirm-dialog/confirm-dialog.wxss
+  625b8cd50aebb147 1-8,10-32,34-73
+  c73bbaeed509ad9e 9,33
+weapp/components/novel-card/novel-card.js
+  625b8cd50aebb147 1-36
+weapp/components/ui-icon/ui-icon.json
+  baf8c7fbe9ec5bea 1,5
+  c73bbaeed509ad9e 2-4
+weapp/components/ui-icon/ui-icon.wxml
+  baf8c7fbe9ec5bea 1-7
+h5/src/pages/editor/index.tsx
+  625b8cd50aebb147 2,23-25
+weapp/lib/fonts.js
+  c73bbaeed509ad9e 1-56
+h5/vite.config.ts
+  625b8cd50aebb147 1-24
+weapp/pages/editor/index.wxml
+  625b8cd50aebb147 1-5,40-45,47-51,66-81,83-85,98-105,109-111,115-116,120-128,130-134,136-225,227-290,296,299,305,313-314,316-319,321-337,339-353,362-363,365-366,368,370,374,376,379-380,384,387-391,394,396,398,402-404,409,413-418,422,425-429,431-436,438-439,443-446,453,455-459,461,464,466-468,470,476-479,481-484,486-488,492,496-497,501-502,506-514,517-523,526-528
+  c73bbaeed509ad9e 6-39,82,90
+  217a652626e69f60 46,135,226,338
+  baf8c7fbe9ec5bea 52-65,86-89,91-97,106-108,112-114,117-119,129,306-312,320,356-360,399-401,410-412,430
+h5/src/vite-env.d.ts
+  625b8cd50aebb147 1-10
+weapp/lib/readerIdentity.js
+  625b8cd50aebb147 1-70
+weapp/pages/editor/index.js
+  625b8cd50aebb147 1-19,21-52,54-119,123-133,135-245,247-397,407-423,425-457,459-462,499-530,532,535-999,1002-1016,1018-1030,1037-1066,1072-1078,1081,1114-1118,1123-1139,1141-1149,1163-1238,1240-1242,1244-1416
+  217a652626e69f60 53,531,533-534,1000-1001,1017,1031-1036,1067-1071,1079-1080,1082-1113,1119-1122,1140,1150-1162
+  baf8c7fbe9ec5bea 120-122,398-406,424,458,463-498
+  c73bbaeed509ad9e 20,134,246,1239,1243
+package.json
+  625b8cd50aebb147 5,8-9,12-15,18-19,21,28,34,40
+h5/tailwind.config.js
+  625b8cd50aebb147 4,6
+weapp/pages/library/index.json
+  baf8c7fbe9ec5bea 7-8
+  625b8cd50aebb147 1-6,9-11
+weapp/lib/session.js
+  625b8cd50aebb147 1-31
+weapp/pages/login/index.json
+  625b8cd50aebb147 1-4
+weapp/components/seal/seal.wxss
+  625b8cd50aebb147 1-5,7-26
+  c73bbaeed509ad9e 6
+h5/src/components/Seal.tsx
+  625b8cd50aebb147 56
+weapp/pages/library/index.js
+  baf8c7fbe9ec5bea 63,65-68,72-75,79-82,90-92,96-97,100-106
+  625b8cd50aebb147 1-62,64,69-71,76-78,83-89,93-95,98-99,107-259,264-278
+project.config.json
+  625b8cd50aebb147 2-3,13,15-16
+h5/src/main.tsx
+  625b8cd50aebb147 1-9
+weapp/components/bottom-sheet/bottom-sheet.json
+  625b8cd50aebb147 1,6
+  baf8c7fbe9ec5bea 2-5
+weapp/components/bottom-sheet/bottom-sheet.js
+  625b8cd50aebb147 1-36
+weapp/components/reader-mark/reader-mark.wxss
+  c73bbaeed509ad9e 6
+  625b8cd50aebb147 1-5,7-26
+weapp/components/novel-card/novel-card.json
+  625b8cd50aebb147 1-3
+weapp/pages/editor/index.json
+  baf8c7fbe9ec5bea 4-5
+  625b8cd50aebb147 1-3,6-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8-ntes.9",
+  "base_commit_sha": "15d043cee8a45c2a7861701da2ec87f86cfda4ce",
+  "prompts": {
+    "217a652626e69f60": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "053b0290-672f-489d-b116-03bfba549b0d",
+        "model": "default"
+      },
+      "human_author": "allenwc",
+      "messages": [],
+      "total_additions": 77,
+      "total_deletions": 84,
+      "accepted_lines": 74,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "weapp/pages/editor/index.js": {
+          "additions": 73,
+          "deletions": 60,
+          "accepted_lines": 70
+        },
+        "weapp/pages/editor/index.wxml": {
+          "additions": 4,
+          "deletions": 24,
+          "accepted_lines": 4
+        }
+      }
+    },
+    "21b464a00b780e20": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "9d81ea13-5b1c-47b0-b666-e89e49756df7",
+        "model": "default"
+      },
+      "human_author": "allenwc",
+      "messages": [],
+      "total_additions": 1000,
+      "total_deletions": 87,
+      "accepted_lines": 0,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "mini/pages/library/index.wxss": {
+          "additions": 479
+        },
+        "mini/sitemap.json": {
+          "additions": 9
+        },
+        "mini/pages/library/index.json": {
+          "additions": 4
+        },
+        "src/pages/library/index.tsx": {
+          "additions": 59,
+          "deletions": 47
+        },
+        "mini/app.json": {
+          "additions": 12
+        },
+        "mini/app.wxss": {
+          "additions": 42
+        },
+        "mini/pages/library/index.wxml": {
+          "additions": 142,
+          "deletions": 2
+        },
+        "src/components/NovelCard.tsx": {
+          "additions": 34,
+          "deletions": 22
+        },
+        "src/components/uiIcons.weapp.tsx": {
+          "additions": 23,
+          "deletions": 7
+        },
+        "tailwind.config.js": {
+          "additions": 23,
+          "deletions": 3
+        },
+        "src/app.scss": {
+          "additions": 5,
+          "deletions": 3
+        },
+        "mini/app.js": {
+          "additions": 3
+        },
+        "mini/data/mock.js": {
+          "additions": 29
+        },
+        "src/index.css": {
+          "additions": 18,
+          "deletions": 3
+        },
+        "mini/pages/library/index.js": {
+          "additions": 97
+        },
+        "mini/project.config.json": {
+          "additions": 21
+        }
+      }
+    },
+    "625b8cd50aebb147": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "9a6bc353-2a0b-479c-9706-d12f4ddea5eb",
+        "model": "default"
+      },
+      "human_author": "allenwc",
+      "messages": [],
+      "total_additions": 8891,
+      "total_deletions": 2954,
+      "accepted_lines": 6261,
+      "overriden_lines": 80,
+      "per_file_stats": {
+        "h5/src/App.tsx": {
+          "additions": 66,
+          "accepted_lines": 66
+        },
+        "h5/src/pages/login/index.tsx": {
+          "additions": 67,
+          "deletions": 139,
+          "accepted_lines": 67
+        },
+        "h5/tailwind.config.js": {
+          "additions": 104,
+          "accepted_lines": 104
+        },
+        "weapp/pages/library/index.wxss": {
+          "additions": 470,
+          "deletions": 169,
+          "accepted_lines": 300
+        },
+        "h5/src/lib/cloudbase.ts": {
+          "additions": 48,
+          "deletions": 61,
+          "accepted_lines": 47
+        },
+        "weapp/lib/http.js": {
+          "additions": 86,
+          "deletions": 5,
+          "accepted_lines": 67,
+          "overriden_lines": 13
+        },
+        "weapp/pages/login/index.json": {
+          "additions": 5,
+          "deletions": 1,
+          "accepted_lines": 4
+        },
+        "h5/tsconfig.json": {
+          "additions": 27,
+          "deletions": 1,
+          "accepted_lines": 26
+        },
+        "weapp/components/bottom-sheet/bottom-sheet.js": {
+          "additions": 36,
+          "accepted_lines": 36
+        },
+        "package.json": {
+          "additions": 13,
+          "deletions": 54,
+          "accepted_lines": 13
+        },
+        "weapp/pages/library/index.js": {
+          "additions": 310,
+          "deletions": 55,
+          "accepted_lines": 249
+        },
+        "weapp/lib/graphDraw.js": {
+          "additions": 337,
+          "deletions": 50,
+          "accepted_lines": 281
+        },
+        "weapp/lib/navBar.js": {
+          "additions": 38,
+          "accepted_lines": 38
+        },
+        "weapp/lib/auth.js": {
+          "additions": 115,
+          "deletions": 22,
+          "accepted_lines": 91,
+          "overriden_lines": 2
+        },
+        "weapp/components/novel-card/novel-card.wxml": {
+          "additions": 27,
+          "deletions": 1,
+          "accepted_lines": 26
+        },
+        "weapp/lib/theme.js": {
+          "additions": 103,
+          "deletions": 10,
+          "accepted_lines": 93
+        },
+        "h5/src/store/useAuthStore.ts": {
+          "additions": 14,
+          "deletions": 46,
+          "accepted_lines": 14
+        },
+        "weapp/lib/novelStore.js": {
+          "additions": 211,
+          "accepted_lines": 209,
+          "overriden_lines": 2
+        },
+        "weapp/styles/tokens.wxss": {
+          "additions": 107,
+          "deletions": 21,
+          "accepted_lines": 85
+        },
+        "weapp/lib/db.js": {
+          "additions": 29,
+          "deletions": 9,
+          "accepted_lines": 20
+        },
+        "weapp/components/confirm-dialog/confirm-dialog.wxml": {
+          "additions": 14,
+          "accepted_lines": 14
+        },
+        "h5/src/components/ConfirmDialog.tsx": {
+          "additions": 1,
+          "deletions": 1,
+          "accepted_lines": 1
+        },
+        "packages/cloudbase/src/pg.ts": {
+          "additions": 22,
+          "accepted_lines": 22
+        },
+        "h5/src/main.tsx": {
+          "additions": 9,
+          "accepted_lines": 9
+        },
+        "packages/cloudbase/src/auth.ts": {
+          "additions": 29,
+          "accepted_lines": 29
+        },
+        "weapp/components/novel-card/novel-card.json": {
+          "additions": 3,
+          "accepted_lines": 3
+        },
+        "weapp/pages/login/index.js": {
+          "additions": 75,
+          "deletions": 13,
+          "accepted_lines": 61,
+          "overriden_lines": 1
+        },
+        "h5/src/components/BottomSheet.tsx": {
+          "additions": 1,
+          "deletions": 1,
+          "accepted_lines": 1
+        },
+        "weapp/lib/layout.js": {
+          "additions": 143,
+          "accepted_lines": 143
+        },
+        "packages/cloudbase/src/app.ts": {
+          "additions": 31,
+          "accepted_lines": 31
+        },
+        "h5/src/store/useNovelStore.ts": {
+          "additions": 1,
+          "accepted_lines": 1
+        },
+        "pnpm-workspace.yaml": {
+          "additions": 1,
+          "accepted_lines": 1
+        },
+        "h5/src/components/Seal.tsx": {
+          "additions": 1,
+          "deletions": 20,
+          "accepted_lines": 1
+        },
+        "packages/cloudbase/src/index.ts": {
+          "additions": 16,
+          "accepted_lines": 16
+        },
+        "h5/src/lib/authStorage.ts": {
+          "additions": 3,
+          "deletions": 53,
+          "accepted_lines": 3
+        },
+        "project.config.json": {
+          "additions": 5,
+          "deletions": 28,
+          "accepted_lines": 5
+        },
+        "weapp/components/novel-card/novel-card.js": {
+          "additions": 36,
+          "accepted_lines": 36
+        },
+        "weapp/pages/login/index.wxml": {
+          "additions": 71,
+          "deletions": 22,
+          "accepted_lines": 49
+        },
+        "weapp/components/confirm-dialog/confirm-dialog.js": {
+          "additions": 19,
+          "accepted_lines": 19
+        },
+        "h5/vite.config.ts": {
+          "additions": 59,
+          "deletions": 35,
+          "accepted_lines": 24
+        },
+        "weapp/pages/editor/index.wxss": {
+          "additions": 1715,
+          "deletions": 697,
+          "accepted_lines": 969
+        },
+        "h5/src/pages/editor/index.tsx": {
+          "additions": 4,
+          "deletions": 8,
+          "accepted_lines": 4
+        },
+        "h5/src/lib/screen.ts": {
+          "additions": 4,
+          "deletions": 14,
+          "accepted_lines": 4
+        },
+        "weapp/sitemap.json": {
+          "additions": 9,
+          "accepted_lines": 9
+        },
+        "h5/src/lib/nav.ts": {
+          "additions": 36,
+          "deletions": 34,
+          "accepted_lines": 24
+        },
+        "weapp/components/seal/seal.wxss": {
+          "additions": 25,
+          "accepted_lines": 25
+        },
+        "weapp/project.config.json": {
+          "additions": 18,
+          "deletions": 2,
+          "accepted_lines": 16,
+          "overriden_lines": 1
+        },
+        "weapp/lib/readerIdentity.js": {
+          "additions": 70,
+          "accepted_lines": 70
+        },
+        "weapp/lib/novelRepo.js": {
+          "additions": 23,
+          "accepted_lines": 23
+        },
+        "weapp/components/reader-mark/reader-mark.json": {
+          "additions": 6,
+          "accepted_lines": 6
+        },
+        "h5/postcss.config.js": {
+          "additions": 6,
+          "accepted_lines": 6
+        },
+        "weapp/components/confirm-dialog/confirm-dialog.json": {
+          "additions": 3,
+          "accepted_lines": 3
+        },
+        "packages/cloudbase/package.json": {
+          "additions": 15,
+          "accepted_lines": 15
+        },
+        "weapp/lib/session.js": {
+          "additions": 31,
+          "accepted_lines": 31
+        },
+        "weapp/components/bottom-sheet/bottom-sheet.wxml": {
+          "additions": 58,
+          "deletions": 13,
+          "accepted_lines": 44
+        },
+        ".env.example": {
+          "additions": 7,
+          "deletions": 15,
+          "accepted_lines": 6,
+          "overriden_lines": 1
+        },
+        "weapp/components/seal/seal.wxml": {
+          "additions": 8,
+          "accepted_lines": 8
+        },
+        "weapp/pages/editor/index.js": {
+          "additions": 1734,
+          "deletions": 382,
+          "accepted_lines": 1291
+        },
+        "types/global.d.ts": {
+          "additions": 9,
+          "deletions": 25,
+          "accepted_lines": 9
+        },
+        "weapp/components/bottom-sheet/bottom-sheet.json": {
+          "additions": 3,
+          "accepted_lines": 2
+        },
+        "weapp/components/reader-mark/reader-mark.wxml": {
+          "additions": 6,
+          "accepted_lines": 6
+        },
+        "h5/src/lib/novelRepo.ts": {
+          "additions": 5,
+          "deletions": 11,
+          "accepted_lines": 5
+        },
+        "h5/src/vite-env.d.ts": {
+          "additions": 10,
+          "accepted_lines": 10
+        },
+        ".gitignore": {
+          "additions": 2,
+          "accepted_lines": 2
+        },
+        "weapp/components/novel-card/novel-card.wxss": {
+          "additions": 127,
+          "deletions": 6,
+          "accepted_lines": 121
+        },
+        "h5/index.html": {
+          "additions": 22,
+          "accepted_lines": 22
+        },
+        "h5/package.json": {
+          "additions": 36,
+          "deletions": 1,
+          "accepted_lines": 35
+        },
+        "tsconfig.json": {
+          "additions": 12,
+          "deletions": 25,
+          "accepted_lines": 12
+        },
+        "weapp/lib/config.js": {
+          "additions": 8,
+          "accepted_lines": 7
+        },
+        "weapp/components/reader-mark/reader-mark.js": {
+          "additions": 28,
+          "accepted_lines": 28
+        },
+        "weapp/scripts/bundle-core.mjs": {
+          "additions": 22,
+          "accepted_lines": 22
+        },
+        "weapp/components/seal/seal.js": {
+          "additions": 33,
+          "accepted_lines": 33
+        },
+        "weapp/pages/library/index.wxml": {
+          "additions": 315,
+          "deletions": 114,
+          "accepted_lines": 199
+        },
+        "weapp/components/confirm-dialog/confirm-dialog.wxss": {
+          "additions": 72,
+          "deletions": 1,
+          "accepted_lines": 71
+        },
+        "packages/cloudbase/src/session.ts": {
+          "additions": 78,
+          "accepted_lines": 78
+        },
+        "eslint.config.js": {
+          "additions": 10,
+          "deletions": 14,
+          "accepted_lines": 10
+        },
+        "weapp/app.json": {
+          "additions": 18,
+          "accepted_lines": 17,
+          "overriden_lines": 1
+        },
+        "weapp/app.wxss": {
+          "additions": 33,
+          "deletions": 28,
+          "accepted_lines": 5
+        },
+        "weapp/components/reader-mark/reader-mark.wxss": {
+          "additions": 25,
+          "accepted_lines": 25
+        },
+        "weapp/app.js": {
+          "additions": 28,
+          "deletions": 12,
+          "accepted_lines": 16
+        },
+        "weapp/pages/library/index.json": {
+          "additions": 12,
+          "deletions": 2,
+          "accepted_lines": 9
+        },
+        "weapp/pages/editor/index.json": {
+          "additions": 10,
+          "deletions": 2,
+          "accepted_lines": 7
+        },
+        "h5/src/pages/library/index.tsx": {
+          "additions": 8,
+          "deletions": 84,
+          "accepted_lines": 8
+        },
+        "weapp/pages/login/index.wxss": {
+          "additions": 174,
+          "deletions": 30,
+          "accepted_lines": 144
+        },
+        "weapp/components/seal/seal.json": {
+          "additions": 3,
+          "accepted_lines": 3
+        },
+        "weapp/pages/editor/index.wxml": {
+          "additions": 1064,
+          "deletions": 577,
+          "accepted_lines": 351,
+          "overriden_lines": 59
+        },
+        "weapp/components/bottom-sheet/bottom-sheet.wxss": {
+          "additions": 193,
+          "deletions": 40,
+          "accepted_lines": 145
+        }
+      }
+    },
+    "baf8c7fbe9ec5bea": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "6780d5f7-b58f-47d7-93f5-e0ad0e4b8ef7",
+        "model": "default"
+      },
+      "human_author": "allenwc",
+      "messages": [],
+      "total_additions": 337,
+      "total_deletions": 121,
+      "accepted_lines": 283,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "weapp/components/ui-icon/ui-icon.wxml": {
+          "additions": 9,
+          "deletions": 2,
+          "accepted_lines": 7
+        },
+        "weapp/lib/graphDraw.js": {
+          "additions": 16,
+          "accepted_lines": 16
+        },
+        "weapp/pages/library/index.json": {
+          "additions": 2,
+          "deletions": 1,
+          "accepted_lines": 2
+        },
+        "weapp/pages/editor/index.wxml": {
+          "additions": 71,
+          "deletions": 33,
+          "accepted_lines": 55
+        },
+        "weapp/components/bottom-sheet/bottom-sheet.wxss": {
+          "additions": 15,
+          "deletions": 7,
+          "accepted_lines": 15
+        },
+        "weapp/components/ui-icon/ui-icon.js": {
+          "additions": 90,
+          "deletions": 19,
+          "accepted_lines": 70
+        },
+        "weapp/pages/library/index.js": {
+          "additions": 25,
+          "deletions": 6,
+          "accepted_lines": 25
+        },
+        "weapp/components/bottom-sheet/bottom-sheet.json": {
+          "additions": 4,
+          "deletions": 1,
+          "accepted_lines": 4
+        },
+        "weapp/components/ui-icon/ui-icon.wxss": {
+          "additions": 12,
+          "deletions": 7,
+          "accepted_lines": 3
+        },
+        "weapp/pages/library/index.wxss": {
+          "additions": 5,
+          "deletions": 1,
+          "accepted_lines": 5
+        },
+        "weapp/pages/editor/index.wxss": {
+          "additions": 16,
+          "deletions": 36,
+          "accepted_lines": 14
+        },
+        "weapp/assets/icons/link-light.svg": {
+          "additions": 4,
+          "deletions": 2,
+          "accepted_lines": 2
+        },
+        "weapp/pages/library/index.wxml": {
+          "additions": 10,
+          "deletions": 4,
+          "accepted_lines": 8
+        },
+        "weapp/components/ui-icon/ui-icon.json": {
+          "additions": 3,
+          "accepted_lines": 2
+        },
+        "weapp/components/bottom-sheet/bottom-sheet.wxml": {
+          "additions": 3,
+          "deletions": 1,
+          "accepted_lines": 3
+        },
+        "weapp/pages/editor/index.js": {
+          "additions": 50,
+          "accepted_lines": 50
+        },
+        "weapp/pages/editor/index.json": {
+          "additions": 2,
+          "deletions": 1,
+          "accepted_lines": 2
+        }
+      }
+    },
+    "c73bbaeed509ad9e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "06c56c9b-d6dd-471d-a17d-57851890ed2e",
+        "model": "default"
+      },
+      "human_author": "allenwc",
+      "messages": [],
+      "total_additions": 446,
+      "total_deletions": 171,
+      "accepted_lines": 345,
+      "overriden_lines": 1,
+      "per_file_stats": {
+        "weapp/lib/fonts.js": {
+          "additions": 78,
+          "deletions": 22,
+          "accepted_lines": 56
+        },
+        "weapp/pages/library/index.wxss": {
+          "additions": 9,
+          "deletions": 1,
+          "accepted_lines": 8
+        },
+        "weapp/components/ui-icon/ui-icon.wxss": {
+          "additions": 6,
+          "deletions": 2,
+          "accepted_lines": 6
+        },
+        "weapp/components/ui-icon/ui-icon.js": {
+          "additions": 1,
+          "deletions": 1,
+          "accepted_lines": 1
+        },
+        "weapp/components/bottom-sheet/bottom-sheet.wxss": {
+          "additions": 2,
+          "deletions": 1,
+          "accepted_lines": 2
+        },
+        "weapp/lib/config.js": {
+          "additions": 61,
+          "deletions": 8,
+          "accepted_lines": 53,
+          "overriden_lines": 1
+        },
+        "weapp/pages/editor/index.js": {
+          "additions": 5,
+          "deletions": 4,
+          "accepted_lines": 5
+        },
+        "weapp/components/seal/seal.wxss": {
+          "additions": 1,
+          "accepted_lines": 1
+        },
+        "h5/src/components/editor/AddCharacterSheet.tsx": {
+          "deletions": 1
+        },
+        "weapp/components/confirm-dialog/confirm-dialog.wxss": {
+          "additions": 2,
+          "accepted_lines": 2
+        },
+        "weapp/pages/login/index.wxss": {
+          "additions": 3,
+          "deletions": 1,
+          "accepted_lines": 2
+        },
+        "weapp/components/reader-mark/reader-mark.wxss": {
+          "additions": 1,
+          "accepted_lines": 1
+        },
+        ".gitignore": {
+          "additions": 3,
+          "accepted_lines": 3
+        },
+        "weapp/components/ui-icon/ui-icon.json": {
+          "additions": 3,
+          "deletions": 1,
+          "accepted_lines": 3
+        },
+        "weapp/components/novel-card/novel-card.wxss": {
+          "additions": 5,
+          "accepted_lines": 5
+        },
+        "weapp/scripts/upload-font.mjs": {
+          "additions": 178,
+          "deletions": 69,
+          "accepted_lines": 109
+        },
+        "weapp/lib/graphDraw.js": {
+          "additions": 6,
+          "deletions": 6,
+          "accepted_lines": 6
+        },
+        "weapp/pages/editor/index.wxss": {
+          "additions": 29,
+          "deletions": 15,
+          "accepted_lines": 29
+        },
+        "weapp/app.js": {
+          "additions": 2,
+          "accepted_lines": 2
+        },
+        "weapp/pages/editor/index.wxml": {
+          "additions": 36,
+          "deletions": 38,
+          "accepted_lines": 36
+        },
+        "weapp/styles/tokens.wxss": {
+          "additions": 15,
+          "deletions": 1,
+          "accepted_lines": 15
+        }
+      }
+    }
+  }
+}
