@@ -1,0 +1,208 @@
+<view class="lib">
+  <view class="status-pad" style="height: {{statusBarHeight}}px;"></view>
+  <view wx:if="{{loading}}" class="state muted">加载中…</view>
+  <view wx:elif="{{error}}" class="state error">{{error}}</view>
+
+  <block wx:else>
+    <!-- Hero（小程序不再叠一层固定顶栏，避免与 Hero 操作区重复） -->
+    <view class="hero">
+      <view class="hero-deco"></view>
+      <view class="hero-inner">
+        <view class="hero-seal-row">
+          <seal text="墨缘" size="{{44}}" rotate="{{-4}}" />
+          <view>
+            <view class="eyebrow muted">INK · BOND</view>
+            <view class="eyebrow muted">读完一卷书 · 珍藏一群人</view>
+          </view>
+        </view>
+        <view class="hero-title">墨缘</view>
+        <view class="hero-desc">
+          为小说读者而作的人物关系图谱。把错综的人缘
+          <text class="dot">·</text>
+          梳理为可看可分享的一卷。
+        </view>
+        <view class="hero-actions">
+          <view class="hero-actions-left">
+            <reader-mark user="{{user}}" bind:open="openAccount" />
+            <text class="stats muted">{{stats.novelCount}}卷 · {{stats.characterCount}}人 · {{stats.relationCount}}缘</text>
+          </view>
+          <view class="btn-primary" bindtap="openCreate">
+            <ui-icon name="plus" size="28" color="#faf6ec" />
+            <text>新开一卷</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Toolbar -->
+    <view
+      class="toolbar {{pinned ? 'toolbar--pinned' : ''}}"
+      style="{{pinned ? ('top:' + statusBarHeight + 'px;') : ''}}"
+      id="toolbar"
+    >
+      <view class="toolbar-inner">
+        <view class="search-wrap">
+          <view class="search-ico">
+            <ui-icon name="search" size="28" color="#6b6359" />
+          </view>
+          <input
+            class="search-input"
+            value="{{query}}"
+            placeholder="检索书名、作者、内容…"
+            placeholder-class="ph"
+            bindinput="onQuery"
+          />
+        </view>
+        <view class="sort">
+          <text
+            class="sort-btn {{sort === 'updated' ? 'sort-btn--on' : ''}}"
+            data-sort="updated"
+            bindtap="onSort"
+          >近时</text>
+          <text class="sort-sep muted">·</text>
+          <text
+            class="sort-btn {{sort === 'title' ? 'sort-btn--on' : ''}}"
+            data-sort="title"
+            bindtap="onSort"
+          >书名</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Shelf -->
+    <view class="shelf">
+      <view wx:if="{{filtered.length === 0}}" class="empty">
+        <view class="empty-seal">空</view>
+        <view class="empty-title">{{query ? '未觅得相关藏书' : '书架尚虚'}}</view>
+        <view class="empty-desc muted">{{query ? '换个关键词试试' : '读完一卷书，便可在此为其中人物立传。'}}</view>
+        <view wx:if="{{!query}}" class="btn-primary" bindtap="openCreate" style="margin-top: 32rpx;">新开一卷</view>
+      </view>
+      <block wx:else>
+        <block wx:for="{{filtered}}" wx:key="id">
+          <novel-card
+            novel="{{item}}"
+            index="{{index}}"
+            char-count="{{item.charCount}}"
+            rel-count="{{item.relCount}}"
+            bind:open="onOpenNovel"
+            bind:more="onMoreNovel"
+          />
+        </block>
+      </block>
+      <view class="shelf-pad"></view>
+    </view>
+  </block>
+
+  <!-- 新建 / 编辑：对照 app.luran.wang 表单（按钮在内容区内） -->
+  <bottom-sheet
+    open="{{formOpen}}"
+    title="{{editingNovel ? '编辑卷宗信息' : '新开一卷'}}"
+    subtitle="{{editingNovel ? editingNovel.title : '为这部小说留下专属的人物关系图谱'}}"
+    size="auto"
+    bind:close="closeForm"
+  >
+    <view class="form">
+      <view class="form-field">
+        <text class="field-label">书名 · TITLE</text>
+        <input
+          class="field-line field-line--song"
+          value="{{form.title}}"
+          placeholder="例：三体"
+          placeholder-class="ph"
+          bindinput="onFormTitle"
+        />
+        <text wx:if="{{formTouched && !form.title}}" class="err">书名不可为空。</text>
+      </view>
+      <view class="form-field">
+        <text class="field-label">作者 · AUTHOR</text>
+        <input
+          class="field-line"
+          value="{{form.author}}"
+          placeholder="例：刘慈欣"
+          placeholder-class="ph"
+          bindinput="onFormAuthor"
+        />
+      </view>
+      <view class="form-field">
+        <text class="field-label">内容提要 · SYNOPSIS</text>
+        <textarea
+          class="field-line field-area"
+          value="{{form.synopsis}}"
+          placeholder="例：宇宙黑暗森林中，文明的存亡抉择。"
+          placeholder-class="ph"
+          maxlength="500"
+          bindinput="onFormSynopsis"
+        />
+      </view>
+      <view class="form-field">
+        <text class="field-label">主题 · PALETTE</text>
+        <view class="palette-row">
+          <block wx:for="{{themes}}" wx:key="key">
+            <view
+              class="palette-sq {{form.themeColor === item.key ? 'palette-sq--on' : ''}}"
+              style="background: {{item.primary}}; color: {{item.text}};"
+              data-key="{{item.key}}"
+              bindtap="onFormTheme"
+            >{{item.glyph}}</view>
+          </block>
+        </view>
+        <text class="palette-hint muted">主题色将渲染作品的封面与画布点缀。</text>
+      </view>
+      <view class="form-actions">
+        <view class="btn-ghost" bindtap="closeForm">取消</view>
+        <view class="btn-primary" bindtap="submitForm">{{editingNovel ? '保存修订' : '建卷并进入'}}</view>
+      </view>
+    </view>
+  </bottom-sheet>
+
+  <!-- 更多菜单 -->
+  <bottom-sheet
+    open="{{!!menuNovel}}"
+    title="{{menuNovel.title}}"
+    subtitle="选择操作"
+    bind:close="closeMenu"
+  >
+    <view class="menu">
+      <view class="menu-item" bindtap="menuEdit">编辑信息</view>
+      <view class="menu-item" bindtap="menuDup">复制副本</view>
+      <view class="menu-item menu-item--danger" bindtap="menuDelete">删除卷宗</view>
+    </view>
+  </bottom-sheet>
+
+  <!-- 账号：对照线上「藏书人」 -->
+  <bottom-sheet
+    open="{{accountOpen}}"
+    title="藏书人"
+    subtitle="{{accountChannel}}"
+    bind:close="closeAccount"
+  >
+    <view class="account">
+      <view class="account-name">{{accountFull}}</view>
+      <view class="account-line"></view>
+      <view class="menu-item" bindtap="openSettings">账号设置</view>
+      <view class="menu-item menu-item--danger" bindtap="askLogout">退出登录</view>
+    </view>
+  </bottom-sheet>
+
+  <confirm-dialog
+    open="{{confirmDelete}}"
+    title="焚去此卷？"
+    description="人物与关系将一并散尽，不可复原。"
+    confirm-text="确认删除"
+    cancel-text="留着"
+    tone="danger"
+    bind:confirm="doDelete"
+    bind:cancel="cancelDelete"
+  />
+
+  <confirm-dialog
+    open="{{confirmLogout}}"
+    title="合上此匣？"
+    description="退出后需重新登录才能翻阅藏书。云端卷宗仍会保留。"
+    confirm-text="退出登录"
+    cancel-text="继续翻阅"
+    tone="danger"
+    bind:confirm="doLogout"
+    bind:cancel="cancelLogout"
+  />
+</view>

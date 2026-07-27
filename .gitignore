@@ -42,3 +42,11 @@ site/Supabase/
 
 .pnpm-store/
 .tasks/
+weapp/vendor/
+
+# Local font binaries (uploaded to CloudBase; too large for git)
+assets/fonts/
+
+# CloudBase 自定义登录私钥（管理员级，禁止入库）
+cloudfunctions/**/tcb_custom_login.json
+

@@ -1,0 +1,26 @@
+.seal {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 0 1px rgba(168, 50, 45, 0.18),
+    0 6px 18px -6px rgba(168, 50, 45, 0.4),
+    inset 0 0 0 2px rgba(245, 239, 226, 0.18);
+  flex-shrink: 0;
+}
+
+.seal--square {
+  border-radius: 3px;
+}
+
+.seal--round {
+  border-radius: 999px;
+}
+
+.seal-ch {
+  display: block;
+}

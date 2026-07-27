@@ -1,0 +1,14 @@
+{
+  "version": "2.0",
+  "envId": "moyuan-d5gab9aqm5759b176",
+  "functions": [
+    {
+      "name": "auth",
+      "runtime": "Nodejs20.19",
+      "timeout": 30,
+      "handler": "index.main",
+      "installDependency": true,
+      "triggers": []
+    }
+  ]
+}

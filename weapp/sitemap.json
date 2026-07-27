@@ -1,0 +1,9 @@
+{
+  "desc": "墨缘",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}

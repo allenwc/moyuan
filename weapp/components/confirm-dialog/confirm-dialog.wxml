@@ -1,0 +1,14 @@
+<view wx:if="{{open}}" class="dlg-root" catchtouchmove="noop">
+  <view class="dlg-mask" bindtap="onCancel"></view>
+  <view class="dlg-card">
+    <view class="dlg-body">
+      <view wx:if="{{title}}" class="dlg-title">{{title}}</view>
+      <view wx:if="{{description}}" class="dlg-desc muted">{{description}}</view>
+    </view>
+    <view class="dlg-actions">
+      <view class="dlg-btn" bindtap="onCancel">{{cancelText}}</view>
+      <view class="dlg-sep"></view>
+      <view class="dlg-btn dlg-btn--{{tone}}" bindtap="onConfirm">{{confirmText}}</view>
+    </view>
+  </view>
+</view>

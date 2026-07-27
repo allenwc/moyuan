@@ -1,0 +1,35 @@
+<view class="settings">
+  <view class="status-pad" style="height: {{statusBarHeight}}px;"></view>
+
+  <view class="hd">
+    <view class="eyebrow muted">SETTINGS · 设置</view>
+    <view class="title font-song">账号设置</view>
+  </view>
+
+  <view class="paper-card card">
+    <view class="row">
+      <text class="k muted">登录方式</text>
+      <text class="v">{{channelLabel}}</text>
+    </view>
+    <view class="row">
+      <text class="k muted">账号</text>
+      <text class="v">{{accountName}}</text>
+    </view>
+  </view>
+
+  <view class="paper-card card" wx:if="{{isEmail}}">
+    <view class="card-title font-song">微信绑定</view>
+    <view class="hint muted">绑定后可用微信一键登录，并共享当前书库。</view>
+    <view wx:if="{{wechatBound}}" class="bound">✓ 已绑定微信</view>
+    <view wx:else class="btn-primary bind-btn" bindtap="onBindWeChat">绑定微信</view>
+  </view>
+
+  <view class="paper-card card" wx:else>
+    <view class="card-title font-song">微信绑定</view>
+    <view class="hint muted">当前为微信登录。如需合并到邮箱账号，请先用邮箱登录，在「设置 → 微信绑定」中绑定本微信。</view>
+  </view>
+
+  <view class="paper-card card">
+    <view class="menu-item menu-item--danger" bindtap="onLogout">退出登录</view>
+  </view>
+</view>

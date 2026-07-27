@@ -1,0 +1,528 @@
+<view class="ed">
+  <view wx:if="{{loading}}" class="state muted">加载中…</view>
+  <view wx:elif="{{error}}" class="state error">{{error}}</view>
+
+  <block wx:else>
+    <!-- 顶栏分区；底栏悬浮叠画布（见 .dock） -->
+    <view class="chrome" style="padding-top: {{statusBarHeight}}px;">
+      <view
+        class="tb"
+        style="height: {{navBarHeight}}px; padding-right: {{menuRight}}px;"
+      >
+        <view class="tb-icon" catchtap="onBack">
+          <ui-icon name="arrow-left" size="32" />
+        </view>
+        <view class="tb-meta" catchtap="onAutoLayout">
+          <view class="tb-title">{{title || '图谱'}}</view>
+          <view class="tb-sub">
+            <view class="tb-dot {{saving ? 'tb-dot--saving' : ''}}"></view>
+            <text class="muted">{{saving ? '保存中…' : ('已存 · ' + (author || '佚名'))}}</text>
+          </view>
+        </view>
+        <view
+          class="tb-icon {{undoStack.length ? '' : 'tb-icon--off'}}"
+          catchtap="onUndo"
+        >
+          <ui-icon name="undo" size="32" />
+        </view>
+        <view
+          class="tb-icon {{redoStack.length ? '' : 'tb-icon--off'}}"
+          catchtap="onRedo"
+        >
+          <ui-icon name="redo" size="32" />
+        </view>
+        <view class="tb-icon tb-export" catchtap="onExport">
+          <ui-icon name="download" size="28" color="#faf6ec" />
+        </view>
+      </view>
+    </view>
+
+    <view class="stage">
+      <canvas
+        type="2d"
+        id="graph"
+        class="graph"
+        style="width: {{canvasW}}px; height: {{canvasH}}px;"
+        hidden="{{addOpen || editCharOpen || editRelOpen || exportOpen || confirmDelChar || confirmDelRel}}"
+        bindtouchstart="onTouchStart"
+        bindtouchmove="onTouchMove"
+        bindtouchend="onTouchEnd"
+        bindtouchcancel="onTouchEnd"
+      ></canvas>
+
+      <view wx:if="{{focused && !editCharOpen && !connecting}}" class="peek-wrap">
+        <view class="peek">
+          <view class="peek-dot" style="background-color: {{focused.color}};"></view>
+          <view class="peek-main">
+            <view class="peek-name">{{focused.name}}</view>
+            <view class="peek-meta">{{focusedSubtitle}}</view>
+          </view>
+          <view class="peek-edit" catchtap="openCharPanel">编辑人物</view>
+          <view class="peek-x" catchtap="dismissFocus">
+            <ui-icon name="x" size="28" />
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{!charCount}}" class="empty">
+        <view class="empty-seal">缘</view>
+        <view class="empty-title">画布尚虚</view>
+        <view class="empty-desc">点击右下角「＋」添加一位人物。长按人物节点可向另一位人物发起关系。</view>
+        <view class="btn-primary empty-btn" catchtap="openAdd">添加第一位人物</view>
+        <view class="empty-hint">双指捏合可缩放 · 单指拖拽可平移</view>
+      </view>
+
+      <view wx:if="{{connecting}}" class="connect-tip">点选起点与终点以建立关系 · 空白处取消</view>
+      <view wx:if="{{relationGuideOpen && !connecting}}" class="connect-tip connect-tip--guide">
+        长按人物节点，再点另一位以建立关系
+        <text class="connect-dismiss" catchtap="dismissRelationGuide">知道了</text>
+      </view>
+    </view>
+
+    <!-- 悬浮叠在 canvas 上（相对 .ed），不占分区高度；z-index 须高于 fab-mask -->
+    <view class="dock" style="padding-bottom: {{12 + safeBottom}}px;">
+      <view class="zoom">
+        <view class="zoom-row">
+          <view class="zoom-btn" catchtap="zoomOut">
+            <ui-icon name="minus" size="32" />
+          </view>
+          <view class="zoom-btn" catchtap="zoomIn">
+            <ui-icon name="plus" size="32" />
+          </view>
+          <view class="zoom-btn" catchtap="zoomReset">
+            <ui-icon name="locate" size="32" />
+          </view>
+          <view class="zoom-btn" catchtap="onAutoLayout">
+            <ui-icon name="layout" size="32" />
+          </view>
+        </view>
+        <view class="zoom-stats">{{charCount}} 人 · {{relCount}} 缘 · {{scalePercent}}%</view>
+      </view>
+
+      <view class="fab">
+        <view wx:if="{{fabOpen}}" class="fab-menu">
+          <view class="fab-item" catchtap="startConnect">
+            <text class="fab-label">新建关系</text>
+            <view class="fab-mini">
+              <ui-icon name="link" size="32" />
+            </view>
+          </view>
+          <view class="fab-item" catchtap="openAdd">
+            <text class="fab-label fab-label--gold">新增人物</text>
+            <view class="fab-mini fab-mini--gold">
+              <ui-icon name="user-plus" size="32" color="#faf6ec" />
+            </view>
+          </view>
+        </view>
+        <view class="fab-main {{fabOpen ? 'fab-main--open' : ''}}" catchtap="toggleFab">
+          <ui-icon name="plus" size="40" color="#faf6ec" />
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{fabOpen}}" class="fab-mask" catchtap="closeFab"></view>
+  </block>
+
+  <canvas wx:if="{{exportOpen}}" type="2d" id="export-canvas" class="export-canvas"></canvas>
+
+  <!-- 新增人物 -->
+  <bottom-sheet open="{{addOpen}}" title="新增人物" subtitle="为此人立一小传" size="tall" show-footer bind:close="closeAdd">
+    <view class="form">
+      <view class="form-field">
+        <text class="field-label">姓名 · NAME</text>
+        <view class="name-row">
+          <input
+            class="field-line flex-1"
+            value="{{addForm.name}}"
+            bindinput="onAddName"
+          />
+          <view class="gender-row">
+            <block wx:for="{{genders}}" wx:key="label">
+              <view
+                class="gender-chip {{(addForm.gender || 'unknown') === item.key ? 'gender-chip--on' : ''}}"
+                data-key="{{item.key}}"
+                bindtap="onAddGender"
+              >
+                <view
+                  class="gender-shape gender-shape--{{item.shape}} {{(addForm.gender || 'unknown') === item.key ? 'gender-shape--on' : ''}}"
+                  style="background-color: {{(addForm.gender || 'unknown') === item.key ? '#faf6ec' : item.color}};"
+                ></view>
+                <text>{{item.label}}</text>
+              </view>
+            </block>
+          </view>
+        </view>
+      </view>
+      <view class="form-grid">
+        <view class="form-field">
+          <text class="field-label">别号 · ALIAS</text>
+          <input class="field-line" value="{{addForm.alias}}" bindinput="onAddAlias" />
+        </view>
+        <view class="form-field">
+          <text class="field-label">阵营 · FACTION</text>
+          <input class="field-line" value="{{addForm.faction}}" bindinput="onAddFaction" />
+        </view>
+      </view>
+      <view class="form-field">
+        <text class="field-label">身份 · ROLE</text>
+        <view class="chip-row">
+          <block wx:for="{{roles}}" wx:key="*this">
+            <view
+              class="role-chip {{addForm.role === item ? 'role-chip--on' : ''}}"
+              data-role="{{item}}"
+              bindtap="onAddRole"
+            >{{item}}</view>
+          </block>
+        </view>
+      </view>
+      <view class="form-field">
+        <text class="field-label">色相 · COLOR</text>
+        <view class="palette-row">
+          <block wx:for="{{colors}}" wx:key="*this">
+            <view
+              class="palette-dot {{addForm.color === item ? 'palette-dot--on' : ''}}"
+              style="background: {{item}};"
+              data-color="{{item}}"
+              bindtap="onAddColor"
+            ></view>
+          </block>
+        </view>
+      </view>
+      <view class="form-field">
+        <text class="field-label">小传 · NOTE</text>
+        <textarea
+          class="field-line field-area"
+          value="{{addForm.note}}"
+          bindinput="onAddNote"
+        />
+      </view>
+    </view>
+    <view slot="footer" class="form-footer">
+      <view class="btn-ghost" bindtap="closeAdd">取消</view>
+      <view class="btn-primary form-footer-main" bindtap="submitAdd">添加</view>
+    </view>
+  </bottom-sheet>
+
+  <!-- 编辑人物 -->
+  <bottom-sheet
+    open="{{editCharOpen}}"
+    custom-title
+    size="tall"
+    subtitle="{{editForm.alias ? ('别号 · ' + editForm.alias) : (editForm.role || '未分类')}}"
+    show-footer
+    bind:close="closeCharPanel"
+  >
+    <view slot="title" class="sheet-title-row">
+      <view class="sheet-title-dot" style="background-color: {{editForm.color}};"></view>
+      <text class="sheet-title-text">{{editForm.name || '无名氏'}}</text>
+      <text wx:if="{{editCharDirty}}" class="sheet-title-dotsep">·</text>
+      <text wx:if="{{editCharDirty}}" class="sheet-dirty-badge">未存</text>
+    </view>
+    <view class="form form--panel" wx:if="{{editChar}}">
+      <view class="form-field">
+        <text class="field-label">姓名 · NAME</text>
+        <view class="name-row">
+          <input
+            class="field-line flex-1"
+            value="{{editForm.name}}"
+            bindinput="onEditName"
+          />
+          <view class="gender-row">
+            <block wx:for="{{genders}}" wx:key="label">
+              <view
+                class="gender-chip {{(editForm.gender || 'unknown') === item.key ? 'gender-chip--on' : ''}}"
+                data-key="{{item.key}}"
+                bindtap="onEditGender"
+              >
+                <view
+                  class="gender-shape gender-shape--{{item.shape}} {{(editForm.gender || 'unknown') === item.key ? 'gender-shape--on' : ''}}"
+                  style="background-color: {{(editForm.gender || 'unknown') === item.key ? '#faf6ec' : item.color}};"
+                ></view>
+                <text>{{item.label}}</text>
+              </view>
+            </block>
+          </view>
+        </view>
+      </view>
+      <view class="form-grid">
+        <view class="form-field">
+          <text class="field-label">别号 · ALIAS</text>
+          <input class="field-line" value="{{editForm.alias}}" bindinput="onEditAlias" />
+        </view>
+        <view class="form-field">
+          <text class="field-label">阵营 · FACTION</text>
+          <input class="field-line" value="{{editForm.faction}}" bindinput="onEditFaction" />
+        </view>
+      </view>
+      <view class="form-field">
+        <text class="field-label">身份 · ROLE</text>
+        <view class="chip-row">
+          <block wx:for="{{roles}}" wx:key="*this">
+            <view
+              class="role-chip {{editForm.role === item ? 'role-chip--on' : ''}}"
+              data-role="{{item}}"
+              bindtap="onEditRoleChip"
+            >{{item}}</view>
+          </block>
+        </view>
+      </view>
+      <view class="form-field">
+        <text class="field-label">色相 · COLOR</text>
+        <view class="palette-row">
+          <block wx:for="{{colors}}" wx:key="*this">
+            <view
+              class="palette-dot {{editForm.color === item ? 'palette-dot--on' : ''}}"
+              style="background: {{item}};"
+              data-color="{{item}}"
+              bindtap="onEditColor"
+            ></view>
+          </block>
+        </view>
+      </view>
+      <view class="form-field">
+        <text class="field-label">小传 · NOTE</text>
+        <textarea
+          class="field-line field-area"
+          value="{{editForm.note}}"
+          bindinput="onEditNote"
+        />
+      </view>
+      <view class="form-field form-field--last">
+        <view class="rel-head">
+          <text class="field-label">关系 · RELATIONS</text>
+          <text class="muted rel-count">{{relatedList.length}} 缘</text>
+        </view>
+        <view wx:if="{{!relatedList.length}}" class="rel-empty muted">
+          尚无关系。在画布上长按此节点，再点另一位人物即可建立。
+        </view>
+        <block wx:else>
+          <block wx:for="{{relatedList}}" wx:key="id">
+            <view class="rel-item" data-id="{{item.id}}" bindtap="openRelatedRel">
+              <view class="rel-glyph" style="background: {{item.color}};">{{item.glyph}}</view>
+              <view class="rel-item-main">
+                <view class="rel-item-name">{{item.otherName}}{{item.outward ? '' : '（彼向此）'}}</view>
+                <view wx:if="{{item.note}}" class="rel-item-note muted">{{item.note}}</view>
+              </view>
+              <view class="rel-item-dir">
+                <ui-icon
+                  name="{{item.direction === 'mutual' ? 'arrows-lr' : 'arrow-right'}}"
+                  size="24"
+                  color="#6b6359"
+                />
+              </view>
+            </view>
+          </block>
+        </block>
+      </view>
+    </view>
+    <view slot="footer" class="form-footer">
+      <view class="btn-ghost btn-danger" bindtap="askDelChar">
+        <ui-icon name="trash" size="28" color="#a8322d" />
+        删除
+      </view>
+      <view class="btn-primary form-footer-main" bindtap="saveChar">保存</view>
+    </view>
+  </bottom-sheet>
+
+  <!-- 编辑关系 -->
+  <bottom-sheet
+    open="{{editRelOpen}}"
+    custom-title
+    size="tall"
+    subtitle="{{relSubtitle}}"
+    show-footer
+    bind:close="closeRelPanel"
+  >
+    <view slot="title" class="sheet-title-row">
+      <view class="sheet-title-glyph" style="background-color: {{relMeta.color}};">{{relMeta.glyph}}</view>
+      <text class="sheet-title-text">{{editRelIsNew ? '建立关系' : '编辑关系'}}</text>
+      <text wx:if="{{editRelDirty}}" class="sheet-dirty-badge">未存</text>
+    </view>
+    <view class="form form--panel" wx:if="{{editRel}}">
+      <view
+        class="rel-swap {{editRelForm.direction === 'one-way' ? 'rel-swap--tap' : ''}}"
+        bindtap="swapRelEnds"
+      >
+        <view class="rel-node">
+          <view class="rel-node-dot" style="background: {{relSource.color}};"></view>
+          <view class="rel-node-text">
+            <view class="rel-node-name">{{relSource.name}}</view>
+            <view class="muted tiny">源</view>
+          </view>
+        </view>
+        <view class="rel-swap-mid">
+          <view class="rel-swap-line" style="background: {{relMeta.color}};"></view>
+          <view class="rel-swap-badge" style="background: {{relMeta.color}};">
+            <ui-icon
+              name="{{editRelForm.direction === 'mutual' ? 'arrows-lr' : 'arrow-right'}}"
+              size="28"
+              color="#faf6ec"
+            />
+          </view>
+          <view class="rel-swap-line" style="background: {{relMeta.color}};"></view>
+        </view>
+        <view class="rel-node rel-node--right">
+          <view class="rel-node-text">
+            <view class="rel-node-name">{{relTarget.name}}</view>
+            <view class="muted tiny">的</view>
+          </view>
+          <view class="rel-node-dot" style="background: {{relTarget.color}};"></view>
+        </view>
+      </view>
+      <view wx:if="{{editRelForm.direction === 'one-way'}}" class="rel-swap-hint muted">
+        点击上方区块可互换源与目标
+      </view>
+
+      <view class="form-field">
+        <text class="field-label">关系 · TYPE</text>
+        <view class="type-grid">
+          <block wx:for="{{relTypes}}" wx:key="key">
+            <view
+              class="type-card {{editRelForm.type === item.key ? 'type-card--on' : ''}}"
+              data-key="{{item.key}}"
+              bindtap="onRelType"
+            >
+              <view class="rel-glyph" style="background: {{item.color}};">{{item.glyph}}</view>
+              <text class="type-card-label">{{item.label}}</text>
+            </view>
+          </block>
+        </view>
+      </view>
+      <view class="form-field">
+        <text class="field-label">方向 · DIRECTION</text>
+        <view class="dir-row">
+          <view
+            class="dir-chip {{editRelForm.direction === 'one-way' ? 'dir-chip--on' : ''}}"
+            data-dir="one-way"
+            bindtap="onRelDir"
+          >
+            <view class="dir-chip-arrow">
+              <ui-icon name="arrow-right" size="28" />
+            </view>
+            <text class="dir-chip-main">单向</text>
+            <text class="dir-chip-sub muted">源 → 的</text>
+          </view>
+          <view
+            class="dir-chip {{editRelForm.direction === 'mutual' ? 'dir-chip--on' : ''}}"
+            data-dir="mutual"
+            bindtap="onRelDir"
+          >
+            <view class="dir-chip-arrow">
+              <ui-icon name="arrows-lr" size="28" />
+            </view>
+            <text class="dir-chip-main">双向</text>
+            <text class="dir-chip-sub muted">互为</text>
+          </view>
+        </view>
+      </view>
+      <view class="form-field form-field--last">
+        <text class="field-label">注解 · NOTE</text>
+        <input
+          class="field-line"
+          value="{{editRelForm.note}}"
+          placeholder="例：夫妻、青梅竹马、宿敌…"
+          bindinput="onRelNote"
+        />
+      </view>
+    </view>
+    <view slot="footer" class="form-footer">
+      <view class="btn-ghost btn-danger" bindtap="askDelRel">
+        <ui-icon name="trash" size="28" color="#a8322d" />
+        删除
+      </view>
+      <view class="btn-primary form-footer-main" bindtap="saveRel">保存</view>
+    </view>
+  </bottom-sheet>
+
+  <!-- 装裱导出 -->
+  <bottom-sheet
+    open="{{exportOpen}}"
+    title="装裱·导出"
+    subtitle="将此卷人物关系图谱装裱成可分享的图"
+    size="full"
+    body-max="78vh"
+    show-footer
+    bind:close="closeExport"
+  >
+    <view class="form">
+      <view wx:if="{{exportPreview}}" class="export-preview">
+        <image src="{{exportPreview}}" mode="widthFix" class="export-preview-img" />
+      </view>
+      <view wx:else class="export-preview export-preview--empty muted">选择选项后点「生成预览」</view>
+
+      <view class="form-field">
+        <text class="field-label">底色 · BACKGROUND</text>
+        <view class="chip-row">
+          <view
+            class="role-chip {{exportOpts.bg === 'paper' ? 'role-chip--on' : ''}}"
+            data-bg="paper"
+            bindtap="onExportBg"
+          >纸色</view>
+          <view
+            class="role-chip {{exportOpts.bg === 'ink' ? 'role-chip--on' : ''}}"
+            data-bg="ink"
+            bindtap="onExportBg"
+          >墨黑</view>
+        </view>
+      </view>
+      <view class="form-field">
+        <text class="field-label">清晰度 · SCALE</text>
+        <view class="chip-row">
+          <view
+            class="role-chip {{exportOpts.scale === 1 ? 'role-chip--on' : ''}}"
+            data-scale="1"
+            bindtap="onExportScale"
+          >1×</view>
+          <view
+            class="role-chip {{exportOpts.scale === 2 ? 'role-chip--on' : ''}}"
+            data-scale="2"
+            bindtap="onExportScale"
+          >2×</view>
+          <view
+            class="role-chip {{exportOpts.scale === 3 ? 'role-chip--on' : ''}}"
+            data-scale="3"
+            bindtap="onExportScale"
+          >3×</view>
+        </view>
+      </view>
+      <view class="form-field">
+        <view class="toggle-row" bindtap="toggleExportLabels">
+          <text>显示姓名标签</text>
+          <view class="toggle {{exportOpts.labels ? 'toggle--on' : ''}}"></view>
+        </view>
+        <view class="toggle-row" bindtap="toggleExportTitle">
+          <text>显示卷名题头</text>
+          <view class="toggle {{exportOpts.title ? 'toggle--on' : ''}}"></view>
+        </view>
+      </view>
+      <view class="btn-ghost" style="width:100%;" bindtap="renderExportPreview">
+        {{exportBusy ? '生成中…' : '生成预览'}}
+      </view>
+    </view>
+    <view slot="footer" class="form-footer">
+      <view class="btn-ghost" bindtap="shareExport">分享</view>
+      <view class="btn-primary form-footer-main" bindtap="saveExport">
+        {{exportBusy ? '装裱中…' : '保存到相册'}}
+      </view>
+    </view>
+  </bottom-sheet>
+
+  <confirm-dialog
+    open="{{confirmDelChar}}"
+    title="{{confirmDelCharTitle}}"
+    description="此操作将同时删除该人物的所有关系，且无法恢复。"
+    confirm-text="删除"
+    tone="danger"
+    bind:confirm="doDelChar"
+    bind:cancel="cancelDelChar"
+  />
+  <confirm-dialog
+    open="{{confirmDelRel}}"
+    title="删除此关系？"
+    description="{{confirmDelRelDesc}}"
+    confirm-text="删除"
+    tone="danger"
+    bind:confirm="doDelRel"
+    bind:cancel="cancelDelRel"
+  />
+</view>

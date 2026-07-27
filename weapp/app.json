@@ -1,0 +1,19 @@
+{
+  "description": "墨缘原生小程序",
+  "pages": [
+    "pages/library/index",
+    "pages/login/index",
+    "pages/editor/index",
+    "pages/settings/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#f5efe2",
+    "navigationBarTitleText": "墨缘",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f5efe2"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

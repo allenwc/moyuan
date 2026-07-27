@@ -1,0 +1,26 @@
+.mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rpx;
+  min-width: 0;
+  font-family: "Noto Sans SC", system-ui, "PingFang SC", sans-serif;
+}
+
+.mark-text {
+  min-width: 0;
+}
+
+.mark-label {
+  font-size: 22rpx;
+  color: #6b6359;
+  letter-spacing: 0.04em;
+  max-width: 280rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mark--compact .mark-label {
+  font-size: 20rpx;
+  max-width: 180rpx;
+}

@@ -1,0 +1,313 @@
+.lib {
+  min-height: 100vh;
+  background: #faf6ec;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
+}
+
+.status-pad {
+  background: #f5efe2;
+}
+
+.state {
+  text-align: center;
+  padding: 120rpx 32rpx;
+}
+
+.error {
+  color: #a8322d;
+}
+
+.stats {
+  font-size: 20rpx;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* Hero：暖纸色，与下方检索/书架的浅纸色区分 */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 24rpx 32rpx 40rpx;
+  background: #f5efe2;
+  border-bottom: 1rpx solid rgba(31, 27, 22, 0.08);
+}
+
+.hero-deco {
+  position: absolute;
+  right: -40rpx;
+  top: -40rpx;
+  width: 280rpx;
+  height: 280rpx;
+  border-radius: 50%;
+  background: rgba(163, 130, 74, 0.12);
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+}
+
+.hero-seal-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.eyebrow {
+  font-family: "Cormorant Garamond", "Noto Serif SC", Georgia, serif;
+  font-size: 20rpx;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+.hero-title {
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 88rpx;
+  font-weight: 700;
+  line-height: 1;
+  color: #1f1b16;
+  letter-spacing: 0.02em;
+}
+
+.hero-desc {
+  margin-top: 24rpx;
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 28rpx;
+  line-height: 1.65;
+  color: #3a3530;
+  max-width: 560rpx;
+}
+
+.dot {
+  color: #a8322d;
+}
+
+.hero-actions {
+  margin-top: 40rpx;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.hero-actions-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16rpx;
+  min-width: 0;
+}
+
+.toolbar {
+  z-index: 40;
+  background: #faf6ec;
+}
+
+.toolbar--pinned {
+  position: sticky;
+  z-index: 40;
+  background: rgba(250, 246, 236, 0.96);
+  border-bottom: 1rpx solid rgba(31, 27, 22, 0.1);
+}
+
+.toolbar-inner {
+  padding: 24rpx 32rpx;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.search-wrap {
+  flex: 1;
+  min-width: 360rpx;
+  position: relative;
+}
+
+.search-ico {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28rpx;
+  height: 28rpx;
+  color: #6b6359;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12rpx 8rpx 12rpx 40rpx;
+  border: none;
+  border-bottom: 1rpx solid rgba(31, 27, 22, 0.15);
+  background: transparent;
+  font-family: "Noto Sans SC", system-ui, "PingFang SC", sans-serif;
+  font-size: 26rpx;
+}
+
+.ph {
+  color: #a39a8b;
+}
+
+.sort {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  color: #6b6359;
+}
+
+.sort-btn {
+  padding: 8rpx 12rpx;
+  border-bottom: 4rpx solid transparent;
+}
+
+.sort-btn--on {
+  color: #1f1b16;
+  border-bottom-color: #a8322d;
+}
+
+.sort-sep {
+  opacity: 0.35;
+}
+
+.shelf {
+  padding: 8rpx 32rpx 0;
+}
+
+.shelf-pad {
+  height: 120rpx;
+}
+
+.empty {
+  text-align: center;
+  padding: 100rpx 32rpx;
+}
+
+.empty-seal {
+  width: 96rpx;
+  height: 96rpx;
+  margin: 0 auto 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #a3824a;
+  color: #faf6ec;
+  font-family: "Ma Shan Zheng", "Noto Serif SC", serif;
+  font-size: 40rpx;
+  font-weight: 700;
+  border-radius: 4rpx;
+}
+
+.empty-title {
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.empty-desc {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+}
+
+.form-field {
+  margin-bottom: 36rpx;
+}
+
+.field-line--song {
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.field-area {
+  min-height: 140rpx;
+  width: 100%;
+  font-family: "Noto Sans SC", system-ui, "PingFang SC", sans-serif;
+}
+
+.err {
+  display: block;
+  margin-top: 8rpx;
+  color: #a8322d;
+  font-size: 22rpx;
+}
+
+.palette-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.palette-sq {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 4rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.palette-sq--on {
+  box-shadow: 0 0 0 4rpx #faf6ec, 0 0 0 8rpx rgba(31, 27, 22, 0.35);
+  transform: scale(1.05);
+}
+
+.palette-hint {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 22rpx;
+}
+
+.form-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 48rpx;
+  margin-bottom: 16rpx;
+}
+
+.form-actions .btn-ghost,
+.form-actions .btn-primary {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 4rpx;
+}
+
+.menu-item {
+  padding: 28rpx 0;
+  font-size: 30rpx;
+  border-bottom: 1rpx solid rgba(31, 27, 22, 0.06);
+  color: #1f1b16;
+}
+
+.menu-item--danger {
+  color: #a8322d;
+  border-bottom: none;
+}
+
+.account {
+  padding: 8rpx 0 16rpx;
+}
+
+.account-name {
+  font-size: 34rpx;
+  font-weight: 600;
+  word-break: break-all;
+  padding: 8rpx 0 24rpx;
+}
+
+.account-line {
+  height: 1rpx;
+  background: rgba(31, 27, 22, 0.1);
+  margin-bottom: 8rpx;
+}

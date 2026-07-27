@@ -1,0 +1,9 @@
+.ui-icon {
+  display: block;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+  /* 避免 image 基线空隙把 flex 居中撑偏 */
+  line-height: 0;
+}

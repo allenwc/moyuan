@@ -1,0 +1,47 @@
+<view wx:if="{{open}}" class="sheet-root" catchtouchmove="noop">
+  <view class="sheet-mask" bindtap="onClose"></view>
+  <view
+    class="sheet-panel {{size === 'full' ? 'sheet-panel--full' : ''}} {{size === 'tall' ? 'sheet-panel--tall' : ''}}"
+  >
+    <view class="sheet-handle-wrap">
+      <view class="sheet-handle"></view>
+    </view>
+    <view wx:if="{{customTitle || title || subtitle}}" class="sheet-head">
+      <view class="sheet-head-text">
+        <block wx:if="{{customTitle}}">
+          <slot name="title"></slot>
+        </block>
+        <view wx:elif="{{title}}" class="sheet-title">{{title}}</view>
+        <view wx:if="{{subtitle}}" class="sheet-sub muted">{{subtitle}}</view>
+      </view>
+      <view class="sheet-close" bindtap="onClose">
+        <ui-icon name="x" size="32" />
+      </view>
+    </view>
+    <!--
+      正文只占「头栏与底栏之间」的剩余高度（flex:1），
+      避免 max-height:80vh 与底栏重叠 → 内容被挡且松手回弹。
+    -->
+    <scroll-view
+      scroll-y
+      enhanced="{{true}}"
+      bounces="{{false}}"
+      show-scrollbar="{{false}}"
+      enable-flex="{{true}}"
+      scroll-top="{{scrollTop}}"
+      class="sheet-body"
+    >
+      <view class="sheet-body-inner">
+        <slot></slot>
+        <view class="sheet-body-spacer"></view>
+      </view>
+    </scroll-view>
+    <view wx:if="{{showFooter}}" class="sheet-footer">
+      <view class="sheet-footer-inner">
+        <slot name="footer"></slot>
+      </view>
+      <view class="sheet-safe"></view>
+    </view>
+    <view wx:else class="sheet-safe"></view>
+  </view>
+</view>

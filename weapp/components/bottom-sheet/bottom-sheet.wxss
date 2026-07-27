@@ -1,0 +1,162 @@
+.sheet-root {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  font-family: "Noto Sans SC", system-ui, "PingFang SC", sans-serif;
+}
+
+.sheet-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(31, 27, 22, 0.45);
+}
+
+.sheet-panel {
+  position: relative;
+  width: 100%;
+  max-width: 750rpx;
+  background: #faf6ec;
+  border-radius: 16rpx 16rpx 0 0;
+  border: 1rpx solid rgba(31, 27, 22, 0.12);
+  border-bottom: none;
+  box-shadow: 0 -8rpx 40rpx -16rpx rgba(31, 27, 22, 0.28);
+  display: flex;
+  flex-direction: column;
+  /* 相对 sheet-root(inset:0)，避免真机 vh 失效 */
+  max-height: 92%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* 编辑类表单：固定面板高度，正文区吃剩余空间并可真实滚动 */
+.sheet-panel--tall {
+  height: 88%;
+  max-height: 88%;
+}
+
+.sheet-panel--full {
+  height: 92%;
+  max-height: 92%;
+}
+
+.sheet-handle-wrap {
+  padding: 16rpx 0 8rpx;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #faf6ec;
+}
+
+.sheet-handle {
+  width: 80rpx;
+  height: 8rpx;
+  border-radius: 999rpx;
+  background: rgba(31, 27, 22, 0.15);
+}
+
+.sheet-head {
+  padding: 8rpx 40rpx 20rpx;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+  flex-shrink: 0;
+  background: #faf6ec;
+}
+
+.sheet-head-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.sheet-title {
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1f1b16;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet-sub {
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  letter-spacing: 0.08em;
+}
+
+.sheet-close {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid rgba(31, 27, 22, 0.1);
+  border-radius: 4rpx;
+  color: #1f1b16;
+  font-size: 28rpx;
+  flex-shrink: 0;
+  background: #faf6ec;
+  box-sizing: border-box;
+}
+
+.sheet-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background: #faf6ec;
+}
+
+/* tall/full：父级有明确高度时，正文吃剩余空间并滚动 */
+.sheet-panel--tall .sheet-body,
+.sheet-panel--full .sheet-body {
+  flex: 1;
+  height: 0;
+  min-height: 0;
+}
+
+.sheet-body-inner {
+  padding: 8rpx 40rpx 0;
+  box-sizing: border-box;
+  background: #faf6ec;
+}
+
+/* 让最后一项能滚到按钮上方完全可见 */
+.sheet-body-spacer {
+  height: 32rpx;
+}
+
+.sheet-body::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+  background: transparent !important;
+}
+
+.sheet-footer {
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+  background: #faf6ec;
+  border-top: 1rpx solid rgba(31, 27, 22, 0.1);
+}
+
+.sheet-footer-inner {
+  padding: 20rpx 40rpx;
+  background: #faf6ec;
+  box-sizing: border-box;
+}
+
+.sheet-safe {
+  width: 100%;
+  height: constant(safe-area-inset-bottom);
+  height: env(safe-area-inset-bottom);
+  min-height: 0;
+  background: #faf6ec;
+  flex-shrink: 0;
+}

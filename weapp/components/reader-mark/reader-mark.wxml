@@ -1,0 +1,6 @@
+<view class="mark {{compact ? 'mark--compact' : ''}}" bindtap="onOpen">
+  <seal text="{{sealChar}}" size="{{compact ? 24 : 32}}" rotate="{{-4}}" />
+  <view class="mark-text">
+    <text class="mark-label">{{label}}</text>
+  </view>
+</view>

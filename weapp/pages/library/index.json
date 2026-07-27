@@ -1,0 +1,11 @@
+{
+  "usingComponents": {
+    "seal": "/components/seal/seal",
+    "reader-mark": "/components/reader-mark/reader-mark",
+    "novel-card": "/components/novel-card/novel-card",
+    "bottom-sheet": "/components/bottom-sheet/bottom-sheet",
+    "confirm-dialog": "/components/confirm-dialog/confirm-dialog",
+    "ui-icon": "/components/ui-icon/ui-icon"
+  },
+  "navigationStyle": "custom"
+}

@@ -1,0 +1,1012 @@
+.ed {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: #f5efe2;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.chrome {
+  position: relative;
+  z-index: 40;
+  flex-shrink: 0;
+  background: rgba(250, 246, 236, 0.98);
+}
+
+.tb {
+  padding: 0 12rpx 0 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  border-bottom: 1rpx solid rgba(31, 27, 22, 0.1);
+  box-sizing: border-box;
+}
+
+.tb-icon {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  color: #1f1b16;
+  border-radius: 4rpx;
+  border: 1rpx solid rgba(31, 27, 22, 0.1);
+  background: #faf6ec;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  line-height: 0;
+}
+
+.tb-icon--off {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.tb-meta {
+  flex: 1;
+  min-width: 0;
+  padding: 0 8rpx;
+}
+
+.tb-title {
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #1f1b16;
+}
+
+.tb-sub {
+  margin-top: 2rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 20rpx;
+  color: #6b6359;
+  letter-spacing: 0.06em;
+}
+
+.tb-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: #5b6b4a;
+  flex-shrink: 0;
+}
+
+.tb-dot--saving {
+  background: #a3824a;
+}
+
+/* 装裱：与撤销/重做同形的图标钮，避免长文案撞胶囊 */
+.tb-export {
+  background: #a8322d;
+  color: #faf6ec;
+  border-color: rgba(168, 50, 45, 0.35);
+  font-size: 28rpx;
+}
+
+.state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  background: #f5efe2;
+}
+
+.error {
+  color: #a8322d;
+}
+
+.graph {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  z-index: 1;
+}
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #f5efe2;
+  z-index: 1;
+}
+
+.dock {
+  /* 悬浮叠在 canvas 上；须高于 .fab-mask(45)，否则 FAB 菜单点击会被遮罩吞掉 */
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding: 16rpx 28rpx 12rpx;
+  background: transparent;
+  border: none;
+  box-sizing: border-box;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.dock .zoom,
+.dock .fab {
+  pointer-events: auto;
+}
+
+.export-canvas {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 750px;
+  height: 1000px;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* FocusPeek — 叠在 stage 顶部，不撑高 chrome、不顶移 canvas */
+.peek-wrap {
+  position: absolute;
+  left: 24rpx;
+  right: 24rpx;
+  top: 16rpx;
+  z-index: 30;
+  pointer-events: auto;
+}
+
+.peek {
+  background: rgba(250, 246, 236, 0.95);
+  border: 1rpx solid rgba(31, 27, 22, 0.12);
+  border-radius: 8rpx;
+  padding: 20rpx 16rpx 20rpx 24rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20rpx;
+  box-shadow: 0 8rpx 24rpx -12rpx rgba(31, 27, 22, 0.22);
+}
+
+.peek-dot {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  border: 1rpx solid rgba(31, 27, 22, 0.15);
+  flex-shrink: 0;
+}
+
+.peek-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.peek-name {
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1f1b16;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.peek-meta {
+  font-size: 22rpx;
+  color: #6b6359;
+  margin-top: 4rpx;
+  letter-spacing: 0.06em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.peek-edit {
+  height: 56rpx;
+  line-height: 56rpx;
+  padding: 0 20rpx;
+  font-size: 22rpx;
+  background: #a8322d;
+  color: #faf6ec;
+  border-radius: 4rpx;
+  flex-shrink: 0;
+}
+
+.peek-x {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #6b6359;
+  border: 1rpx solid rgba(31, 27, 22, 0.1);
+  border-radius: 4rpx;
+  background: #faf6ec;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Zoom — 底栏左侧 */
+.zoom {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  pointer-events: auto;
+}
+
+.zoom-row {
+  display: flex;
+  flex-direction: row;
+  gap: 12rpx;
+}
+
+.zoom-btn {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: #faf6ec;
+  border: 1rpx solid rgba(31, 27, 22, 0.15);
+  box-shadow: 0 2rpx 0 rgba(31, 27, 22, 0.04),
+    0 12rpx 32rpx -20rpx rgba(31, 27, 22, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  line-height: 0;
+  color: #1f1b16;
+}
+
+.zoom-stats {
+  font-size: 20rpx;
+  letter-spacing: 0.08em;
+  background: rgba(250, 246, 236, 0.7);
+  border: 1rpx solid rgba(31, 27, 22, 0.08);
+  border-radius: 4rpx;
+  padding: 6rpx 16rpx;
+  text-align: center;
+  color: #6b6359;
+  box-sizing: border-box;
+}
+
+/* Fab — 底栏右侧 */
+.fab-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(31, 27, 22, 0.2);
+  z-index: 45;
+}
+
+.fab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16rpx;
+  pointer-events: auto;
+  position: relative;
+  z-index: 50;
+  overflow: visible;
+  /* 避免菜单宽度被主按钮（约 100rpx）卡住导致汉字竖排 */
+  min-width: 100rpx;
+}
+
+.fab-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16rpx;
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 16rpx);
+  /* 小程序对 max-content 支持不稳，给够横排四字+图标的宽度 */
+  min-width: 300rpx;
+  z-index: 51;
+}
+
+.fab-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12rpx;
+  flex-shrink: 0;
+}
+
+.fab-label {
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 28rpx;
+  line-height: 40rpx;
+  height: 72rpx;
+  padding: 0 28rpx;
+  background: #faf6ec;
+  border: 1rpx solid rgba(31, 27, 22, 0.1);
+  border-radius: 4rpx;
+  color: #1f1b16;
+  box-shadow: 0 8rpx 24rpx -12rpx rgba(31, 27, 22, 0.18);
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.fab-label--gold {
+  background: #f0e6d0;
+  color: #7a6235;
+  border-color: rgba(163, 130, 74, 0.35);
+}
+
+.fab-mini {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: #faf6ec;
+  border: 1rpx solid rgba(31, 27, 22, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  color: #1f1b16;
+  box-shadow: 0 8rpx 24rpx -12rpx rgba(31, 27, 22, 0.18);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.fab-mini--gold {
+  background: #a3824a;
+  color: #faf6ec;
+  border-color: #a3824a;
+}
+
+.fab-main {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: #a8322d;
+  color: #faf6ec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  box-shadow: 0 0 0 1rpx rgba(168, 50, 45, 0.25),
+    0 24rpx 56rpx -16rpx rgba(168, 50, 45, 0.45);
+  flex-shrink: 0;
+}
+
+.fab-main--open {
+  transform: rotate(45deg);
+}
+
+.connect-tip {
+  position: absolute;
+  left: 32rpx;
+  right: 32rpx;
+  top: 24rpx;
+  z-index: 28;
+  background: rgba(31, 27, 22, 0.9);
+  color: #faf6ec;
+  font-size: 22rpx;
+  padding: 16rpx 24rpx;
+  border-radius: 4rpx;
+  text-align: center;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+.connect-tip--guide {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  text-align: left;
+  pointer-events: none;
+}
+
+.connect-dismiss {
+  flex-shrink: 0;
+  padding: 8rpx 16rpx;
+  border: 1rpx solid rgba(250, 246, 236, 0.25);
+  border-radius: 4rpx;
+  font-size: 20rpx;
+  color: rgba(250, 246, 236, 0.85);
+  pointer-events: auto;
+}
+
+.empty {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx;
+  pointer-events: none;
+}
+
+.empty-seal {
+  width: 224rpx;
+  height: 224rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Ma Shan Zheng", "Noto Serif SC", serif;
+  font-size: 72rpx;
+  color: rgba(163, 130, 74, 0.7);
+  background: radial-gradient(
+    circle at 50% 40%,
+    rgba(194, 162, 107, 0.35),
+    rgba(163, 130, 74, 0)
+  );
+  box-shadow: inset 0 0 0 1rpx rgba(163, 130, 74, 0.35);
+}
+
+.empty-title {
+  margin-top: 48rpx;
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #1f1b16;
+}
+
+.empty-desc {
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  color: #6b6359;
+  text-align: center;
+  line-height: 1.65;
+  max-width: 520rpx;
+}
+
+.empty-btn {
+  margin-top: 48rpx;
+  pointer-events: auto;
+}
+
+.empty-hint {
+  margin-top: 32rpx;
+  font-size: 20rpx;
+  color: #6b6359;
+  letter-spacing: 0.08em;
+}
+
+/* Forms — 对齐 H5 CharacterPanel / RelationPanel */
+.form--panel {
+  padding-top: 8rpx;
+  padding-bottom: 16rpx;
+}
+
+.form-field {
+  margin-bottom: 40rpx;
+}
+
+.form-field--last {
+  margin-bottom: 8rpx;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32rpx;
+  margin-bottom: 0;
+}
+
+.form-grid .form-field {
+  margin-bottom: 40rpx;
+}
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-top: 4rpx;
+}
+
+.flex-1 {
+  flex: 1;
+  min-width: 0;
+}
+
+.field-line--song {
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.field-area {
+  min-height: 140rpx;
+  width: 100%;
+  line-height: 1.6;
+  box-sizing: border-box;
+  font-family: "Noto Sans SC", system-ui, "PingFang SC", sans-serif;
+}
+
+.gender-row {
+  display: flex;
+  gap: 10rpx;
+  flex-shrink: 0;
+}
+
+.gender-chip {
+  height: 72rpx;
+  padding: 0 18rpx;
+  border: 1rpx solid rgba(31, 27, 22, 0.15);
+  border-radius: 6rpx;
+  font-size: 22rpx;
+  color: #6b6359;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  box-sizing: border-box;
+}
+
+.gender-chip--on {
+  background: #1f1b16;
+  color: #faf6ec;
+  border-color: #1f1b16;
+}
+
+.gender-shape {
+  width: 20rpx;
+  height: 20rpx;
+  flex-shrink: 0;
+}
+
+.gender-shape--circle {
+  border-radius: 50%;
+}
+
+.gender-shape--square {
+  border-radius: 4rpx;
+}
+
+.gender-shape--diamond {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 2rpx;
+  transform: rotate(45deg);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+
+.role-chip {
+  height: 56rpx;
+  padding: 0 24rpx;
+  font-size: 22rpx;
+  border: 1rpx solid rgba(31, 27, 22, 0.15);
+  border-radius: 4rpx;
+  color: #6b6359;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.role-chip--on {
+  background: #1f1b16;
+  color: #faf6ec;
+  border-color: #1f1b16;
+}
+
+.palette-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.palette-dot {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  border: 4rpx solid #faf6ec;
+  box-sizing: border-box;
+}
+
+.palette-dot--on {
+  border-color: #1f1b16;
+  transform: scale(1.1);
+}
+
+.form-footer {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  background: #faf6ec;
+}
+
+.form-footer-main {
+  flex: 2;
+}
+
+.form-footer .btn-ghost {
+  flex: 1;
+  gap: 10rpx;
+}
+
+.btn-danger {
+  color: #a8322d !important;
+  border-color: rgba(168, 50, 45, 0.3) !important;
+}
+
+.sheet-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  min-width: 0;
+}
+
+.sheet-title-dot {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  border: 1rpx solid rgba(31, 27, 22, 0.15);
+  flex-shrink: 0;
+}
+
+.sheet-title-glyph {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 4rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #faf6ec;
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 24rpx;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sheet-title-text {
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1f1b16;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet-title-dotsep {
+  color: #1f1b16;
+  font-size: 40rpx;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.sheet-dirty-badge {
+  font-size: 20rpx;
+  color: #a3824a;
+  letter-spacing: 0.12em;
+  flex-shrink: 0;
+}
+
+.rel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rel-head .field-label {
+  margin-bottom: 0;
+}
+
+.rel-count {
+  font-size: 20rpx;
+}
+
+.rel-empty {
+  margin-top: 16rpx;
+  padding: 32rpx 20rpx;
+  text-align: center;
+  background: rgba(235, 227, 210, 0.4);
+  border-radius: 4rpx;
+  font-size: 26rpx;
+  line-height: 1.5;
+}
+
+.rel-item {
+  margin-top: 12rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 24rpx;
+  border: 1rpx solid rgba(31, 27, 22, 0.1);
+  border-radius: 4rpx;
+  background: transparent;
+}
+
+.rel-glyph {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 4rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #faf6ec;
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 22rpx;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.rel-item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.rel-item-name {
+  font-size: 28rpx;
+  color: #1f1b16;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rel-item-note {
+  font-size: 22rpx;
+  margin-top: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rel-item-dir {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rel-swap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  padding: 24rpx;
+  border-radius: 6rpx;
+  border: 1rpx solid rgba(31, 27, 22, 0.1);
+  background: rgba(235, 227, 210, 0.4);
+  margin-bottom: 12rpx;
+}
+
+.rel-swap--tap {
+  border-color: rgba(31, 27, 22, 0.2);
+}
+
+.rel-swap-hint {
+  text-align: center;
+  font-size: 20rpx;
+  letter-spacing: 0.12em;
+  margin-top: -8rpx;
+  margin-bottom: 32rpx;
+}
+
+.rel-node {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  min-width: 0;
+  max-width: 36%;
+}
+
+.rel-node--right {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.rel-node-text {
+  min-width: 0;
+}
+
+.rel-node-dot {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  border: 4rpx solid #faf6ec;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.rel-node-name {
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 28rpx;
+  color: #1f1b16;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tiny {
+  font-size: 20rpx;
+  letter-spacing: 0.12em;
+  margin-top: 2rpx;
+}
+
+.rel-swap-mid {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rel-swap-line {
+  flex: 1;
+  height: 2rpx;
+  opacity: 0.5;
+}
+
+.rel-swap-badge {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  margin: 0 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #faf6ec;
+  font-size: 28rpx;
+  flex-shrink: 0;
+}
+
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.type-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  padding: 16rpx 8rpx;
+  border: 1rpx solid rgba(31, 27, 22, 0.1);
+  border-radius: 4rpx;
+  background: transparent;
+}
+
+.type-card--on {
+  border-color: #1f1b16;
+  background: #faf6ec;
+  box-shadow: 0 2rpx 0 rgba(31, 27, 22, 0.04),
+    0 8rpx 24rpx -12rpx rgba(31, 27, 22, 0.18);
+}
+
+.type-card-label {
+  font-size: 22rpx;
+  color: #1f1b16;
+}
+
+.dir-row {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.dir-chip {
+  flex: 1;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  border: 1rpx solid rgba(31, 27, 22, 0.1);
+  border-radius: 4rpx;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.dir-chip--on {
+  border-color: #1f1b16;
+  background: #faf6ec;
+  box-shadow: 0 2rpx 0 rgba(31, 27, 22, 0.04),
+    0 8rpx 24rpx -12rpx rgba(31, 27, 22, 0.18);
+}
+
+.dir-chip-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1f1b16;
+}
+
+.dir-chip-main {
+  font-size: 28rpx;
+  color: #1f1b16;
+}
+
+.dir-chip-sub {
+  font-size: 22rpx;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid rgba(31, 27, 22, 0.08);
+  font-size: 26rpx;
+}
+
+.toggle {
+  width: 72rpx;
+  height: 40rpx;
+  border-radius: 999rpx;
+  background: rgba(31, 27, 22, 0.15);
+  position: relative;
+  transition: background 0.2s;
+}
+
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 4rpx;
+  left: 4rpx;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  background: #faf6ec;
+  transition: transform 0.2s;
+}
+
+.toggle--on {
+  background: #a8322d;
+}
+
+.toggle--on::after {
+  transform: translateX(32rpx);
+}
+
+.export-preview {
+  margin-bottom: 32rpx;
+  min-height: 280rpx;
+  border: 1rpx solid rgba(31, 27, 22, 0.1);
+  border-radius: 6rpx;
+  background: rgba(235, 227, 210, 0.4);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.export-preview--empty {
+  padding: 64rpx 24rpx;
+  font-size: 24rpx;
+}
+
+.export-preview-img {
+  width: 100%;
+  display: block;
+}

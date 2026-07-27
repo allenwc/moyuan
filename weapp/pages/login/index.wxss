@@ -1,0 +1,173 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64rpx 48rpx;
+  box-sizing: border-box;
+  background: #f5efe2;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 680rpx;
+  padding: 80rpx 64rpx 72rpx;
+  box-sizing: border-box;
+  background: #fff;
+  border-radius: 8rpx;
+  box-shadow: 0 4rpx 32rpx -8rpx rgba(31, 27, 22, 0.08),
+    0 16rpx 64rpx -16rpx rgba(31, 27, 22, 0.06);
+}
+
+.login-header {
+  margin-bottom: 72rpx;
+  text-align: center;
+}
+
+.login-brand {
+  display: block;
+  font-family: "Noto Serif SC", "Cormorant Garamond", "Songti SC", serif;
+  font-size: 60rpx;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #a8322d;
+  line-height: 1.2;
+}
+
+.login-subtitle {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  color: #9e958a;
+  letter-spacing: 0.1em;
+}
+
+.login-field {
+  margin-bottom: 44rpx;
+}
+
+.login-label {
+  display: block;
+  margin-bottom: 16rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #4a4238;
+  text-transform: uppercase;
+}
+
+.login-input {
+  display: block;
+  width: 100%;
+  height: 88rpx;
+  box-sizing: border-box;
+  padding: 0 28rpx;
+  font-family: "Noto Sans SC", system-ui, "PingFang SC", sans-serif;
+  font-size: 30rpx;
+  line-height: 88rpx;
+  background: #fff;
+  border: 1rpx solid rgba(31, 27, 22, 0.12);
+  border-radius: 6rpx;
+  color: #1f1b16;
+}
+
+.login-input--error {
+  border-color: rgba(192, 57, 43, 0.45);
+}
+
+.login-input-wrap {
+  position: relative;
+}
+
+.login-input--password {
+  padding-right: 96rpx;
+}
+
+.login-pwd-toggle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #6b6359;
+  opacity: 0.7;
+}
+
+.ph {
+  color: #b8afa5;
+  font-size: 30rpx;
+}
+
+.login-field-error {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #c0392b;
+  line-height: 1.5;
+}
+
+.login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 92rpx;
+  margin-top: 56rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  border-radius: 6rpx;
+}
+
+.login-btn--primary {
+  background: #a8322d;
+  color: #faf6ec;
+  box-shadow: 0 4rpx 16rpx -4rpx rgba(168, 50, 45, 0.32);
+}
+
+.login-btn--busy {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* ---- 微信登录分割线 ---- */
+.login-divider {
+  display: flex;
+  align-items: center;
+  margin-top: 48rpx;
+}
+
+.login-divider-line {
+  flex: 1;
+  height: 1rpx;
+  background: rgba(31, 27, 22, 0.08);
+}
+
+.login-divider-text {
+  padding: 0 32rpx;
+  font-size: 24rpx;
+  color: #b0a89d;
+}
+
+/* ---- 微信一键登录按钮 ---- */
+.login-btn--wechat {
+  margin-top: 48rpx;
+  background: #07c160;
+  color: #fff;
+  box-shadow: 0 4rpx 16rpx -4rpx rgba(7, 193, 96, 0.32);
+}
+
+.login-footer {
+  margin-top: 56rpx;
+  text-align: center;
+}
+
+.login-footer-text {
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: #b0a89d;
+}

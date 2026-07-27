@@ -1,0 +1,26 @@
+<view class="card" bindtap="onOpen">
+  <view
+    class="spine"
+    style="background: linear-gradient(160deg, {{palette.primary}} 0%, {{palette.deep}} 100%); color: {{palette.text}};"
+  >
+    <text class="spine-vol">Vol.</text>
+    <text class="spine-num">{{vol}}</text>
+    <text class="spine-title">{{shortTitle}}</text>
+  </view>
+  <view class="body">
+    <view class="body-top">
+      <view class="title">{{novel.title}}</view>
+      <view class="more" catchtap="onMore" hover-class="more--hover">
+        <view class="more-dot"></view>
+        <view class="more-dot"></view>
+        <view class="more-dot"></view>
+      </view>
+    </view>
+    <view class="author muted">{{novel.author || '佚名'}}</view>
+    <view wx:if="{{novel.synopsis}}" class="synopsis">{{novel.synopsis}}</view>
+    <view class="meta">
+      <text class="muted">{{charCount}} 人 · {{relCount}} 缘</text>
+      <text class="muted">{{timeLabel}}</text>
+    </view>
+  </view>
+</view>

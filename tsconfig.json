@@ -1,32 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "module": "commonjs",
-    "removeComments": false,
-    "preserveConstEnums": true,
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "noImplicitAny": false,
-    "allowSyntheticDefaultImports": true,
-    "outDir": "lib",
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "strictNullChecks": true,
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "strict": false,
-    "sourceMap": true,
-    "rootDir": ".",
-    "jsx": "react-jsx",
-    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
     "resolveJsonModule": true,
-    "typeRoots": ["node_modules/@types"],
-    "paths": {
-      "@/*": ["./src/*"],
-      "@moyuan/core": ["./packages/core/src/index.ts"]
-    },
+    "jsx": "react-jsx",
     "baseUrl": ".",
-    "skipLibCheck": true
+    "paths": {
+      "@moyuan/core": ["./packages/core/src/index.ts"],
+      "@moyuan/cloudbase": ["./packages/cloudbase/src/index.ts"]
+    }
   },
-  "include": ["./src", "./types", "./config", "./api"],
-  "exclude": ["node_modules", "dist", "src/_legacy"],
-  "compileOnSave": false
+  "include": ["./api", "./packages", "./cli/src"],
+  "exclude": ["node_modules", "dist", "h5", "weapp", "site"]
 }

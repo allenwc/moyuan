@@ -1,0 +1,8 @@
+<view
+  class="seal {{square ? 'seal--square' : 'seal--round'}}"
+  style="width: {{size}}px; height: {{size}}px; font-size: {{fontSize}}px; transform: rotate({{rotate}}deg); background: {{bg}}; color: {{fg}};"
+>
+  <block wx:for="{{chars}}" wx:key="*this">
+    <text class="seal-ch">{{item}}</text>
+  </block>
+</view>

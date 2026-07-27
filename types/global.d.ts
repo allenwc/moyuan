@@ -1,29 +1,13 @@
-/// <reference types="@tarojs/taro" />
-
-declare module "*.png";
-declare module "*.gif";
-declare module "*.jpg";
-declare module "*.jpeg";
-declare module "*.svg";
-declare module "*.css";
-declare module "*.scss";
-declare module "*.sass";
-declare module "*.less";
-
+/** 全局类型补充（非 Taro） */
 declare namespace NodeJS {
   interface ProcessEnv {
-    TARO_ENV:
-      | "weapp"
-      | "swan"
-      | "alipay"
-      | "h5"
-      | "rn"
-      | "tt"
-      | "quickapp"
-      | "qq"
-      | "jd";
-    TARO_APP_API_BASE?: string;
-    TARO_APP_DEV_BYPASS?: string;
-    TARO_APP_CLOUDBASE_ENV_ID?: string;
+    CLOUDBASE_ENV_ID?: string;
+    MOYUAN_JWT_SECRET?: string;
+    MOYUAN_API_KEY?: string;
+    MOYUAN_ALLOW_DEV_LOGIN?: string;
+    WECHAT_APPID?: string;
+    WECHAT_SECRET?: string;
   }
 }
+
+export {};

@@ -1,5 +1,6 @@
 {
-  "miniprogramRoot": "dist/weapp/",
+  "miniprogramRoot": "weapp/",
+  "cloudfunctionRoot": "cloudfunctions/",
   "projectname": "moyuan",
   "description": "墨缘 — 小说人物关系图谱",
   "appid": "wxe0bfa1a35b866e31",
@@ -9,31 +10,7 @@
     "enhance": true,
     "compileHotReLoad": false,
     "postcss": false,
-    "minified": true,
-    "compileWorklet": false,
-    "uglifyFileName": false,
-    "uploadWithSourceMap": false,
-    "packNpmManually": false,
-    "packNpmRelationList": [],
-    "minifyWXSS": true,
-    "minifyWXML": true,
-    "localPlugins": false,
-    "disableUseStrict": false,
-    "useCompilerPlugins": false,
-    "condition": false,
-    "swc": false,
-    "disableSWC": true,
-    "babelSetting": {
-      "ignore": [],
-      "disablePlugins": [],
-      "outputPath": ""
-    }
+    "minified": true
   },
-  "compileType": "miniprogram",
-  "simulatorPluginLibVersion": {},
-  "packOptions": {
-    "ignore": [],
-    "include": []
-  },
-  "editorSetting": {}
+  "compileType": "miniprogram"
 }
