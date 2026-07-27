@@ -11,7 +11,8 @@
 
 ```
 moyuan/
-├── src/                 # Taro 多端前端（weapp + h5），经 REST API 访问 CloudBase
+├── h5/                 # H5 前端（React + Vite），经 CloudBase SDK 访问
+├── weapp/              # 原生微信小程序，经云函数代理访问
 ├── packages/core/       # 共享：领域类型 + 纯持久化逻辑（依赖注入 PgDb）
 ├── api/                 # Hono 写的 Vercel Serverless Function → /api
 ├── cli/                 # 墨缘 CLI（commander，HTTP 调 /api）
@@ -19,7 +20,7 @@ moyuan/
 └── skill/               # 标准 agent skill（SKILL.md + 脚本）
 ```
 
-- 前端：`src/lib/api.ts` 经 REST API 访问，请求头带自建 JWT（`Authorization: Bearer`）。
+- H5 前端经 CloudBase JS SDK 直接访问；weapp 经云函数代理访问；服务端 / CLI 经 REST API，请求头带自建 JWT（`Authorization: Bearer`）。
 - `packages/core` 抽离 `reconcileNovel` 等纯逻辑，前后端共用（服务端注入 `PgDb`），
   避免重写对账逻辑。
 - `api/` 作为 Vercel Serverless Function 部署在 `/api`，与 H5 **同项目同域**。
@@ -34,11 +35,9 @@ CLOUDBASE_SECRET_ID=your-secret-id
 CLOUDBASE_SECRET_KEY=your-secret-key
 MOYUAN_JWT_SECRET=change-me-strong-secret
 MOYUAN_API_KEY=change-me-api-key
-# 小程序必填；H5 本地可留空（相对路径 /api）
-TARO_APP_API_BASE=
 ```
 
-只有 `TARO_APP_` 前缀会注入前端；改完后需重启 dev。
+前端构建变量以 `VITE_` 前缀注入；改完后需重启 dev。
 
 ```bash
 npm install
@@ -81,14 +80,13 @@ moyuan reconcile <id> --file graph.json   # 批量对账整图
 1. **应用项目**（Root = 仓库根）：`npm run build:h5` 产出 `dist/h5/`，`api/` 自动作为
    Serverless Function 部署到 `/api`。在 Vercel 项目设置里添加：
 
-   前端构建变量（`TARO_APP_*`）：
-   - `TARO_APP_API_BASE`（生产一般为 `https://你的域名/api`）
-   - `TARO_APP_WECHAT_APPID` / `TARO_APP_WECHAT_SECRET`（小程序登录用）
+   前端构建变量（`VITE_` 前缀）：
+   - `VITE_CLOUDBASE_ENV_ID`（CloudBase 环境 ID）
 
    服务端变量（**绝不进前端包**）：
    - `CLOUDBASE_ENV_ID` / `CLOUDBASE_SECRET_ID` / `CLOUDBASE_SECRET_KEY`
    - `MOYUAN_JWT_SECRET` / `MOYUAN_API_KEY`
-   - 微信相关：`WECHAT_APPID` / `WECHAT_SECRET`（或 `TARO_APP_WECHAT_*`）
+   - 微信相关：`WECHAT_APPID` / `WECHAT_SECRET`
 
 2. **官网项目**（Root = `site/`）：Astro 静态站，独立域名（如 `moyuan.app`）。
 

@@ -1,4 +1,4 @@
-/** 全局类型补充（非 Taro） */
+/** 全局类型补充 */
 declare namespace NodeJS {
   interface ProcessEnv {
     CLOUDBASE_ENV_ID?: string;

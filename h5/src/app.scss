@@ -4,30 +4,14 @@ page {
   color: #1f1b16;
 }
 
-/* H5：Taro 页面壳常为白底，改为透出 body 纸色渐变 */
-.taro_page,
-.taro_page_show,
-.taro-tabbar__panel {
-  background-color: transparent !important;
-  background-image: none !important;
-  min-height: 100%;
-  color: #1f1b16;
-}
-
 #app {
   background-color: transparent;
   min-height: 100%;
 }
 
 /*
- * Taro plugin-html 会把 CSS 里的 button 标签选择器改写成 taro-button-core，
- * createPortal 出去的原生 <button> 匹配不到，仍会露出 UA 灰底。
- * 因此用无标签属性选择器兜底。
- *
- * 注意：
- * - 本文件排在 Tailwind 之后，勿写 padding/font-size/line-height 等会压工具类的属性
- * - 勿对 [type=button] 写 background:!important（盖主题色）或 border:none（盖描边/选中环）
- * - 勿对 [type=button] 写 box-shadow:none（盖 Tailwind ring）
+ * 用无标签属性选择器兜底 createPortal 出去的原生 <button>，避免露出 UA 灰底。
+ * 注意：本文件排在 Tailwind 之后，勿写会压工具类的属性。
  */
 [type="button"],
 [type="submit"],
@@ -39,24 +23,6 @@ page {
   font-family: inherit;
 }
 
-taro-button-core {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  border: none !important;
-  border-radius: 0;
-  box-shadow: none !important;
-  color: inherit;
-  font: inherit;
-  letter-spacing: inherit;
-  line-height: inherit;
-  margin: 0;
-  padding: 0;
-  text-align: inherit;
-}
-
-taro-button-core::after,
 [type="button"]::after,
 [type="submit"]::after,
 [type="reset"]::after {
@@ -64,26 +30,6 @@ taro-button-core::after,
   display: none !important;
 }
 
-taro-input-core,
-taro-textarea-core {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  background: transparent !important;
-  border: none !important;
-  border-radius: 0;
-  box-shadow: none !important;
-  color: inherit;
-  font: inherit;
-  letter-spacing: inherit;
-  line-height: inherit;
-  margin: 0;
-  outline: none;
-}
-
-/*
- * Taro H5 默认 `input { height: 1.4rem }` 会压扁 portal 里的下划线输入框。
- * 类选择器不会被 plugin-html 改写。
- */
 .field-line {
   height: auto !important;
   min-height: 0 !important;
@@ -162,9 +108,4 @@ taro-textarea-core {
 .btn-ghost.text-vermillion {
   color: #a8322d !important;
   border-color: rgba(168, 50, 45, 0.3) !important;
-}
-
-/* @tarojs/plugin-html：span 默认映到 view，需显式行内 */
-.h5-span {
-  display: inline;
 }

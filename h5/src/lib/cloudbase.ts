@@ -12,10 +12,7 @@ import {
 } from "@moyuan/cloudbase";
 import type { PgDb } from "@moyuan/core";
 
-const envId =
-  (import.meta.env.VITE_CLOUDBASE_ENV_ID as string) ||
-  (import.meta.env.TARO_APP_CLOUDBASE_ENV_ID as string) ||
-  "";
+const envId = (import.meta.env.VITE_CLOUDBASE_ENV_ID as string) || "";
 
 let app: CloudbaseApp | null = null;
 let pg: PgDb | null = null;

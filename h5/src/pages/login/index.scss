@@ -1,6 +1,3 @@
-/* 登录页按 CSS px 设计；避免 weapp px→rpx 把按钮/字号缩成一半 */
-/*postcss-pxtransform disable*/
-
 /* ===== 页面容器 ===== */
 .login-page {
   display: flex;
@@ -64,9 +61,7 @@
   text-transform: uppercase;
 }
 
-/* 盖过 app.scss 对 taro-input-core 的 transparent !important。
- * 微信原生 input：不要用上下 padding + line-height:1.5，否则字被裁切、框像 textarea。
- */
+/* 微信原生 input：不要用上下 padding + line-height:1.5，否则字被裁切、框像 textarea。 */
 .login-input {
   display: block !important;
   width: 100% !important;
@@ -157,7 +152,7 @@
   line-height: 1.55;
 }
 
-/* ===== 按钮：必须 !important，否则被 app.scss taro-button-core 透明重置盖掉 ===== */
+/* ===== 按钮：必须 !important，否则被 app.scss 对原生 button 的透明重置盖掉 ===== */
 .login-btn {
   display: flex !important;
   align-items: center !important;

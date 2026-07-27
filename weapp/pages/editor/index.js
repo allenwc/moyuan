@@ -334,7 +334,7 @@ Page({
     return { x: (sx - v.x) / v.scale, y: (sy - v.y) / v.scale };
   },
 
-  /** 画布局部坐标：优先 touch.x/y，否则用 clientX（全屏画布与 Taro 一致） */
+  /** 画布局部坐标：优先 touch.x/y，否则用 clientX（全屏画布统一处理） */
   localTouch(t) {
     if (!t) return { x: 0, y: 0 };
     let x = typeof t.x === "number" ? t.x : t.clientX;
@@ -404,7 +404,7 @@ Page({
       this._breatheAlpha = 1;
     }
 
-    // 每帧重置 transform，避免 scale(dpr) 累积导致变形发虚（对齐 Taro）
+    // 每帧重置 transform，避免 scale(dpr) 累积导致变形发虚
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
     drawPaperBackground(ctx, w, h, v);

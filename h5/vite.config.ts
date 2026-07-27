@@ -14,9 +14,9 @@ export default defineConfig({
       ),
     },
   },
-  // 读取仓库根目录 .env / .env.local（兼容 TARO_APP_CLOUDBASE_ENV_ID）
+  // 读取仓库根目录 .env / .env.local
   envDir: path.resolve(__dirname, ".."),
-  envPrefix: ["VITE_", "TARO_APP_"],
+  envPrefix: ["VITE_"],
   server: {
     port: 5173,
     host: "localhost",

@@ -2,9 +2,8 @@ import type { Db } from "./db";
 import { lit, uid } from "@moyuan/core";
 import { issueSession } from "./authSession";
 
-const WX_APPID = process.env.TARO_APP_WECHAT_APPID || process.env.WECHAT_APPID || "";
-const WX_SECRET =
-  process.env.TARO_APP_WECHAT_SECRET || process.env.WECHAT_SECRET || "";
+const WX_APPID = process.env.WECHAT_APPID || "";
+const WX_SECRET = process.env.WECHAT_SECRET || "";
 
 interface MiniSession {
   openid: string;
