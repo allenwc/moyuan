@@ -119,6 +119,21 @@ pm2 start api/dist/server.js --name moyuan-api
 # EnvironmentFile=/opt/moyuan/.env.production
 ```
 
+### 方式二：CloudBase HTTP 触发云函数
+
+把开放 API 作为云函数部署（无需独立服务器）：
+
+```bash
+npm install
+node cloudfunctions/api/build.mjs   # 打包 → cloudfunctions/api/app.bundle.cjs
+npx tcb fn deploy api              # 部署云函数（云端自动安装依赖）
+```
+
+然后到 **CloudBase 控制台 → 云函数 → HTTP 访问服务**，新建路径映射 `/api/*` → `api` 函数，
+并给 `api` 函数配置环境变量 `MOYUAN_JWT_SECRET`（微信登录需再加 `WECHAT_APPID`/`WECHAT_SECRET`）。
+
+最终访问：`https://<控制台域名>/api`（CLI / skill 设 `MOYUAN_API_URL=https://<域名>/api`）。
+
 H5 / weapp / 官网的托管方式与本服务无关（CloudBase 静态托管 / 小程序平台 / 任意静态站均可）。
 
 > 安全：API Key 为用户级明文凭证；CLI/Agent 持有后将以该用户身份读写其书库。

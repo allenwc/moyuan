@@ -7,13 +7,19 @@ function getApp(): any {
   if (!app) {
     const secretId = process.env.CLOUDBASE_SECRET_ID;
     const secretKey = process.env.CLOUDBASE_SECRET_KEY;
-    const envId = process.env.CLOUDBASE_ENV_ID;
-    if (!secretId || !secretKey || !envId) {
+    const envId =
+      process.env.CLOUDBASE_ENV_ID || process.env.TCB_ENV_ID || "";
+    if (!envId) {
       throw new Error(
-        "未配置 CloudBase 凭据：CLOUDBASE_SECRET_ID / CLOUDBASE_SECRET_KEY / CLOUDBASE_ENV_ID",
+        "未配置 CloudBase 环境：CLOUDBASE_ENV_ID（云函数内会自动取 TCB_ENV_ID）",
       );
     }
-    app = CloudBase.init({ secretId, secretKey, envId });
+    if (secretId && secretKey) {
+      app = CloudBase.init({ secretId, secretKey, envId });
+    } else {
+      // 云函数运行时：不传密钥时走内置身份（与 cloudfunctions/pg 一致）
+      app = CloudBase.init({ envId });
+    }
   }
   return app;
 }

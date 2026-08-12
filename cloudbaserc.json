@@ -9,6 +9,14 @@
       "handler": "index.main",
       "installDependency": true,
       "triggers": []
+    },
+    {
+      "name": "api",
+      "runtime": "Nodejs20.19",
+      "timeout": 30,
+      "handler": "index.main",
+      "installDependency": true,
+      "triggers": []
     }
   ]
 }
