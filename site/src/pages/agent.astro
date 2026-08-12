@@ -33,12 +33,15 @@ moyuan reconcile <novelId> --file graph.json`;
       <h3>1. 配置</h3>
       <p>CLI 通过两个环境变量定位并鉴权 API：</p>
       <pre><code>export MOYUAN_API_URL="https://&lt;你的vercel域名&gt;/api"
-export MOYUAN_API_KEY="&lt;服务端配置的 MOYUAN_API_KEY&gt;"</code></pre>
+export MOYUAN_API_KEY="&lt;个人中心里复制的 API Key&gt;"</code></pre>
       <div class="callout">
         本仓库使用 npm workspaces。在仓库根目录执行 <code>npm install</code> 后即可通过
         <code>npm run cli -- &lt;子命令&gt;</code> 调用，或全局安装后使用
         <code>moyuan</code> 命令。
       </div>
+      <p class="muted">
+        API Key 由服务端生成，并绑定到当前登录用户。CLI / Agent 携带后，服务端会自动反查归属用户，无需再额外传递 userId。
+      </p>
 
       <h3>2. 常用命令</h3>
       <table>
@@ -79,8 +82,8 @@ export MOYUAN_API_KEY="&lt;服务端配置的 MOYUAN_API_KEY&gt;"</code></pre>
       </p>
 
       <div class="callout">
-        安全提示：API 使用 <code>MOYUAN_API_KEY</code> 以管理员权限直连 CloudBase PostgreSQL，可写全库。
-        仅限应用所有者或受信任的 Agent 使用，<code>MOYUAN_API_KEY</code> 切勿写入前端或暴露给公网。
+        安全提示：API Key 是用户级明文凭证，持有者将以该用户身份读写书库。重新生成后旧 key 会立即失效，
+        请勿把个人 API Key 暴露给未授权来源。
       </div>
     </div>
   </section>

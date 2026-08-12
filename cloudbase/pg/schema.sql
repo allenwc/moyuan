@@ -13,6 +13,14 @@ CREATE TABLE IF NOT EXISTS users (
   created_at        bigint NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS api_keys (
+  user_id    varchar(64) PRIMARY KEY,
+  api_key    varchar(255) NOT NULL UNIQUE,
+  created_at bigint NOT NULL,
+  updated_at bigint NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_api_keys_api_key ON api_keys (api_key);
+
 CREATE TABLE IF NOT EXISTS novels (
   id          varchar(64) PRIMARY KEY,
   user_id     varchar(64) NOT NULL,

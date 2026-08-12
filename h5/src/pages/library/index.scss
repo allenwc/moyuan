@@ -39,3 +39,112 @@
     transform: rotate(360deg);
   }
 }
+
+.library-api-key-note {
+  margin: 8px 0 12px;
+  color: #6b6359;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.library-api-key-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.library-api-key-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #a8322d;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.library-api-key-box {
+  padding: 10px 14px 12px;
+  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    rgba(168, 50, 45, 0.08),
+    rgba(31, 27, 22, 0.03)
+  );
+  color: #1f1b16;
+  font-size: 12px;
+  line-height: 1.7;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-variant-ligatures: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: inset 0 0 0 1px rgba(168, 50, 45, 0.18);
+}
+
+.library-api-key-box::-webkit-scrollbar {
+  display: none;
+}
+
+.library-api-key-token-value {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.library-api-key-token-value::-webkit-scrollbar {
+  display: none;
+}
+
+.library-api-key-token-label {
+  font-size: 11px;
+  color: #6b6359;
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.library-api-key-token {
+  font-size: 12px;
+}
+
+.library-api-key-inline-actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 10px;
+}
+
+/* 覆盖全局 .btn-primary/.btn-ghost 的 padding !important
+   否则 token 框内按钮会把 SVG 的可见宽度挤到 0，导致图标不显示。 */
+.library-api-key-inline-actions > button {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.library-api-key-inline-actions > button svg {
+  flex-shrink: 0;
+  width: 1.25rem !important; /* w-5 */
+  height: 1.25rem !important; /* h-5 */
+}
+
+.library-api-key-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.library-api-key-error {
+  margin: 8px 0 0;
+  color: #7a2420;
+  font-size: 12px;
+}
+
+.library-api-key-copied {
+  margin: 8px 0 0;
+  color: #3f6f4f;
+  font-size: 12px;
+}

@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@hono/node-server": "^2.0.12",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.15.30",
     "esbuild": "^0.25.0",

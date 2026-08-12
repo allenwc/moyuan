@@ -8,11 +8,11 @@ Base path: `/api` (e.g. `https://<domain>/api`). Responses are JSON.
 
 1. **用户 JWT**：`Authorization: Bearer <moyuan_jwt>`
    - 仅能读写该用户自己的小说（服务端强制 `user_id` 校验）
-2. **API Key（所有者 / Agent）**：`Authorization: Bearer <MOYUAN_API_KEY>`
-   - 管理员高权限；列表可带 `?userId=` 过滤
-   - 创建小说 / 新建对账时 body 需带 `userId`
+2. **用户 API Key（CLI / Agent）**：`Authorization: Bearer <api_key>`
+   - 服务端会在 `api_keys` 表中按明文 key 反查所属 `user_id`
+   - 只能读取/写入该用户自己的小说，无需再传 `?userId=` 或 body `userId`
 
-未带或无效 → `401`。服务端缺配置 → `500`。
+未带或无效 → `401`。
 
 ## 微信登录（无需上述鉴权）
 
@@ -27,16 +27,12 @@ Base path: `/api` (e.g. `https://<domain>/api`). Responses are JSON.
 
 ## 端点
 
-### 健康检查
-`GET /health` → `{ "ok": true }`
-
 ### 小说
-- `GET /novels` → `{ "novels": Novel[] }`（用户 JWT 自动隔离；API Key 可用 `?userId=`）
+- `GET /novels` → `{ "novels": Novel[] }`（用户 JWT / API Key 都会自动隔离到当前用户）
 - `POST /novels`
-  body: `{ title, author?, synopsis?, themeColor?, userId? }`
+  body: `{ title, author?, synopsis?, themeColor? }`
   → `201 { "novel": Novel }`
-  - 用户 JWT：忽略 body.userId，使用 token 用户
-  - API Key：必须提供 `userId`
+  - 用户 JWT / API Key：都忽略 body.userId，由服务端按当前凭证归属写入
 - `GET /novels/:id` → `NovelGraph`（不存在或越权 → `404`）
 - `PUT /novels/:id`
   body: `{ title?, author?, synopsis?, themeColor? }`
@@ -64,7 +60,7 @@ Base path: `/api` (e.g. `https://<domain>/api`). Responses are JSON.
   body: `{ novel?: Partial<Novel>, characters?: Character[], relations?: Relation[] }`
   → 返回对账后的 `NovelGraph`。
   - 小说已存在：更新字段后对账（校验归属）。
-  - 小说不存在：按路径 id 创建再对账；用户 JWT 自动带 `userId`，API Key 需 `novel.userId`。
+  - 小说不存在：按路径 id 创建再对账；用户 JWT / API Key 都由服务端自动写入 `novel.userId`。
   - 对账语义：upsert 现存的 characters/relations，并删除云端多余的行。
 
 ## 数据模型（字段）
@@ -79,5 +75,6 @@ Relation: `id, novelId, sourceId, targetId, type, direction, note, createdAt`
 
 ## 安全说明
 - 终端用户走自建 JWT；服务端按 `user_id` 在应用层强制隔离，每个用户仅能读写自己的数据。
-- `MOYUAN_API_KEY` 等同管理员权限，仅限所有者 / 受信任 Agent；勿暴露给前端。
+- 用户 API Key 为明文凭证，适合 CLI / Agent 使用；重新生成后旧 key 立即失效。
+- H5 / 小程序个人中心可查看并复制当前用户的 API Key；勿暴露给未授权来源。
 - 微信 `appSecret` 仅存在服务端环境变量。

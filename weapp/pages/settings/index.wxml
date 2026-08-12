@@ -30,6 +30,16 @@
   </view>
 
   <view class="paper-card card">
+    <view class="card-title font-song">墨印（API Key）</view>
+    <view class="hint muted">CLI/Agent 只需携带此墨印即可访问你的外部接口。重铸后旧墨印立刻失效。</view>
+    <view class="api-key-box">{{apiKeyLoading ? "读取中…" : (apiKey || "未生成墨印")}}</view>
+    <view class="api-key-actions">
+      <view class="btn-secondary api-key-btn" bindtap="onCopyApiKey">复制墨印</view>
+      <view class="btn-primary api-key-btn" bindtap="onRegenerateApiKey">{{apiKey ? "重铸墨印" : "生成墨印"}}</view>
+    </view>
+  </view>
+
+  <view class="paper-card card">
     <view class="menu-item menu-item--danger" bindtap="onLogout">退出登录</view>
   </view>
 </view>

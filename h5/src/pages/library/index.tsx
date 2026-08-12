@@ -9,6 +9,7 @@ import { Seal, SealStamp } from "@/components/Seal";
 import {
   IconEdit,
   IconCopy,
+  IconRedo,
   IconDownload,
   IconTrash,
   IconPlus,
@@ -23,6 +24,7 @@ import {
   readerFullLabel,
   readerChannelLabel,
 } from "@/lib/readerIdentity";
+import { getApiKey, regenerateApiKey } from "@/lib/apiKeyRepo";
 import "./index.scss";
 
 type SortKey = "updated" | "title";
@@ -73,6 +75,12 @@ export default function LibraryPage() {
   const [confirmDelete, setConfirmDelete] = useState<Novel | null>(null);
   const [accountOpen, setAccountOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [apiKeyLoading, setApiKeyLoading] = useState(false);
+  const [apiKeyBusy, setApiKeyBusy] = useState(false);
+  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
+  const [apiKeyCopied, setApiKeyCopied] = useState(false);
+  const [confirmApiKeyResetOpen, setConfirmApiKeyResetOpen] = useState(false);
 
   // 检索栏到达吸顶位（top-14）时 pinned=true
   const toolbarRef = useRef<HTMLDivElement>(null);
@@ -242,6 +250,55 @@ export default function LibraryPage() {
       .then(() => {
         goLogin();
       });
+  };
+
+  useEffect(() => {
+    if (!accountOpen || !user) return;
+    let cancelled = false;
+    setApiKeyLoading(true);
+    setApiKeyError(null);
+    void getApiKey(user.uid)
+      .then((value) => {
+        if (cancelled) return;
+        setApiKey(value);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setApiKeyError(err instanceof Error ? err.message : "读取 API Key 失败");
+      })
+      .finally(() => {
+        if (!cancelled) setApiKeyLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [accountOpen, user]);
+
+  const handleCopyApiKey = async () => {
+    if (!apiKey) return;
+    await navigator.clipboard.writeText(apiKey);
+    setApiKeyCopied(true);
+    window.setTimeout(() => setApiKeyCopied(false), 1500);
+  };
+
+  const handleRegenerateApiKey = async () => {
+    if (!user || apiKeyBusy) return;
+    setApiKeyBusy(true);
+    setApiKeyError(null);
+    try {
+      const value = await regenerateApiKey(user.uid);
+      setApiKey(value);
+      setApiKeyCopied(false);
+    } catch (err) {
+      setApiKeyError(err instanceof Error ? err.message : "生成 API Key 失败");
+    } finally {
+      setApiKeyBusy(false);
+    }
+  };
+
+  const handleConfirmRegenerateApiKey = async () => {
+    setConfirmApiKeyResetOpen(false);
+    await handleRegenerateApiKey();
   };
 
   if (!authReady || (user && !hydrated)) {
@@ -491,6 +548,70 @@ export default function LibraryPage() {
               {readerFullLabel(user)}
             </p>
           </div>
+          <div className="mx-3 pb-3">
+            <div className="library-api-key-title-row">
+              <Seal text="墨印" size={34} rotate={-8} tone="vermillion" />
+              <p className="library-api-key-title">墨印（API Key）</p>
+            </div>
+            <p className="library-api-key-note">
+              CLI/Agent 只需携带此墨印即可访问你的外部接口。重铸后旧墨印立刻失效。
+            </p>
+            <div className="library-api-key-box">
+              <div className="library-api-key-token-value" translate="no">
+                {apiKeyLoading ? "读取中…" : apiKey || "未生成墨印"}
+              </div>
+              <div className="library-api-key-inline-actions">
+                <button
+                  type="button"
+                  onClick={() => void handleCopyApiKey()}
+                  disabled={!apiKey || apiKeyLoading || apiKeyBusy}
+                  aria-label="复制墨印"
+                  title="复制墨印"
+                  className="btn-ghost w-9 h-9 p-0 justify-center !px-0 !py-0 disabled:opacity-50"
+                >
+                  <IconCopy
+                    className="w-5 h-5"
+                    strokeWidth={2.6}
+                    color="currentColor"
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmApiKeyResetOpen(true)}
+                  disabled={apiKeyBusy}
+                  aria-label={apiKey ? "重铸墨印" : "生成墨印"}
+                  title={apiKey ? "重铸墨印" : "生成墨印"}
+                  className="btn-primary w-9 h-9 p-0 justify-center !px-0 !py-0 disabled:opacity-60"
+                >
+                  <IconRedo
+                    className="w-5 h-5"
+                    strokeWidth={2.6}
+                    color="currentColor"
+                  />
+                </button>
+              </div>
+            </div>
+            {apiKeyError ? (
+              <p
+                className="library-api-key-error"
+                aria-live="polite"
+                role="status"
+                aria-atomic="true"
+              >
+                {apiKeyError}
+              </p>
+            ) : null}
+            {apiKeyCopied ? (
+              <p
+                className="library-api-key-copied"
+                aria-live="polite"
+                role="status"
+                aria-atomic="true"
+              >
+                已复制墨印
+              </p>
+            ) : null}
+          </div>
           <div className="mx-3 border-t border-ink/10" />
           <button
             type="button"
@@ -498,7 +619,7 @@ export default function LibraryPage() {
               setAccountOpen(false);
               setConfirmLogout(true);
             }}
-            className="w-full flex items-center gap-3 px-3 py-3.5 text-left text-sm rounded-[2px] bg-transparent appearance-none font-inherit transition-colors hover:bg-ink/5 text-vermillion"
+            className="btn-ghost w-full justify-start text-vermillion focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30"
           >
             <span className="tracking-editorial">退出登录</span>
           </button>
@@ -516,6 +637,19 @@ export default function LibraryPage() {
         onConfirm={() => {
           setConfirmLogout(false);
           handleLogout();
+        }}
+      />
+
+      <ConfirmDialog
+        open={confirmApiKeyResetOpen}
+        title="重铸墨印？"
+        description="重铸后旧墨印立刻失效。"
+        tone="danger"
+        confirmText="确认重铸墨印"
+        cancelText="取消"
+        onCancel={() => setConfirmApiKeyResetOpen(false)}
+        onConfirm={() => {
+          void handleConfirmRegenerateApiKey();
         }}
       />
 
@@ -635,7 +769,7 @@ function ReaderMark({
         type="button"
         onClick={onOpen}
         aria-label="查看帐号"
-        className="flex items-center gap-1.5 min-w-0 max-w-[9rem] sm:max-w-[12rem] px-1.5 py-1 -mx-1 rounded-[2px] bg-transparent appearance-none font-inherit transition-colors hover:bg-ink/5 active:bg-ink/8"
+        className="flex items-center gap-1.5 min-w-0 max-w-[9rem] sm:max-w-[12rem] px-1.5 py-1 -mx-1 rounded-[2px] bg-transparent appearance-none font-inherit transition-colors hover:bg-ink/5 active:bg-ink/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30"
       >
         <Seal text={seal} size={22} rotate={-4} />
         <span className="hidden sm:inline text-[11px] tracking-editorial text-ink truncate">
@@ -650,7 +784,7 @@ function ReaderMark({
       type="button"
       onClick={onOpen}
       aria-label="查看帐号"
-      className="flex items-center gap-2.5 min-w-0 max-w-[12rem] sm:max-w-[14rem] px-1.5 py-1 -mx-1.5 rounded-[2px] bg-transparent appearance-none font-inherit text-left transition-colors hover:bg-ink/5 active:bg-ink/8"
+      className="flex items-center gap-2.5 min-w-0 max-w-[12rem] sm:max-w-[14rem] px-1.5 py-1 -mx-1.5 rounded-[2px] bg-transparent appearance-none font-inherit text-left transition-colors hover:bg-ink/5 active:bg-ink/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30"
     >
       <Seal text={seal} size={28} rotate={-4} />
       <span className="font-song text-sm text-ink truncate leading-tight">

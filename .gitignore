@@ -50,3 +50,7 @@ assets/fonts/
 # CloudBase 自定义登录私钥（管理员级，禁止入库）
 cloudfunctions/**/tcb_custom_login.json
 
+
+# local dev scratch
+.workbuddy/
+scripts/

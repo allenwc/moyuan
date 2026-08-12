@@ -38,12 +38,16 @@ interface AuthContext {
   userId: string | null;
 }
 
-function resolveAuth(c: Context): AuthContext {
-  const apiKey = process.env.MOYUAN_API_KEY;
+async function resolveAuth(c: Context, db: Db): Promise<AuthContext> {
   const auth = c.req.header("authorization") || "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  if (apiKey && token === apiKey) {
-    return { mode: "api_key", userId: null };
+  if (token) {
+    const keyRows = await db.query<{ user_id: unknown }>(
+      `SELECT user_id FROM api_keys WHERE api_key = ${lit(token)} LIMIT 1`,
+    );
+    if (keyRows.length > 0) {
+      return { mode: "api_key", userId: String(keyRows[0].user_id) };
+    }
   }
   if (token) {
     const payload = verifyJwt(token);
@@ -53,22 +57,22 @@ function resolveAuth(c: Context): AuthContext {
 }
 
 function scopeUserId(auth: AuthContext, c: Context): string | null {
+  if (auth.userId) return auth.userId;
   if (auth.mode === "user") return auth.userId;
-  // service 模式：通过 ?userId= 指定归属用户
   return new URL(c.req.url).searchParams.get("userId");
 }
 
 function requireWriteUserId(auth: AuthContext): string {
-  if (auth.mode === "api_key") {
-    if (!process.env.MOYUAN_API_KEY)
-      throw new HTTPException(401, { message: "服务端未配置 MOYUAN_API_KEY" });
-    throw new HTTPException(400, {
-      message: "API Key 模式需通过 ?userId= 指定归属用户",
-    });
-  }
   const uid = auth.userId;
   if (!uid) throw new HTTPException(401, { message: "未授权" });
   return uid;
+}
+
+async function lookupNovelOwner(db: Db, novelId: string): Promise<string | null> {
+  const rows = await db.query<{ user_id: unknown }>(
+    `SELECT user_id FROM novels WHERE id = ${lit(novelId)} LIMIT 1`,
+  );
+  return rows.length > 0 ? String(rows[0].user_id) : null;
 }
 
 async function assertNovelAccess(
@@ -76,12 +80,10 @@ async function assertNovelAccess(
   auth: AuthContext,
   novelId: string,
 ): Promise<void> {
-  if (auth.mode === "api_key") return; // service 全局可见
-  const rows = await db.query(
-    `SELECT id FROM novels WHERE id = ${lit(novelId)} AND user_id = ${lit(auth.userId)}`,
-  );
-  if (rows.length === 0)
+  const ownerId = await lookupNovelOwner(db, novelId);
+  if (!ownerId || ownerId !== auth.userId) {
     throw new HTTPException(404, { message: "小说不存在或无权访问" });
+  }
 }
 
 const app = new Hono();
@@ -97,8 +99,8 @@ app.onError((err, c) => {
 // ---------- 数据：小说 ----------
 
 app.get("/novels", async (c) => {
-  const auth = resolveAuth(c);
   const db = getDb();
+  const auth = await resolveAuth(c, db);
   const userId = scopeUserId(auth, c);
   if (auth.mode === "user" && !userId)
     throw new HTTPException(401, { message: "用户身份缺失" });
@@ -108,8 +110,8 @@ app.get("/novels", async (c) => {
 
 // 全量快照（前端首屏拉取）
 app.get("/novels/snapshot", async (c) => {
-  const auth = resolveAuth(c);
   const db = getDb();
+  const auth = await resolveAuth(c, db);
   const userId = scopeUserId(auth, c);
   if (auth.mode === "user" && !userId)
     throw new HTTPException(401, { message: "用户身份缺失" });
@@ -118,8 +120,8 @@ app.get("/novels/snapshot", async (c) => {
 });
 
 app.post("/novels", async (c) => {
-  const auth = resolveAuth(c);
   const db = getDb();
+  const auth = await resolveAuth(c, db);
   const userId = requireWriteUserId(auth);
   const body = (await c.req.json()) as Partial<NovelInput>;
   const novel = await createNovel(
@@ -136,8 +138,8 @@ app.post("/novels", async (c) => {
 });
 
 app.get("/novels/:id", async (c) => {
-  const auth = resolveAuth(c);
   const db = getDb();
+  const auth = await resolveAuth(c, db);
   const novelId = c.req.param("id");
   await assertNovelAccess(db, auth, novelId);
   const graph = await fetchGraph(db, novelId);
@@ -146,8 +148,8 @@ app.get("/novels/:id", async (c) => {
 });
 
 app.put("/novels/:id", async (c) => {
-  const auth = resolveAuth(c);
   const db = getDb();
+  const auth = await resolveAuth(c, db);
   const novelId = c.req.param("id");
   await assertNovelAccess(db, auth, novelId);
   const body = (await c.req.json()) as Partial<NovelInput>;
@@ -157,8 +159,8 @@ app.put("/novels/:id", async (c) => {
 });
 
 app.delete("/novels/:id", async (c) => {
-  const auth = resolveAuth(c);
   const db = getDb();
+  const auth = await resolveAuth(c, db);
   const novelId = c.req.param("id");
   await assertNovelAccess(db, auth, novelId);
   await deleteNovel(db, novelId);
@@ -166,16 +168,21 @@ app.delete("/novels/:id", async (c) => {
 });
 
 app.post("/novels/:id/reconcile", async (c) => {
-  const auth = resolveAuth(c);
   const db = getDb();
+  const auth = await resolveAuth(c, db);
   const novelId = c.req.param("id");
-  await assertNovelAccess(db, auth, novelId);
+  const ownerId = await lookupNovelOwner(db, novelId);
+  if (ownerId && ownerId !== auth.userId) {
+    throw new HTTPException(404, { message: "小说不存在或无权访问" });
+  }
   const body = (await c.req.json()) as {
     novel?: import("@moyuan/core").Novel;
     characters?: import("@moyuan/core").Character[];
     relations?: import("@moyuan/core").Relation[];
   };
   if (!body.novel) throw new HTTPException(400, { message: "缺少 novel" });
+  body.novel.userId = requireWriteUserId(auth);
+  body.novel.id = novelId;
   const graph = await reconcileNovel(
     db,
     body.novel,
@@ -188,8 +195,8 @@ app.post("/novels/:id/reconcile", async (c) => {
 // ---------- 数据：角色 ----------
 
 app.post("/novels/:id/characters", async (c) => {
-  const auth = resolveAuth(c);
   const db = getDb();
+  const auth = await resolveAuth(c, db);
   const novelId = c.req.param("id");
   await assertNovelAccess(db, auth, novelId);
   const body = (await c.req.json()) as CharacterInput;
@@ -198,8 +205,8 @@ app.post("/novels/:id/characters", async (c) => {
 });
 
 app.put("/novels/:id/characters/:charId", async (c) => {
-  const auth = resolveAuth(c);
   const db = getDb();
+  const auth = await resolveAuth(c, db);
   const novelId = c.req.param("id");
   const charId = c.req.param("charId");
   await assertNovelAccess(db, auth, novelId);
@@ -210,8 +217,8 @@ app.put("/novels/:id/characters/:charId", async (c) => {
 });
 
 app.delete("/novels/:id/characters/:charId", async (c) => {
-  const auth = resolveAuth(c);
   const db = getDb();
+  const auth = await resolveAuth(c, db);
   const novelId = c.req.param("id");
   const charId = c.req.param("charId");
   await assertNovelAccess(db, auth, novelId);
@@ -222,8 +229,8 @@ app.delete("/novels/:id/characters/:charId", async (c) => {
 // ---------- 数据：关系 ----------
 
 app.post("/novels/:id/relations", async (c) => {
-  const auth = resolveAuth(c);
   const db = getDb();
+  const auth = await resolveAuth(c, db);
   const novelId = c.req.param("id");
   await assertNovelAccess(db, auth, novelId);
   const body = (await c.req.json()) as RelationInput;
@@ -232,8 +239,8 @@ app.post("/novels/:id/relations", async (c) => {
 });
 
 app.put("/novels/:id/relations/:relId", async (c) => {
-  const auth = resolveAuth(c);
   const db = getDb();
+  const auth = await resolveAuth(c, db);
   const novelId = c.req.param("id");
   const relId = c.req.param("relId");
   await assertNovelAccess(db, auth, novelId);
@@ -244,8 +251,8 @@ app.put("/novels/:id/relations/:relId", async (c) => {
 });
 
 app.delete("/novels/:id/relations/:relId", async (c) => {
-  const auth = resolveAuth(c);
   const db = getDb();
+  const auth = await resolveAuth(c, db);
   const novelId = c.req.param("id");
   const relId = c.req.param("relId");
   await assertNovelAccess(db, auth, novelId);

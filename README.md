@@ -4,8 +4,8 @@
 让脚本与 AI Agent 也能直接读懂并改写你的故事宇宙。
 
 数据层基于 **CloudBase PostgreSQL**。前端经 REST API（Vercel Hono）访问，服务端用
-`@cloudbase/manager-node` 执行原生 SQL；鉴权为自建会话（JWT），按 `user_id`
-在应用层隔离，并受 `MOYUAN_API_KEY` 鉴权（等同管理员权限）。
+`@cloudbase/manager-node` 执行原生 SQL；鉴权为自建会话（JWT）或用户级 API Key，
+按 `user_id` 在应用层隔离。
 
 ## 架构
 
@@ -20,7 +20,8 @@ moyuan/
 └── skill/               # 标准 agent skill（SKILL.md + 脚本）
 ```
 
-- H5 前端经 CloudBase JS SDK 直接访问；weapp 经云函数代理访问；服务端 / CLI 经 REST API，请求头带自建 JWT（`Authorization: Bearer`）。
+- H5 前端经 CloudBase JS SDK 直接访问；weapp 经云函数代理访问；服务端 / CLI 经 REST API，请求头带 `Authorization: Bearer`。
+- CLI / Agent 走用户级 API Key；服务端收到后会在 `api_keys` 表中反查归属用户，再按该 `user_id` 访问小说数据。
 - `packages/core` 抽离 `reconcileNovel` 等纯逻辑，前后端共用（服务端注入 `PgDb`），
   避免重写对账逻辑。
 - `api/` 作为 Vercel Serverless Function 部署在 `/api`，与 H5 **同项目同域**。
@@ -34,7 +35,6 @@ CLOUDBASE_ENV_ID=your-env-id
 CLOUDBASE_SECRET_ID=your-secret-id
 CLOUDBASE_SECRET_KEY=your-secret-key
 MOYUAN_JWT_SECRET=change-me-strong-secret
-MOYUAN_API_KEY=change-me-api-key
 ```
 
 前端构建变量以 `VITE_` 前缀注入；改完后需重启 dev。
@@ -47,11 +47,11 @@ vercel dev             # 本地同时跑 H5 + /api（需全局装 vercel）
 npm run cli -- novel list
 ```
 
-CLI / 本地调用所需环境变量（参见 `.env.example`）：
+CLI / 本地调用所需环境变量（`MOYUAN_API_KEY` 为用户在个人中心生成的那把 key）：
 
 ```bash
 export MOYUAN_API_URL="http://localhost:3000/api"
-export MOYUAN_API_KEY="<与服务端一致的 key>"
+export MOYUAN_API_KEY="<个人中心里复制的 API Key>"
 ```
 
 ## CLI 速查
@@ -85,13 +85,13 @@ moyuan reconcile <id> --file graph.json   # 批量对账整图
 
    服务端变量（**绝不进前端包**）：
    - `CLOUDBASE_ENV_ID` / `CLOUDBASE_SECRET_ID` / `CLOUDBASE_SECRET_KEY`
-   - `MOYUAN_JWT_SECRET` / `MOYUAN_API_KEY`
+   - `MOYUAN_JWT_SECRET`
    - 微信相关：`WECHAT_APPID` / `WECHAT_SECRET`
 
 2. **官网项目**（Root = `site/`）：Astro 静态站，独立域名（如 `moyuan.app`）。
 
-> 安全：API 使用 `MOYUAN_API_KEY` 以管理员权限可写全库，必须配合该密钥鉴权；
-> 不要把 key 写进前端或暴露给未授权来源。
+> 安全：API Key 为用户级明文凭证；CLI/Agent 持有后将以该用户身份读写其书库。
+> 不要把 key 暴露给未授权来源；重新生成后旧 key 会立即失效。
 
 ## 数据模型
 
