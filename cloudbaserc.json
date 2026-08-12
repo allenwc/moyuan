@@ -16,7 +16,10 @@
       "timeout": 30,
       "handler": "index.main",
       "installDependency": true,
-      "triggers": []
+      "triggers": [],
+      "envVariables": {
+        "CLOUDBASE_ENV_ID": "moyuan-d5gab9aqm5759b176"
+      }
     }
   ]
 }
