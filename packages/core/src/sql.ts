@@ -10,7 +10,7 @@ export interface Row {
   [key: string]: unknown;
 }
 
-/** 数据访问接口：由服务端（Vercel Hono）注入的 CloudBase PG 适配器实现。 */
+/** 数据访问接口：由服务端（独立 API 服务）注入的 CloudBase PG 适配器实现。 */
 export interface PgDb {
   /** 执行一条 SQL，返回解析后的行对象数组（列名统一小写）。 */
   query<T = Row>(sql: string): Promise<T[]>;

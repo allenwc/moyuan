@@ -1,6 +1,6 @@
 import { defineConfig } from "astro/config";
 
-// 纯静态站，部署到 Vercel 时无需 adapter（Vercel 会自动识别 Astro 并静态构建）。
+// 纯静态站，无需任何 adapter，可部署到任意静态托管。
 export default defineConfig({
   site: "https://moyuan.app",
 });

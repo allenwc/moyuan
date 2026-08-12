@@ -29,6 +29,8 @@ export interface Novel {
   title: string;
   author: string;
   synopsis: string;
+  /** 封面图 URL（可选，如微信读书封面，直存热链） */
+  cover?: string;
   themeColor: ThemeColor;
   createdAt: number;
   updatedAt: number;
@@ -65,6 +67,8 @@ export interface NovelInput {
   title: string;
   author?: string;
   synopsis?: string;
+  /** 封面图 URL（可选） */
+  cover?: string;
   themeColor?: ThemeColor;
 }
 

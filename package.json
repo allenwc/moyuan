@@ -6,11 +6,15 @@
   "workspaces": [
     "packages/*",
     "cli",
+    "api",
     "h5"
   ],
   "scripts": {
     "dev:h5": "npm run dev -w @moyuan/h5",
     "build:h5": "npm run build -w @moyuan/h5",
+    "dev:api": "npm run dev -w @moyuan/api",
+    "build:api": "npm run build -w @moyuan/api",
+    "start:api": "npm run start -w @moyuan/api",
     "dev:weapp": "node weapp/scripts/bundle-core.mjs",
     "build:weapp": "node weapp/scripts/bundle-core.mjs",
     "dev": "npm run dev:h5",
@@ -22,10 +26,7 @@
   },
   "dependencies": {
     "@cloudbase/js-sdk": "^3.6.3",
-    "@cloudbase/manager-node": "^5.4.0",
-    "@moyuan/core": "*",
-    "hono": "^4.6.0",
-    "jsonwebtoken": "^9.0.2"
+    "@moyuan/core": "*"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Character, Novel, Relation } from "@/types";
 import { cn, formatTime, getThemePalette } from "@/lib/utils";
 import {
@@ -25,6 +25,8 @@ export function NovelCard({
 }: NovelCardProps) {
   const palette = getThemePalette(novel.themeColor);
   const [pressed, setPressed] = useState(false);
+  const [coverFailed, setCoverFailed] = useState(false);
+  useEffect(() => setCoverFailed(false), [novel.id]);
 
   return (
     <article
@@ -49,29 +51,41 @@ export function NovelCard({
           color: palette.text,
         }}
       >
-        <div
-          className="absolute inset-0 opacity-30 pointer-events-none"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-          }}
-        />
-        <div className="relative w-full text-center px-1">
-          <span className="text-[10px] tracking-seal opacity-70 uppercase font-display">
-            Vol.
-          </span>
-          <span className="block font-display text-lg italic opacity-90">
-            {String(index + 1).padStart(2, "0")}
-          </span>
-        </div>
-        <div className="relative flex-1 flex flex-col items-center justify-center">
-          <span
-            className="font-song font-bold text-base leading-tight text-center px-1"
-            style={{ letterSpacing: "0.08em" }}
-          >
-            {novel.title.slice(0, 8)}
-          </span>
-        </div>
+        {novel.cover && !coverFailed ? (
+          <img
+            src={novel.cover}
+            alt={novel.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            onError={() => setCoverFailed(true)}
+          />
+        ) : (
+          <>
+            <div
+              className="absolute inset-0 opacity-30 pointer-events-none"
+              style={{
+                backgroundImage:
+                  "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+              }}
+            />
+            <div className="relative w-full text-center px-1">
+              <span className="text-[10px] tracking-seal opacity-70 uppercase font-display">
+                Vol.
+              </span>
+              <span className="block font-display text-lg italic opacity-90">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+            </div>
+            <div className="relative flex-1 flex flex-col items-center justify-center">
+              <span
+                className="font-song font-bold text-base leading-tight text-center px-1"
+                style={{ letterSpacing: "0.08em" }}
+              >
+                {novel.title.slice(0, 8)}
+              </span>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Body */}

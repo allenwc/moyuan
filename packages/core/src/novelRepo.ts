@@ -26,6 +26,7 @@ function rowToNovel(r: Row): Novel {
     title: String(r.title ?? ""),
     author: String(r.author ?? ""),
     synopsis: String(r.synopsis ?? ""),
+    cover: r.cover == null ? undefined : String(r.cover),
     themeColor: (r.theme_color as ThemeColor) ?? "vermillion",
     createdAt: Number(r.created_at) || 0,
     updatedAt: Number(r.updated_at) || 0,
@@ -70,6 +71,7 @@ const NOVEL_COLS = [
   "title",
   "author",
   "synopsis",
+  "cover",
   "theme_color",
   "created_at",
   "updated_at",
@@ -108,6 +110,7 @@ function novelRow(n: Novel): Record<string, unknown> {
     title: n.title,
     author: n.author,
     synopsis: n.synopsis,
+    cover: n.cover ?? null,
     theme_color: n.themeColor,
     created_at: n.createdAt,
     updated_at: n.updatedAt,
@@ -257,6 +260,7 @@ export async function createNovel(
     title: input.title.trim() || "未命名",
     author: (input.author ?? "").trim(),
     synopsis: (input.synopsis ?? "").trim(),
+    cover: input.cover?.trim() || undefined,
     themeColor: input.themeColor ?? "vermillion",
     createdAt: now,
     updatedAt: now,
@@ -277,6 +281,8 @@ export async function updateNovel(
     sets.push(`${ident("author")} = ${lit(patch.author.trim())}`);
   if (patch.synopsis !== undefined)
     sets.push(`${ident("synopsis")} = ${lit(patch.synopsis.trim())}`);
+  if (patch.cover !== undefined)
+    sets.push(`${ident("cover")} = ${lit(patch.cover.trim() || null)}`);
   if (patch.themeColor !== undefined)
     sets.push(`${ident("theme_color")} = ${lit(patch.themeColor)}`);
   sets.push(`${ident("updated_at")} = ${lit(Date.now())}`);

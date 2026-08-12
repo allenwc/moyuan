@@ -3,9 +3,16 @@
     class="spine"
     style="background: linear-gradient(160deg, {{palette.primary}} 0%, {{palette.deep}} 100%); color: {{palette.text}};"
   >
-    <text class="spine-vol">Vol.</text>
-    <text class="spine-num">{{vol}}</text>
-    <text class="spine-title">{{shortTitle}}</text>
+    <image
+      wx:if="{{novel.cover && !coverFailed}}"
+      class="spine-cover"
+      src="{{novel.cover}}"
+      mode="aspectFill"
+      binderror="onCoverError"
+    />
+    <text wx:if="{{!novel.cover || coverFailed}}" class="spine-vol">Vol.</text>
+    <text wx:if="{{!novel.cover || coverFailed}}" class="spine-num">{{vol}}</text>
+    <text wx:if="{{!novel.cover || coverFailed}}" class="spine-title">{{shortTitle}}</text>
   </view>
   <view class="body">
     <view class="body-top">

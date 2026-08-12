@@ -96,6 +96,11 @@ app.onError((err, c) => {
   return c.json({ error: "服务器内部错误" }, 500);
 });
 
+// 健康检查（部署探活）：GET /api/health
+app.get("/health", (c) =>
+  c.json({ ok: true, service: "moyuan-api", ts: Date.now() }),
+);
+
 // ---------- 数据：小说 ----------
 
 app.get("/novels", async (c) => {
@@ -130,6 +135,7 @@ app.post("/novels", async (c) => {
       title: body.title ?? "",
       author: body.author,
       synopsis: body.synopsis,
+      cover: body.cover,
       themeColor: body.themeColor,
     },
     { userId },

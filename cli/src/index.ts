@@ -87,12 +87,14 @@ novel
   .requiredOption("-t, --title <title>", "小说标题")
   .option("-a, --author <author>", "作者")
   .option("-s, --synopsis <synopsis>", "简介")
+  .option("--cover <url>", "封面图 URL（如微信读书封面）")
   .option("-c, --theme <theme>", "主题色")
   .action(async (opts) => {
     const r = await req<{ novel: unknown }>("POST", "/novels", {
       title: opts.title,
       author: opts.author,
       synopsis: opts.synopsis,
+      cover: opts.cover,
       themeColor: opts.theme as ThemeColor | undefined,
     });
     out(r.novel);
@@ -112,12 +114,14 @@ novel
   .option("-t, --title <title>", "小说标题")
   .option("-a, --author <author>", "作者")
   .option("-s, --synopsis <synopsis>", "简介")
+  .option("--cover <url>", "封面图 URL")
   .option("-c, --theme <theme>", "主题色")
   .action(async (id: string, opts) => {
     const patch: Record<string, unknown> = {};
     if (opts.title !== undefined) patch.title = opts.title;
     if (opts.author !== undefined) patch.author = opts.author;
     if (opts.synopsis !== undefined) patch.synopsis = opts.synopsis;
+    if (opts.cover !== undefined) patch.cover = opts.cover;
     if (opts.theme !== undefined) patch.themeColor = opts.theme;
     const r = await req("PUT", `/novels/${id}`, patch);
     out(r);

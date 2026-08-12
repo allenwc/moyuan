@@ -38,8 +38,9 @@ handles without persistence.
 The CLI must be run from the **repository root** (where `package.json` and `cli/`
 live). Two environment variables control the target API:
 
-- `MOYUAN_API_URL` — base URL of the API. Default `http://localhost:3000/api`
-  (local Vercel dev). For production use `https://<your-vercel-domain>/api`.
+- `MOYUAN_API_URL` — base URL of the open REST API. Default `http://localhost:3000/api`
+  (run locally with `npm run dev:api`). For production point it at your deployed
+  service, e.g. `https://api.example.com/api`.
 - `MOYUAN_API_KEY` — the current user's personal API key, copied from the app's
   account/settings page. Required; requests without it return `401`.
 
@@ -60,9 +61,9 @@ All commands output JSON to stdout. Errors go to stderr as `[<status>] <message>
 
 ### Novels
 - `novel list` — list novels owned by the current API key's user.
-- `novel create --title <t> [--author <a>] [--synopsis <s>] [--theme <color>]`
+- `novel create --title <t> [--author <a>] [--synopsis <s>] [--cover <url>] [--theme <color>]`
 - `novel get <id>` — full graph (novel + characters + relations) for one novel.
-- `novel update <id> [--title] [--author] [--synopsis] [--theme]`
+- `novel update <id> [--title] [--author] [--synopsis] [--cover] [--theme]`
 - `novel delete <id>` — delete novel and its characters/relations.
 
 ### Characters

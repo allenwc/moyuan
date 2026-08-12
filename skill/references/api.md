@@ -30,12 +30,12 @@ Base path: `/api` (e.g. `https://<domain>/api`). Responses are JSON.
 ### 小说
 - `GET /novels` → `{ "novels": Novel[] }`（用户 JWT / API Key 都会自动隔离到当前用户）
 - `POST /novels`
-  body: `{ title, author?, synopsis?, themeColor? }`
+  body: `{ title, author?, synopsis?, cover?, themeColor? }`
   → `201 { "novel": Novel }`
   - 用户 JWT / API Key：都忽略 body.userId，由服务端按当前凭证归属写入
 - `GET /novels/:id` → `NovelGraph`（不存在或越权 → `404`）
 - `PUT /novels/:id`
-  body: `{ title?, author?, synopsis?, themeColor? }`
+  body: `{ title?, author?, synopsis?, cover?, themeColor? }`
   → 更新后的 `NovelGraph`
 - `DELETE /novels/:id` → `{ ok: true }`（级联删除角色与关系）
 
@@ -65,7 +65,7 @@ Base path: `/api` (e.g. `https://<domain>/api`). Responses are JSON.
 
 ## 数据模型（字段）
 
-Novel: `id, userId, title, author, synopsis, themeColor, createdAt, updatedAt`
+Novel: `id, userId, title, author, synopsis, cover?, themeColor, createdAt, updatedAt`
 Character: `id, novelId, name, alias?, role, faction, gender?, color, note, x, y, createdAt`
 Relation: `id, novelId, sourceId, targetId, type, direction, note, createdAt`
 

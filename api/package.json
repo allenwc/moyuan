@@ -1,0 +1,25 @@
+{
+  "name": "@moyuan/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "墨缘对外开放 API（独立 Node 服务）：CLI / Agent / 第三方经 REST 接口读写小说人物关系图谱",
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file-if-exists=../.env.local --import tsx src/server.ts",
+    "build": "esbuild src/server.ts --bundle --platform=node --format=esm --target=node22 --external:hono --external:@hono/node-server --external:@cloudbase/manager-node --external:jsonwebtoken --outfile=dist/server.js",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@cloudbase/manager-node": "^5.4.0",
+    "@hono/node-server": "^2.0.12",
+    "@moyuan/core": "*",
+    "hono": "^4.6.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.19.0",
+    "typescript": "~5.8.3"
+  }
+}

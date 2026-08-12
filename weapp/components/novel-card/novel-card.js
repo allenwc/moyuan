@@ -12,6 +12,7 @@ Component({
     vol: "01",
     shortTitle: "",
     timeLabel: "",
+    coverFailed: false,
   },
   observers: {
     "novel, index": function (novel, index) {
@@ -22,6 +23,7 @@ Component({
         vol: String((index || 0) + 1).padStart(2, "0"),
         shortTitle: String(n.title || "").slice(0, 8),
         timeLabel: formatTime(n.updatedAt || 0),
+        coverFailed: false,
       });
     },
   },
@@ -31,6 +33,9 @@ Component({
     },
     onMore() {
       this.triggerEvent("more", { novel: this.data.novel });
+    },
+    onCoverError() {
+      this.setData({ coverFailed: true });
     },
   },
 });
