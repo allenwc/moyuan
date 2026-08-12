@@ -22,20 +22,34 @@ function normalizePath(rawPath) {
 
 exports.main = async (event) => {
   try {
+    // 诊断日志（低音量，便于排障）
+    console.log(
+      "[api]", event.httpMethod, event.path,
+      "| body=", typeof event.body === "string" ? event.body.slice(0, 80) : typeof event.body,
+    );
+
     const query = event.queryStringParameters || {};
     const qs = new URLSearchParams(query).toString();
     const url = normalizePath(event.path) + (qs ? `?${qs}` : "");
 
-    const headers = { ...(event.headers || {}) };
+    // 只透传字符串值头，避免非法 header 导致 Request 构造抛错
+    const headers = {};
+    for (const [k, v] of Object.entries(event.headers || {})) {
+      if (typeof v === "string") headers[k] = v;
+    }
+    const method = (event.httpMethod || "GET").toUpperCase();
     let body;
-    if (event.body != null) {
+    const bodyless = method === "GET" || method === "HEAD";
+    if (!bodyless && event.body != null) {
       body = event.isBase64Encoded
         ? Buffer.from(event.body, "base64").toString("utf8")
-        : event.body;
+        : typeof event.body === "string"
+          ? event.body
+          : JSON.stringify(event.body);
     }
 
     const res = await app.request(url, {
-      method: event.httpMethod || "GET",
+      method,
       headers,
       body: body !== undefined ? body : undefined,
     });
@@ -58,7 +72,15 @@ exports.main = async (event) => {
       statusCode: 500,
       headers: { "content-type": "application/json" },
       body: Buffer.from(
-        JSON.stringify({ error: "服务器内部错误" }),
+        JSON.stringify({
+          error: "服务器内部错误",
+          detail: String(err && err.message),
+          event: {
+            keys: Object.keys(event || {}),
+            path: event && event.path,
+            method: event && event.httpMethod,
+          },
+        }),
       ).toString("base64"),
       isBase64Encoded: true,
     };

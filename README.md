@@ -119,20 +119,34 @@ pm2 start api/dist/server.js --name moyuan-api
 # EnvironmentFile=/opt/moyuan/.env.production
 ```
 
-### 方式二：CloudBase HTTP 触发云函数
+### 方式二：CloudBase HTTP 触发云函数（已验证可用）
 
-把开放 API 作为云函数部署（无需独立服务器）：
+把开放 API 作为云函数部署（无需独立服务器，体验版也可用）：
 
 ```bash
 npm install
 node cloudfunctions/api/build.mjs   # 打包 → cloudfunctions/api/app.bundle.cjs
-npx tcb fn deploy api              # 部署云函数（云端自动安装依赖）
+npx tcb fn deploy api --dir cloudfunctions/api   # 部署云函数（云端自动安装依赖）
+
+# 配置 HTTP 访问路由：/api/* → api 函数（路径透传）
+npx tcb routes add --data '{"domain":"*","routes":[{"path":"/api","upstreamResourceType":"SCF","upstreamResourceName":"api","enable":true,"enablePathTransmission":true}]}'
 ```
 
-然后到 **CloudBase 控制台 → 云函数 → HTTP 访问服务**，新建路径映射 `/api/*` → `api` 函数，
-并给 `api` 函数配置环境变量 `MOYUAN_JWT_SECRET`（微信登录需再加 `WECHAT_APPID`/`WECHAT_SECRET`）。
+> 注：`tcb fn deploy` 需确认覆盖时管道输入 `y`；首次部署后可给函数加环境变量
+> `MOYUAN_JWT_SECRET`（微信/邮箱登录 JWT 会话用；纯 API Key 调用不需要）。
+> `CLOUDBASE_ENV_ID` 已在 `cloudbaserc.json` 的 `functions[].envVariables` 里配置。
 
-最终访问：`https://<控制台域名>/api`（CLI / skill 设 `MOYUAN_API_URL=https://<域名>/api`）。
+**最终访问**（HTTP 访问服务域名，无需 CloudBase 凭证）：
+
+```
+https://<envId>-<appid>.ap-shanghai.app.tcloudbase.com/api/...
+# 例：https://moyuan-d5gab9aqm5759b176-1257829764.ap-shanghai.app.tcloudbase.com/api/novels
+```
+
+CLI / skill 设 `MOYUAN_API_URL=https://<envId>-<appid>.ap-shanghai.app.tcloudbase.com/api`。
+
+> ⚠️ 不要用 `https://<envId>.api.tcloudbasegateway.com`（JS SDK 网关域名）——它要求
+> CloudBase 登录态凭证，且事件格式不同，不能作为开放 API 前缀。
 
 H5 / weapp / 官网的托管方式与本服务无关（CloudBase 静态托管 / 小程序平台 / 任意静态站均可）。
 
