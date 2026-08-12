@@ -1,0 +1,188 @@
+h5/src/lib/apiKeyRepo.ts
+  27b2af3bae059cbf 1-42
+weapp/lib/apiKeyRepo.js
+  27b2af3bae059cbf 1-39
+h5/src/pages/library/index.tsx
+  27b2af3bae059cbf 12,27,78-83,255-303,551-557,559-613,622,643-652,772,787
+README.md
+  27b2af3bae059cbf 7-8,23-24,50,54,88,93-94
+skill/SKILL.md
+  27b2af3bae059cbf 43-44,62
+weapp/pages/settings/index.js
+  27b2af3bae059cbf 4,15-17,34-95
+skill/references/api.md
+  27b2af3bae059cbf 11-13,15,31,33,35,63,78-79
+h5/src/pages/library/index.scss
+  27b2af3bae059cbf 42-150
+cloudbase/pg/schema.sql
+  27b2af3bae059cbf 16-23
+weapp/pages/settings/index.wxml
+  27b2af3bae059cbf 33-41
+.env.example
+  27b2af3bae059cbf 6
+site/src/pages/agent.astro
+  27b2af3bae059cbf 36,42-44,85-86
+cli/src/index.ts
+  27b2af3bae059cbf 11,78-80,86
+api/[[...route]].ts
+  27b2af3bae059cbf 41,44-50,60,71-75,83-84,86,103,114,124,142,152,163,172,174-177,184-185,199,209,221,233,243,255
+weapp/pages/settings/index.wxss
+  27b2af3bae059cbf 82-113
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8-ntes.9",
+  "base_commit_sha": "76e1107c1b7875b8ad5388b171845c3471c09361",
+  "prompts": {
+    "27b2af3bae059cbf": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "22e107bd-42c8-4633-a687-bbb2adc3113b",
+        "model": "default"
+      },
+      "human_author": "allenwc",
+      "messages": [],
+      "total_additions": 984,
+      "total_deletions": 289,
+      "accepted_lines": 805,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "README.md": {
+          "additions": 9,
+          "deletions": 9,
+          "accepted_lines": 9
+        },
+        "scripts/ensure-api-key.mjs": {
+          "additions": 74,
+          "accepted_lines": 74
+        },
+        "h5/src/pages/library/index.scss": {
+          "additions": 116,
+          "deletions": 7,
+          "accepted_lines": 109
+        },
+        "weapp/pages/settings/index.wxml": {
+          "additions": 17,
+          "deletions": 7,
+          "accepted_lines": 10
+        },
+        "api/[[...route]].ts": {
+          "additions": 38,
+          "deletions": 31,
+          "accepted_lines": 38
+        },
+        "h5/src/pages/library/index.tsx": {
+          "additions": 237,
+          "deletions": 103,
+          "accepted_lines": 137
+        },
+        "cloudbase/pg/schema.sql": {
+          "additions": 8,
+          "accepted_lines": 8
+        },
+        "h5/src/lib/apiKeyRepo.ts": {
+          "additions": 46,
+          "deletions": 4,
+          "accepted_lines": 42
+        },
+        "weapp/pages/settings/index.js": {
+          "additions": 96,
+          "deletions": 30,
+          "accepted_lines": 66
+        },
+        "scripts/dev-api.mjs": {
+          "additions": 11,
+          "deletions": 23,
+          "accepted_lines": 11
+        },
+        "scripts/bootstrap-cli-auth.mjs": {
+          "additions": 179,
+          "deletions": 31,
+          "accepted_lines": 148
+        },
+        "site/src/pages/agent.astro": {
+          "additions": 6,
+          "deletions": 3,
+          "accepted_lines": 6
+        },
+        "cli/src/index.ts": {
+          "additions": 5,
+          "deletions": 23,
+          "accepted_lines": 5
+        },
+        "weapp/lib/apiKeyRepo.js": {
+          "additions": 39,
+          "accepted_lines": 39
+        },
+        "scripts/debug-api-keys-ro.mjs": {
+          "additions": 57,
+          "accepted_lines": 57
+        },
+        "skill/SKILL.md": {
+          "additions": 3,
+          "deletions": 3,
+          "accepted_lines": 3
+        },
+        "weapp/pages/settings/index.wxss": {
+          "additions": 32,
+          "accepted_lines": 32
+        },
+        "skill/references/api.md": {
+          "additions": 10,
+          "deletions": 13,
+          "accepted_lines": 10
+        },
+        ".env.example": {
+          "additions": 1,
+          "deletions": 2,
+          "accepted_lines": 1
+        }
+      }
+    },
+    "625b8cd50aebb147": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "9a6bc353-2a0b-479c-9706-d12f4ddea5eb",
+        "model": "default"
+      },
+      "human_author": "allenwc",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 162,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "h5/src/components/BottomSheet.tsx": {
+          "accepted_lines": 1
+        },
+        "h5/src/pages/editor/index.tsx": {
+          "accepted_lines": 4
+        },
+        "h5/src/components/ConfirmDialog.tsx": {
+          "accepted_lines": 1
+        },
+        "h5/src/store/useNovelStore.ts": {
+          "accepted_lines": 1
+        },
+        "h5/tailwind.config.js": {
+          "accepted_lines": 104
+        },
+        "h5/postcss.config.js": {
+          "accepted_lines": 6
+        },
+        "h5/src/pages/library/index.tsx": {
+          "accepted_lines": 8
+        },
+        "h5/src/store/useAuthStore.ts": {
+          "accepted_lines": 14
+        },
+        "h5/src/components/Seal.tsx": {
+          "accepted_lines": 1
+        },
+        "h5/index.html": {
+          "accepted_lines": 22
+        }
+      }
+    }
+  }
+}
