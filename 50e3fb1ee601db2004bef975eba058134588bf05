@@ -1,0 +1,77 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8-ntes.9",
+  "base_commit_sha": "50e3fb1ee601db2004bef975eba058134588bf05",
+  "prompts": {
+    "27b2af3bae059cbf": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "22e107bd-42c8-4633-a687-bbb2adc3113b",
+        "model": "default"
+      },
+      "human_author": "allenwc",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 290,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "scripts/bootstrap-cli-auth.mjs": {
+          "accepted_lines": 148
+        },
+        "scripts/debug-api-keys-ro.mjs": {
+          "accepted_lines": 57
+        },
+        "scripts/ensure-api-key.mjs": {
+          "accepted_lines": 74
+        },
+        "scripts/dev-api.mjs": {
+          "accepted_lines": 11
+        }
+      }
+    },
+    "625b8cd50aebb147": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "9a6bc353-2a0b-479c-9706-d12f4ddea5eb",
+        "model": "default"
+      },
+      "human_author": "allenwc",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 154,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "h5/src/components/BottomSheet.tsx": {
+          "accepted_lines": 1
+        },
+        "h5/src/store/useNovelStore.ts": {
+          "accepted_lines": 1
+        },
+        "h5/src/pages/editor/index.tsx": {
+          "accepted_lines": 4
+        },
+        "h5/src/store/useAuthStore.ts": {
+          "accepted_lines": 14
+        },
+        "h5/tailwind.config.js": {
+          "accepted_lines": 104
+        },
+        "h5/index.html": {
+          "accepted_lines": 22
+        },
+        "h5/src/components/Seal.tsx": {
+          "accepted_lines": 1
+        },
+        "h5/src/components/ConfirmDialog.tsx": {
+          "accepted_lines": 1
+        },
+        "h5/postcss.config.js": {
+          "accepted_lines": 6
+        }
+      }
+    }
+  }
+}
