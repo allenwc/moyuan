@@ -1,6 +1,6 @@
 <view class="card" bindtap="onOpen">
   <view
-    class="spine"
+    class="spine {{novel.cover && !coverFailed ? 'spine--cover' : ''}}"
     style="background: linear-gradient(160deg, {{palette.primary}} 0%, {{palette.deep}} 100%); color: {{palette.text}};"
   >
     <image
