@@ -14,6 +14,6 @@
       "@moyuan/cloudbase": ["./packages/cloudbase/src/index.ts"]
     }
   },
-  "include": ["./api", "./packages", "./cli/src"],
+  "include": ["./cloudfunctions/api/src", "./packages", "./cli/src"],
   "exclude": ["node_modules", "dist", "h5", "weapp", "site"]
 }

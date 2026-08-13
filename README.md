@@ -4,7 +4,7 @@
 让脚本与 AI Agent 也能直接读懂并改写你的故事宇宙。
 
 数据层基于 **CloudBase PostgreSQL**。H5 前端经 CloudBase JS SDK 访问，weapp 经云函数代理访问；
-对外开放的 REST API 是**独立部署的 Node 服务**（Hono + `@hono/node-server`），用
+对外开放的 REST API 部署为 **CloudBase HTTP 触发云函数**（`cloudfunctions/api`，Hono），用
 `@cloudbase/manager-node` 执行原生 SQL；鉴权为自建会话（JWT）或用户级 API Key，
 按 `user_id` 在应用层隔离。
 
@@ -15,7 +15,7 @@ moyuan/
 ├── h5/                 # H5 前端（React + Vite），经 CloudBase SDK 访问
 ├── weapp/              # 原生微信小程序，经云函数代理访问
 ├── packages/core/       # 共享：领域类型 + 纯持久化逻辑（依赖注入 PgDb）
-├── api/                 # 对外开放 API（独立 Node 服务，Hono，挂载 /api）
+├── cloudfunctions/api/  # 对外开放 API（HTTP 触发云函数，源码在 src/，挂载 /api）
 ├── cli/                 # 墨缘 CLI（commander，HTTP 调 /api）
 ├── site/                # Astro 官网/文档（静态站）
 └── skill/               # 标准 agent skill（SKILL.md + 脚本）
@@ -25,8 +25,9 @@ moyuan/
 - CLI / Agent 走用户级 API Key；服务端收到后会在 `api_keys` 表中反查归属用户，再按该 `user_id` 访问小说数据。
 - `packages/core` 抽离 `reconcileNovel` 等纯逻辑，前后端共用（服务端注入 `PgDb`），
   避免重写对账逻辑。
-- `api/` 是**面向 CLI / Agent / 第三方**的开放接口服务，独立 Node 进程部署（`@hono/node-server`），
-  不是 h5/weapp 的内部后端；路由统一挂在 `/api` 前缀。
+- `cloudfunctions/api/` 是**面向 CLI / Agent / 第三方**的开放接口服务，部署为 CloudBase HTTP
+  触发云函数（`index.js` 解析 HTTP 事件 → `src/app.ts` 的 Hono 路由），不是 h5/weapp 的内部后端；
+  路由统一挂在 `/api` 前缀。
 
 ## 本地开发
 
@@ -45,11 +46,11 @@ MOYUAN_JWT_SECRET=change-me-strong-secret
 npm install
 npm run dev:h5         # H5
 npm run dev:weapp      # 微信小程序（产物在 dist/weapp，用开发者工具打开仓库根）
-npm run dev:api        # 开放 API（独立 Node 服务，:3000，自动加载仓库根 .env.local）
+npm run dev:api        # 开放 API 本地起服务（cloudfunctions/api/src，:3000，自动加载根 .env.local）
 npm run cli -- novel list
 ```
 
-> 开放 API 独立起一个进程（`npm run dev:api`），CLI 默认连 `http://localhost:3000/api`。
+> 开放 API 本地起一个进程（`npm run dev:api`），CLI 默认连 `http://localhost:3000/api`。
 
 CLI / 本地调用所需环境变量（`MOYUAN_API_KEY` 为用户在个人中心生成的那把 key）：
 
@@ -84,57 +85,22 @@ ln -sfn /path/to/moyuan-weapp/skill ~/.pi/agent/skills/moyuan
 ```
 
 也可用 `skill/install.mjs`（`npx moyuan-skill`）安装到 CodeBuddy。详见 `skill/SKILL.md` 与 `skill/references/api.md`。
-## 部署（开放 API 独立服务）
+## 部署（开放 API — CloudBase HTTP 触发云函数）
 
-`api/` 是独立 Node 服务，不依赖任何 Serverless 平台：
-
-```bash
-npm install
-npm run build:api        # esbuild 打包 → api/dist/server.js（含 @moyuan/core，npm 依赖保持 external）
-node api/dist/server.js  # 或 npm run start:api
-```
-
-健康检查：`GET /api/health`。
-
-**环境变量**（**绝不进前端包**）：
-
-```bash
-CLOUDBASE_ENV_ID=your-env-id
-CLOUDBASE_SECRET_ID=your-secret-id
-CLOUDBASE_SECRET_KEY=your-secret-key
-MOYUAN_JWT_SECRET=change-me-strong-secret
-WECHAT_APPID=your-wechat-appid      # 可选，微信登录需要时配
-WECHAT_SECRET=your-wechat-secret
-PORT=3000                            # 可选，默认 3000
-```
-
-**进程托管**（二选一）：
-
-```bash
-# PM2
-pm2 start api/dist/server.js --name moyuan-api
-
-# systemd（/etc/systemd/system/moyuan-api.service）
-# [Service] ExecStart=/usr/bin/node /opt/moyuan/api/dist/server.js
-# EnvironmentFile=/opt/moyuan/.env.production
-```
-
-### 方式二：CloudBase HTTP 触发云函数（已验证可用）
-
-把开放 API 作为云函数部署（无需独立服务器，体验版也可用）：
+开放 API 部署为 CloudBase 云函数（无需独立服务器，体验版可用）：
 
 ```bash
 npm install
-node cloudfunctions/api/build.mjs   # 打包 → cloudfunctions/api/app.bundle.cjs
+node cloudfunctions/api/build.mjs   # 打包 src/app.ts（含 @moyuan/core）→ cloudfunctions/api/app.bundle.cjs
 npx tcb fn deploy api --dir cloudfunctions/api   # 部署云函数（云端自动安装依赖）
 
-# 配置 HTTP 访问路由：/api/* → api 函数（路径透传）
+# 配置 HTTP 访问路由：/api → api 函数（路径透传，覆盖 /api/*）
 npx tcb routes add --data '{"domain":"*","routes":[{"path":"/api","upstreamResourceType":"SCF","upstreamResourceName":"api","enable":true,"enablePathTransmission":true}]}'
 ```
 
-> 注：`tcb fn deploy` 需确认覆盖时管道输入 `y`；首次部署后可给函数加环境变量
-> `MOYUAN_JWT_SECRET`（微信/邮箱登录 JWT 会话用；纯 API Key 调用不需要）。
-> `CLOUDBASE_ENV_ID` 已在 `cloudbaserc.json` 的 `functions[].envVariables` 里配置。
+> 注：`tcb fn deploy` 需确认覆盖时管道输入 `y`；云函数环境变量 `MOYUAN_JWT_SECRET`
+> （微信/邮箱登录 JWT 会话用；纯 API Key 调用不需要）在控制台配置，
+> `CLOUDBASE_ENV_ID` 已在 `cloudbaserc.json` 的 `functions[].envVariables` 里。
 
 **最终访问**（HTTP 访问服务域名，无需 CloudBase 凭证）：
 

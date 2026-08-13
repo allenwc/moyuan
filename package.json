@@ -6,20 +6,18 @@
   "workspaces": [
     "packages/*",
     "cli",
-    "api",
-    "h5"
+    "h5",
+    "cloudfunctions/api"
   ],
   "scripts": {
     "dev:h5": "npm run dev -w @moyuan/h5",
     "build:h5": "npm run build -w @moyuan/h5",
-    "dev:api": "npm run dev -w @moyuan/api",
-    "build:api": "npm run build -w @moyuan/api",
-    "start:api": "npm run start -w @moyuan/api",
+    "dev:api": "node --env-file-if-exists=.env.local --import tsx cloudfunctions/api/src/server.ts",
     "dev:weapp": "node weapp/scripts/bundle-core.mjs",
     "build:weapp": "node weapp/scripts/bundle-core.mjs",
     "dev": "npm run dev:h5",
     "build": "npm run build:h5",
-    "lint": "eslint h5/src packages api cli",
+    "lint": "eslint h5/src packages cloudfunctions/api/src cli",
     "check": "npm run build -w @moyuan/h5 --if-present; tsc -p h5 --noEmit",
     "cli": "tsx cli/src/index.ts",
     "bundle:weapp": "node weapp/scripts/bundle-core.mjs"

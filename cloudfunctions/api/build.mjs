@@ -9,10 +9,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(__dirname, "..");
+// 本脚本位于 cloudfunctions/api/ 下，仓库根 = 上两级
+const root = path.resolve(__dirname, "../..");
 
 await esbuild.build({
-  entryPoints: [path.join(root, "api/src/app.ts")],
+  entryPoints: [path.join(root, "cloudfunctions/api/src/app.ts")],
   bundle: true,
   format: "cjs",
   platform: "node",

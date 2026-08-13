@@ -27,7 +27,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// api/src/app.ts
+// cloudfunctions/api/src/app.ts
 var app_exports = {};
 __export(app_exports, {
   default: () => app_default
@@ -36,8 +36,8 @@ module.exports = __toCommonJS(app_exports);
 var import_hono = require("hono");
 var import_http_exception = require("hono/http-exception");
 
-// api/src/db.ts
-var import_manager_node = __toESM(require("@cloudbase/manager-node"), 1);
+// cloudfunctions/api/src/db.ts
+var import_manager_node = __toESM(require("@cloudbase/manager-node"));
 var app = null;
 function getApp() {
   if (!app) {
@@ -439,8 +439,8 @@ async function reconcileNovel(db, novel, characters, relations) {
   return { novel, characters, relations };
 }
 
-// api/src/authJwt.ts
-var import_jsonwebtoken = __toESM(require("jsonwebtoken"), 1);
+// cloudfunctions/api/src/authJwt.ts
+var import_jsonwebtoken = __toESM(require("jsonwebtoken"));
 var SECRET = process.env.MOYUAN_JWT_SECRET || "dev-insecure-secret-change-me";
 function signSession(userId) {
   return import_jsonwebtoken.default.sign({ sub: userId }, SECRET, { expiresIn: "365d" });
@@ -454,7 +454,7 @@ function verifyJwt(token) {
   }
 }
 
-// api/src/authSession.ts
+// cloudfunctions/api/src/authSession.ts
 function issueSession(userId, user) {
   return {
     accessToken: signSession(userId),
@@ -462,7 +462,7 @@ function issueSession(userId, user) {
   };
 }
 
-// api/src/wechatAuth.ts
+// cloudfunctions/api/src/wechatAuth.ts
 var WX_APPID = process.env.WECHAT_APPID || "";
 var WX_SECRET = process.env.WECHAT_SECRET || "";
 async function exchangeMiniCode(code) {
@@ -520,7 +520,7 @@ async function loginWebWithCode(db, code) {
   return issueSession(userId, { channel: "web" });
 }
 
-// api/src/devAuth.ts
+// cloudfunctions/api/src/devAuth.ts
 var DEV_USER_ID = "dev-user";
 var DEV_USER_EMAIL = "dev@moyuan.local";
 async function issueDevBypassSession(db) {
@@ -540,7 +540,7 @@ async function issueDevBypassSession(db) {
   return issueSession(DEV_USER_ID, { email: DEV_USER_EMAIL, channel: "dev" });
 }
 
-// api/src/authCrypto.ts
+// cloudfunctions/api/src/authCrypto.ts
 var import_node_crypto = require("node:crypto");
 function hashPassword(password) {
   const salt = (0, import_node_crypto.randomBytes)(16).toString("hex");
@@ -556,7 +556,7 @@ function verifyPassword(password, stored) {
   return d.length === expected.length && (0, import_node_crypto.timingSafeEqual)(d, expected);
 }
 
-// api/src/emailAuth.ts
+// cloudfunctions/api/src/emailAuth.ts
 async function loginWithEmailPassword(db, email, password) {
   const rows = await db.query(
     `SELECT id, password_hash FROM users WHERE email = ${lit(email)}`
@@ -579,7 +579,7 @@ async function loginWithEmailPassword(db, email, password) {
   return issueSession(String(rows[0].id), { email });
 }
 
-// api/src/app.ts
+// cloudfunctions/api/src/app.ts
 async function resolveAuth(c, db) {
   const auth = c.req.header("authorization") || "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";

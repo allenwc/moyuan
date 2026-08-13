@@ -7,7 +7,7 @@ export default tseslint.config(
   { ignores: ["dist", "h5/dist", "weapp/vendor", "site", "node_modules"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ["h5/src/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "api/**/*.{ts,tsx}"],
+    files: ["h5/src/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "cloudfunctions/api/src/**/*.{ts,tsx}"],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
