@@ -46,8 +46,10 @@ export function NovelCard({
       {/* Book spine / cover */}
       <div
         className={cn(
-          "relative w-20 sm:w-24 shrink-0 flex flex-col items-center py-4 overflow-hidden",
-          novel.cover && !coverFailed && "min-h-[152px] sm:min-h-[176px]",
+          "relative w-20 sm:w-24 shrink-0 overflow-hidden",
+          novel.cover && !coverFailed
+            ? "self-start aspect-[2/3]"
+            : "flex flex-col items-center py-4",
         )}
         style={{
           background: `linear-gradient(160deg, ${palette.primary} 0%, ${palette.deep} 100%)`,
@@ -58,7 +60,7 @@ export function NovelCard({
           <img
             src={novel.cover}
             alt={novel.title}
-            className="relative w-full h-auto aspect-[2/3] object-cover my-auto shadow-sm"
+            className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
             onError={() => setCoverFailed(true)}
           />
