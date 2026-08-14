@@ -3,6 +3,8 @@ export {
   signInAnonymously,
   signInWithEmail,
   getLoginState,
+  getAccessToken,
+  isAuthError,
   signOut,
 } from "./auth";
 export { createPgDb } from "./pg";

@@ -4,6 +4,8 @@ import {
   createSessionStore,
   createWebStorage,
   getLoginState,
+  getAccessToken,
+  isAuthError,
   signInWithEmail,
   signOut as cbSignOut,
   type CloudbaseApp,
@@ -41,6 +43,8 @@ export function getSessionStore(): SessionStore {
 
 export {
   getLoginState,
+  getAccessToken,
+  isAuthError,
   signInWithEmail,
   cbSignOut,
   type Session,
